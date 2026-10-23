@@ -2,7 +2,7 @@ import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, Io
 import { IonReactRouter } from '@ionic/react-router';
 import { homeOutline, compassOutline, flashOutline, bedOutline, micOutline } from 'ionicons/icons';
 import { Navigate, Route } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthContext';
+import { AuthProvider, useAuth } from './auth/AuthContext';
 import AccesoProtegido from './auth/AccesoProtegido';
 import InicioPage from './pages/InicioPage';
 import CatalogoPage from './pages/CatalogoPage';
@@ -16,9 +16,9 @@ import AceptarInvitacionPage from './pages/AceptarInvitacionPage';
 
 setupIonicReact({ mode: 'md' });
 
-const App = () => (
-  <IonApp>
-    <AuthProvider>
+function AppNavigation() {
+  const { usuario, cargandoSesion } = useAuth();
+  return (
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
@@ -35,7 +35,7 @@ const App = () => (
             <Route path="/gestion/administradores/invitar" element={<AccesoProtegido roles={['SUPER_ADMIN']}><InvitarAdministradorPage /></AccesoProtegido>} />
             <Route path="/" element={<Navigate to="/inicio" replace />} />
           </IonRouterOutlet>
-          <IonTabBar slot="bottom" className="explora-tabs">
+          <IonTabBar slot="bottom" className="explora-tabs" hidden={cargandoSesion || !usuario}>
             <IonTabButton tab="inicio" href="/inicio"><IonIcon icon={homeOutline} /><IonLabel>Inicio</IonLabel></IonTabButton>
             <IonTabButton tab="destinos" href="/destinos"><IonIcon icon={compassOutline} /><IonLabel>Destinos</IonLabel></IonTabButton>
             <IonTabButton tab="experiencias" href="/experiencias"><IonIcon icon={flashOutline} /><IonLabel>Aventuras</IonLabel></IonTabButton>
@@ -44,7 +44,12 @@ const App = () => (
           </IonTabBar>
         </IonTabs>
       </IonReactRouter>
-    </AuthProvider>
+  );
+}
+
+const App = () => (
+  <IonApp>
+    <AuthProvider><AppNavigation /></AuthProvider>
   </IonApp>
 );
 

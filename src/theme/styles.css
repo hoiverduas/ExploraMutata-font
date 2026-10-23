@@ -10,7 +10,7 @@ ion-header{box-shadow:0 2px 12px #1733290b}
 .brand-logo span{font-size:20px;color:#182e29;font-weight:800;letter-spacing:-1px;line-height:1;white-space:nowrap}
 .brand-logo strong{color:#de8c60;font-weight:800}
 .brand-logo small{display:block;color:#708479;font-size:9px;letter-spacing:2px;font-weight:800;margin-top:5px}
-.title-desktop{font-size:15px;color:var(--pine)}.explora-tabs{--background:#fff;--border:#e9e7de}.explora-tabs ion-tab-button{--color:#687d73;--color-selected:#176a58;font-size:10px}
+.title-desktop{font-size:15px;color:var(--pine)}.explora-tabs{--background:var(--pine);--border:transparent;min-height:64px;padding-bottom:env(safe-area-inset-bottom,0px)}.explora-tabs[hidden]{display:none!important}.explora-tabs ion-tab-button{--background:var(--pine);--color:#c6d9d1;--color-selected:#fff;--ripple-color:#c6d9d1;max-width:170px;min-height:64px;font-size:11px;letter-spacing:.3px}.explora-tabs ion-icon{font-size:24px;margin-bottom:4px}.explora-tabs ion-tab-button.tab-selected{font-weight:700}
 .page-width{width:min(1140px,calc(100% - 40px));margin-inline:auto}
 .prototype-ribbon{text-align:center;background:#e9e7dc;color:#716a5e;letter-spacing:1.5px;font-size:9px;font-weight:800;padding:9px 12px}
 .hero-home{position:relative;min-height:490px;background:#163e35;display:flex;align-items:center;overflow:hidden}

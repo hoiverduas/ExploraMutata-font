@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+.idea/
+.DS_Store
+*.log
+# Las plataformas android/ e ios/ se pueden versionar cuando sean creadas.

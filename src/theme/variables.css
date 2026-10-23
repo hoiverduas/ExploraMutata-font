@@ -1,0 +1,11 @@
+:root {
+  --ion-color-primary: #176a58;
+  --ion-color-primary-rgb: 23,106,88;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #145d4d;
+  --ion-color-primary-tint: #2e7969;
+  --ion-background-color: #fcfaf7;
+  --ion-text-color: #21382f;
+  --ion-font-family: 'Avenir Next', Avenir, 'Segoe UI', sans-serif;
+}

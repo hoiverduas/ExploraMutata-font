@@ -1,0 +1,5 @@
+{
+  "name": "Explora Mutatá",
+  "type": "react",
+  "integrations": { "capacitor": {} }
+}

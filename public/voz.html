@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#183f32">
+  <meta name="description" content="Conversa por voz con Sofía, la guía turística virtual de Explora Mutatá.">
+  <title>Habla con Sofía | Explora Mutatá</title>
+  <link rel="icon" href="./favicon.png" type="image/png">
+  <link rel="stylesheet" href="./voz.css">
+  <link rel="stylesheet" href="./voz-mobile.css">
+</head>
+<body>
+  <header class="top">
+    <a href="/inicio" class="brand" aria-label="Volver a Explora Mutatá">
+      <img src="./images/escudo-mutata.png" alt="" width="53" height="53">
+      <span><b>explora<span class="peach">mutatá</span></b><small>ANTIOQUIA · COLOMBIA</small></span>
+    </a>
+    <a class="back" href="/inicio">← Volver al inicio</a>
+  </header>
+  <main class="hero">
+    <div class="shell">
+      <div class="intro"><span class="eyebrow">ASISTENTE DE VOZ · EXPLORA MUTATÁ</span>
+      <h1>Conoce Mutatá<br><em>con la voz de Sofía.</em></h1>
+      <p>¿Buscas ríos, naturaleza, hoteles, gastronomía o una experiencia inolvidable? Habla con Sofía, nuestra guía virtual en español colombiano.</p></div>
+      <section class="card" aria-label="Conversación con Sofía">
+        <div class="card-head"><img src="./images/escudo-mutata.png" alt="" width="58" height="58"><div><strong>Tu guía de Mutatá</strong><span>Sofía · Asistente de voz con IA</span></div></div>
+        <div class="card-body">
+          <p class="ready">Para comenzar, pulsa el botón de conversación de ElevenLabs y autoriza el acceso al micrófono.</p>
+          <div class="widget">
+            <elevenlabs-convai agent-id="agent_7601m5avg7tje5z8x0b1nyt745cw"></elevenlabs-convai>
+          </div>
+          <p class="suggestion">Prueba diciendo: <i>«Sofía, quiero visitar Mutatá con mi familia. ¿Qué lugares me recomiendas?»</i></p>
+        </div>
+      </section>
+      <p class="notice">Versión demostrativa: no confirma reservas, pagos, precios ni disponibilidad comercial. La voz se procesa mediante ElevenLabs. No compartas datos sensibles ni información bancaria.</p>
+    </div>
+  </main>
+  <footer>Explora Mutatá es un proyecto independiente. No es una página oficial de la Alcaldía de Mutatá.</footer>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+</body>
+</html>

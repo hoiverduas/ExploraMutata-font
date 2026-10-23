@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonPage } from '@ionic/react';
+import { IonContent, IonPage } from '@ionic/react';
 import BrandHeader from '../components/BrandHeader';
 export default function SofiaPage() {
   return <IonPage><BrandHeader title="Sofía"/><IonContent fullscreen>

@@ -1,12 +1,22 @@
-import { IonButton, IonContent, IonIcon, IonPage } from '@ionic/react';
+import { IonButton, IonContent, IonIcon, IonPage, useIonViewWillEnter } from '@ionic/react';
 import { logOutOutline, storefrontOutline, personAddOutline } from 'ionicons/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import BrandHeader from '../components/BrandHeader';
 import { useAuth } from '../auth/AuthContext';
 
 export default function MiCuentaPage() {
-  const { usuario, tieneRol, cerrarSesion } = useAuth();
+  const { usuario, tieneRol, cerrarSesion, refrescarUsuario } = useAuth();
   const navigate = useNavigate();
+  const [actualizando, setActualizando] = useState(false);
+  const [error, setError] = useState('');
+  const actualizar = async () => {
+    setActualizando(true); setError('');
+    try { await refrescarUsuario(); }
+    catch (err) { setError(err instanceof Error ? err.message : 'No se pudo actualizar el perfil.'); }
+    finally { setActualizando(false); }
+  };
+  useIonViewWillEnter(() => { void actualizar(); }, [refrescarUsuario]);
   if (!usuario) return null;
   const esAdmin = tieneRol('ADMIN','SUPER_ADMIN');
   return <IonPage><BrandHeader title="Mi cuenta"/><IonContent fullscreen>
@@ -19,8 +29,13 @@ export default function MiCuentaPage() {
           <div className="profile-tags">{usuario.roles.map(rol => <span key={rol}>{rol.replaceAll('_',' ')}</span>)}</div>
         </div>
       </div>
+      {error && <div role="alert" className="notice-error">{error}</div>}
+      <IonButton fill="outline" disabled={actualizando} onClick={() => void actualizar()}>{actualizando ? 'Actualizando…' : 'Actualizar perfil'}</IonButton>
+      {tieneRol('TURISTA') && !tieneRol('OPERADOR') && <section className="profile-actions"><h2>Ofrece tus servicios</h2><Link className="profile-action" to="/operador/solicitud"><IonIcon icon={storefrontOutline}/> Quiero ofrecer servicios <span>→</span></Link><p>Solicita acceso para registrar y administrar tus servicios turísticos.</p></section>}
+      {tieneRol('OPERADOR') && <section className="profile-actions"><h2>Mi espacio de operador</h2><Link className="profile-action" to="/operador/negocios"><IonIcon icon={storefrontOutline}/> Mis negocios <span>→</span></Link><Link className="profile-action" to="/operador/solicitud">Estado de mi solicitud <span>→</span></Link></section>}
       {esAdmin && <section className="profile-actions"><h2>Administración</h2>
         <Link className="profile-action" to="/gestion/negocios"><IonIcon icon={storefrontOutline}/> Gestionar negocios <span>→</span></Link>
+        <Link className="profile-action" to="/gestion/operadores/solicitudes"><IonIcon icon={personAddOutline}/> Solicitudes de operadores <span>→</span></Link>
         {tieneRol('SUPER_ADMIN') && <Link className="profile-action" to="/gestion/administradores/invitar"><IonIcon icon={personAddOutline}/> Invitar administrador <span>→</span></Link>}
       </section>}
       {!esAdmin && <section className="profile-actions"><h2>Mi espacio de viajero</h2><p>Tu cuenta de turista está activa. Los recorridos, favoritos y reservas se habilitarán cuando sus módulos estén disponibles.</p></section>}

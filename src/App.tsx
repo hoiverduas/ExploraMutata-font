@@ -14,6 +14,10 @@ import MiCuentaPage from './pages/MiCuentaPage';
 import InvitarAdministradorPage from './pages/InvitarAdministradorPage';
 import AceptarInvitacionPage from './pages/AceptarInvitacionPage';
 
+import SolicitudOperadorPage from './pages/SolicitudOperadorPage';
+import SolicitudesOperadorAdminPage from './pages/SolicitudesOperadorAdminPage';
+import MisNegociosPage from './pages/MisNegociosPage';
+
 setupIonicReact({ mode: 'md' });
 
 function AppNavigation() {
@@ -30,9 +34,12 @@ function AppNavigation() {
             <Route path="/ingresar" element={<LoginPage />} />
             <Route path="/registro" element={<RegistroTuristaPage />} />
             <Route path="/aceptar-invitacion" element={<AceptarInvitacionPage />} />
-            <Route path="/mi-cuenta" element={<AccesoProtegido><MiCuentaPage /></AccesoProtegido>} />
-            <Route path="/gestion/negocios" element={<AccesoProtegido roles={['ADMIN','SUPER_ADMIN']}><NegociosPage /></AccesoProtegido>} />
-            <Route path="/gestion/administradores/invitar" element={<AccesoProtegido roles={['SUPER_ADMIN']}><InvitarAdministradorPage /></AccesoProtegido>} />
+            <Route path="/operador/solicitud" element={<AccesoProtegido ruta="/operador/solicitud"><SolicitudOperadorPage /></AccesoProtegido>} />
+            <Route path="/operador/negocios" element={<AccesoProtegido ruta="/operador/negocios" roles={['OPERADOR']}><MisNegociosPage /></AccesoProtegido>} />
+            <Route path="/gestion/operadores/solicitudes" element={<AccesoProtegido ruta="/gestion/operadores/solicitudes" roles={['ADMIN','SUPER_ADMIN']}><SolicitudesOperadorAdminPage /></AccesoProtegido>} />
+            <Route path="/mi-cuenta" element={<AccesoProtegido ruta="/mi-cuenta"><MiCuentaPage /></AccesoProtegido>} />
+            <Route path="/gestion/negocios" element={<AccesoProtegido ruta="/gestion/negocios" roles={['ADMIN','SUPER_ADMIN']}><NegociosPage /></AccesoProtegido>} />
+            <Route path="/gestion/administradores/invitar" element={<AccesoProtegido ruta="/gestion/administradores/invitar" roles={['SUPER_ADMIN']}><InvitarAdministradorPage /></AccesoProtegido>} />
             <Route path="/" element={<Navigate to="/inicio" replace />} />
           </IonRouterOutlet>
           <IonTabBar slot="bottom" className="explora-tabs" hidden={cargandoSesion || !usuario}>

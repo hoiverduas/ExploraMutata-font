@@ -15,6 +15,7 @@ export interface NegocioRequest {
 
 export interface NegocioResponse extends NegocioRequest {
   id: string;
+  operadorId: string | null;
   estado: EstadoNegocio;
   fechaCreacion: string;
   fechaActualizacion: string;

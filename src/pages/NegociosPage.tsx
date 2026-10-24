@@ -2,9 +2,11 @@ import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonModal, IonPag
 import { addOutline, refreshOutline, createOutline, arrowBackOutline, checkmarkCircleOutline, banOutline, repeatOutline, closeCircleOutline, powerOutline, listOutline } from 'ionicons/icons';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import BrandHeader from '../components/BrandHeader';
+import HistorialNegocioModal from '../components/HistorialNegocioModal';
+import NegocioCampos from '../components/NegocioCampos';
 import { negociosApi } from '../services/negociosApi';
 import type { AccionEstado, HistorialEstado } from '../services/negociosApi';
-import type { NegocioRequest, NegocioResponse, EstadoNegocio, TipoDocumento, TipoPersona } from '../types/negocio';
+import type { NegocioRequest, NegocioResponse, EstadoNegocio } from '../types/negocio';
 
 const emptyForm: NegocioRequest = {
   nombreComercial: '', razonSocial: '', tipoPersona: 'JURIDICA', tipoDocumento: 'NIT',
@@ -160,14 +162,7 @@ export default function NegociosPage() {
         {mostrarFormulario ? <section className="gestion-form-panel">
           <div className="gestion-form-heading"><h2>{editandoId ? 'Editar negocio' : 'Registrar negocio'}</h2><IonButton fill="clear" onClick={()=>{setMostrarFormulario(false);setError('');}}><IonIcon slot="start" icon={arrowBackOutline}/> Volver</IonButton></div>
           <form onSubmit={enviar} className="negocio-form">
-            <label>Nombre comercial *<input value={formulario.nombreComercial} onChange={e=>actualizarCampo('nombreComercial',e.target.value)} maxLength={150} required /></label>
-            <label>Tipo de persona *<select value={formulario.tipoPersona} onChange={e=>actualizarCampo('tipoPersona',e.target.value as TipoPersona)}><option value="NATURAL">Persona natural</option><option value="JURIDICA">Persona jurídica</option></select></label>
-            <label>Razón social {formulario.tipoPersona==='JURIDICA'?'*':''}<input value={formulario.razonSocial} onChange={e=>actualizarCampo('razonSocial',e.target.value)} maxLength={200} required={formulario.tipoPersona==='JURIDICA'} /></label>
-            <label>Tipo de documento *<select value={formulario.tipoDocumento} onChange={e=>actualizarCampo('tipoDocumento',e.target.value as TipoDocumento)}><option value="NIT">NIT</option><option value="CEDULA_CIUDADANIA">Cédula de ciudadanía</option><option value="CEDULA_EXTRANJERIA">Cédula de extranjería</option><option value="PASAPORTE">Pasaporte</option></select></label>
-            <label>Número de documento *<input value={formulario.numeroDocumento} onChange={e=>actualizarCampo('numeroDocumento',e.target.value)} maxLength={30} required /></label>
-            <label>Correo de contacto *<input type="email" value={formulario.correoContacto} onChange={e=>actualizarCampo('correoContacto',e.target.value)} maxLength={150} required /></label>
-            <label>Teléfono *<input type="tel" value={formulario.telefonoContacto} onChange={e=>actualizarCampo('telefonoContacto',e.target.value)} maxLength={30} required /></label>
-            <label className="form-full">Descripción<textarea rows={4} maxLength={1000} value={formulario.descripcion} onChange={e=>actualizarCampo('descripcion',e.target.value)}/></label>
+            <NegocioCampos formulario={formulario} actualizarCampo={actualizarCampo}/>
             <div className="form-actions"><IonButton type="submit" disabled={guardando} className="btn-explora">{guardando ? 'Guardando…' : editandoId ? 'Guardar cambios' : 'Registrar negocio'}</IonButton><IonButton fill="outline" color="medium" type="button" onClick={()=>setMostrarFormulario(false)}>Cancelar</IonButton></div>
           </form>
         </section> : <>
@@ -223,19 +218,7 @@ export default function NegociosPage() {
         </div>
       </div></IonContent>
     </IonModal>
-    <IonModal isOpen={historialAbierto !== null} onDidDismiss={() => setHistorialAbierto(null)}>
-      <IonHeader><IonToolbar><IonTitle>Historial de estados</IonTitle><IonButtons slot="end">
-        <IonButton onClick={() => setHistorialAbierto(null)}>Cerrar</IonButton>
-      </IonButtons></IonToolbar></IonHeader>
-      <IonContent className="ion-padding">
-        {cargandoHistorial && <IonSpinner/>}
-        {error && <div className="notice-error" role="alert">{error}</div>}
-        {!cargandoHistorial && !historial.length && !error && <p>Sin cambios registrados en el historial.</p>}
-        {historial.map(h => <article className="historial-item" key={h.id}>
-          <strong>{h.estadoAnterior ?? 'REGISTRO'} → {h.estadoNuevo}</strong>
-          <p>{h.motivo}</p><small>{h.actor} · {new Date(h.fechaCambio).toLocaleString('es-CO')}</small>
-        </article>)}
-      </IonContent>
-    </IonModal>
+    <HistorialNegocioModal abierto={historialAbierto !== null} cerrar={() => setHistorialAbierto(null)} historial={historial} cargandoHistorial={cargandoHistorial} error={error}/>
+
   </IonContent></IonPage>;
 }

@@ -16,24 +16,39 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const revision = useRef(0);
+  const perfilPendiente = useRef<{
+    token: string;
+    revision: number;
+    promesa: Promise<UsuarioResponse | null>;
+  } | null>(null);
   const [usuario, setUsuario] = useState<UsuarioResponse | null>(null);
   const [cargandoSesion, setCargandoSesion] = useState(Boolean(sessionToken.get()));
 
   const cerrarSesion = useCallback(() => {
     revision.current++;
+    perfilPendiente.current = null;
     sessionToken.clear();
     setUsuario(null);
     setCargandoSesion(false);
   }, []);
 
-  const refrescarUsuario = useCallback(async () => {
+  const refrescarUsuario = useCallback((): Promise<UsuarioResponse | null> => {
     const token = sessionToken.get();
-    if (!token) return null;
-    const solicitud = ++revision.current;
-    const perfil = await usuariosApi.me(token);
-    if (solicitud !== revision.current || sessionToken.get() !== token) return null;
-    setUsuario(perfil);
-    return perfil;
+    if (!token) return Promise.resolve(null);
+    const revisionSesion = revision.current;
+    const pendiente = perfilPendiente.current;
+    if (pendiente?.token === token && pendiente.revision === revisionSesion) return pendiente.promesa;
+
+    // Una misma consulta sirve a la pantalla y a la guarda sin invalidar sus resultados.
+    const promesa = usuariosApi.me(token).then(perfil => {
+      if (revisionSesion !== revision.current || sessionToken.get() !== token) return null;
+      setUsuario(perfil);
+      return perfil;
+    }).finally(() => {
+      if (perfilPendiente.current?.promesa === promesa) perfilPendiente.current = null;
+    });
+    perfilPendiente.current = { token, revision: revisionSesion, promesa };
+    return promesa;
   }, []);
 
   useEffect(() => {

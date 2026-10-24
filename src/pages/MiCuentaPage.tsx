@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonIcon, IonPage, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonContent, IonIcon, IonPage, IonSpinner, useIonViewWillEnter } from '@ionic/react';
 import { logOutOutline, storefrontOutline, personAddOutline } from 'ionicons/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -17,7 +17,9 @@ export default function MiCuentaPage() {
     finally { setActualizando(false); }
   };
   useIonViewWillEnter(() => { void actualizar(); }, [refrescarUsuario]);
-  if (!usuario) return null;
+  if (!usuario) return <IonPage><BrandHeader title="Mi cuenta"/><IonContent fullscreen>
+    <div className="auth-loading"><IonSpinner/><span>Cargando tu cuenta…</span></div>
+  </IonContent></IonPage>;
   const esAdmin = tieneRol('ADMIN','SUPER_ADMIN');
   return <IonPage><BrandHeader title="Mi cuenta"/><IonContent fullscreen>
     <main className="page-width profile-page">

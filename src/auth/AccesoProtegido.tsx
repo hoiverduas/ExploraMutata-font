@@ -5,8 +5,8 @@ import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import type { Rol } from '../types/usuario';
 
-function VerificandoSesion() {
-  return <IonPage><IonContent className="ion-padding"><div className="auth-loading"><IonSpinner /> Verificando sesión…</div></IonContent></IonPage>;
+function VerificandoSesion({ permisos = false }: { permisos?: boolean }) {
+  return <IonPage><IonContent className="ion-padding"><div className="auth-loading"><IonSpinner /><span>{permisos ? 'Verificando permisos…' : 'Cargando tu cuenta…'}</span></div></IonContent></IonPage>;
 }
 
 function RevalidarRol({ children, roles }: { children: ReactNode; roles: Rol[] }) {
@@ -28,7 +28,7 @@ function RevalidarRol({ children, roles }: { children: ReactNode; roles: Rol[] }
   }, [refrescarUsuario, rolesClave]);
 
   if (error) return <IonPage><IonContent className="ion-padding"><div role="alert" className="notice-error">{error}</div><IonButton routerLink="/mi-cuenta">Volver a Mi cuenta</IonButton></IonContent></IonPage>;
-  if (resultado === 'pendiente') return <VerificandoSesion />;
+  if (resultado === 'pendiente') return <VerificandoSesion permisos />;
   if (resultado === 'denegado') return <Navigate replace to="/mi-cuenta" />;
   return <>{children}</>;
 }
@@ -36,12 +36,20 @@ function RevalidarRol({ children, roles }: { children: ReactNode; roles: Rol[] }
 export default function AccesoProtegido({ children, roles, ruta }: { children: ReactNode; roles?: Rol[]; ruta?: string }) {
   const { usuario, cargandoSesion } = useAuth();
   const location = useLocation();
-  // Ionic conserva vistas anteriores: sus guardas no deben redirigir otra ruta activa.
-  if (ruta && location.pathname !== ruta) return null;
-  if (cargandoSesion) return <VerificandoSesion />;
-  if (!usuario) return <Navigate replace to={`/ingresar?continuar=${encodeURIComponent(location.pathname)}`} />;
-  if (roles && !roles.some(rol => usuario.roles.includes(rol))) {
+  const rutaActiva = !ruta || location.pathname === ruta;
+  const requiereRoles = Boolean(roles?.length);
+
+  if (!usuario) {
+    // Una vista retenida no debe redirigir desde otra ruta ni restaurar datos de una sesión cerrada.
+    if (!rutaActiva) return null;
+    if (cargandoSesion) return <VerificandoSesion />;
+    return <Navigate replace to={`/ingresar?continuar=${encodeURIComponent(location.pathname)}`} />;
+  }
+  if (requiereRoles && roles && !roles.some(rol => usuario.roles.includes(rol))) {
+    if (!rutaActiva) return null;
     return <RevalidarRol key={`${location.key}:${location.pathname}:${usuario.id}:${roles.join(',')}`} roles={roles}>{children}</RevalidarRol>;
   }
+  // Ionic oculta las páginas autorizadas retenidas y necesita su IonPage para las transiciones.
+  // Mantenerlas montadas evita registrar de nuevo la página al volver a Mi cuenta.
   return <>{children}</>;
 }

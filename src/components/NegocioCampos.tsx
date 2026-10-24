@@ -1,3 +1,4 @@
+import { categoriasCatalogo, nombresCategoria } from '../data/categoriasCatalogo';
 import type { NegocioRequest, TipoDocumento, TipoPersona } from '../types/negocio';
 
 interface Props {
@@ -13,6 +14,16 @@ export default function NegocioCampos({ formulario, actualizarCampo }: Props) {
             <label>Número de documento *<input value={formulario.numeroDocumento} onChange={e=>actualizarCampo('numeroDocumento',e.target.value)} maxLength={30} required /></label>
             <label>Correo de contacto *<input type="email" value={formulario.correoContacto} onChange={e=>actualizarCampo('correoContacto',e.target.value)} maxLength={150} required /></label>
             <label>Teléfono *<input type="tel" value={formulario.telefonoContacto} onChange={e=>actualizarCampo('telefonoContacto',e.target.value)} maxLength={30} required /></label>
+            <fieldset className="form-full negocio-categorias">
+              <legend>Categorías del negocio *</legend>
+              <p>Selecciona una o más categorías.</p>
+              <div className="negocio-categoria-opciones">{categoriasCatalogo.map(opcion => <label className="negocio-categoria-opcion" key={opcion.categoria}>
+                <input type="checkbox" checked={formulario.categorias.includes(opcion.categoria)} onChange={e => actualizarCampo('categorias', e.target.checked
+                  ? [...formulario.categorias, opcion.categoria]
+                  : formulario.categorias.filter(categoria => categoria !== opcion.categoria))}/>
+                <span>{nombresCategoria[opcion.categoria]}</span>
+              </label>)}</div>
+            </fieldset>
             <label className="form-full">Descripción<textarea rows={4} maxLength={1000} value={formulario.descripcion} onChange={e=>actualizarCampo('descripcion',e.target.value)}/></label>
   </>;
 }

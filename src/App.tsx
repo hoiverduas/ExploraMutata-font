@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import AccesoProtegido from './auth/AccesoProtegido';
 import InicioPage from './pages/InicioPage';
 import CatalogoPage from './pages/CatalogoPage';
+import DestinosPage from './pages/DestinosPage';
 import NegociosPage from './pages/NegociosPage';
 import SofiaPage from './pages/SofiaPage';
 import LoginPage from './pages/LoginPage';
@@ -27,7 +28,12 @@ function AppNavigation() {
         <IonTabs>
           <IonRouterOutlet>
             <Route path="/inicio" element={<InicioPage />} />
-            <Route path="/destinos" element={<CatalogoPage tipo="destinos" />} />
+            <Route path="/catalogo" element={<CatalogoPage tipo="todos" />} />
+            <Route path="/restaurantes" element={<CatalogoPage tipo="restaurantes" />} />
+            <Route path="/vida-nocturna" element={<CatalogoPage tipo="vida-nocturna" />} />
+            <Route path="/guias" element={<CatalogoPage tipo="guias" />} />
+            <Route path="/transporte" element={<CatalogoPage tipo="transporte" />} />
+            <Route path="/destinos" element={<DestinosPage />} />
             <Route path="/experiencias" element={<CatalogoPage tipo="experiencias" />} />
             <Route path="/alojamientos" element={<CatalogoPage tipo="alojamientos" />} />
             <Route path="/sofia" element={<SofiaPage />} />

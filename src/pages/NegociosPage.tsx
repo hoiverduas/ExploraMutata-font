@@ -4,13 +4,14 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 import BrandHeader from '../components/BrandHeader';
 import HistorialNegocioModal from '../components/HistorialNegocioModal';
 import NegocioCampos from '../components/NegocioCampos';
+import { nombresCategoria } from '../data/categoriasCatalogo';
 import { negociosApi } from '../services/negociosApi';
 import type { AccionEstado, HistorialEstado } from '../services/negociosApi';
 import type { NegocioRequest, NegocioResponse, EstadoNegocio } from '../types/negocio';
 
 const emptyForm: NegocioRequest = {
   nombreComercial: '', razonSocial: '', tipoPersona: 'JURIDICA', tipoDocumento: 'NIT',
-  numeroDocumento: '', correoContacto: '', telefonoContacto: '', descripcion: '',
+  numeroDocumento: '', correoContacto: '', telefonoContacto: '', descripcion: '', categorias: [],
 };
 const nombresEstado: Record<EstadoNegocio, string> = {
   PENDIENTE_VERIFICACION: 'Pendiente de verificación', ACTIVO: 'Activo', RECHAZADO: 'Rechazado',
@@ -78,7 +79,7 @@ export default function NegociosPage() {
   useEffect(() => { void cargar(); }, [cargar]);
 
   const nuevo = () => {
-    setFormulario({ ...emptyForm }); setEditandoId(null); setMensaje(''); setError(''); setMostrarFormulario(true);
+    setFormulario({ ...emptyForm, categorias: [] }); setEditandoId(null); setMensaje(''); setError(''); setMostrarFormulario(true);
   };
   const editar = async (id: string) => {
     setCargando(true); setMensaje(''); setError('');
@@ -86,7 +87,7 @@ export default function NegociosPage() {
       const n = await negociosApi.buscar(id);
       const { nombreComercial, razonSocial, tipoPersona, tipoDocumento, numeroDocumento, correoContacto, telefonoContacto, descripcion } = n;
       setFormulario({ nombreComercial, razonSocial: razonSocial ?? '', tipoPersona, tipoDocumento,
-        numeroDocumento, correoContacto, telefonoContacto, descripcion: descripcion ?? '' });
+        numeroDocumento, correoContacto, telefonoContacto, descripcion: descripcion ?? '', categorias: [...(n.categorias ?? [])] });
       setEditandoId(id);
       setMostrarFormulario(true);
     } catch (err) { setError(err instanceof Error ? err.message : 'No se pudo consultar el negocio.'); }
@@ -97,6 +98,9 @@ export default function NegociosPage() {
 
   const enviar = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setError(''); setMensaje('');
+    if (!formulario.categorias.length) {
+      setError('Selecciona al menos una categoría para el negocio.'); return;
+    }
     if (formulario.tipoPersona === 'JURIDICA' && !formulario.razonSocial.trim()) {
       setError('La razón social es obligatoria para personas jurídicas.'); return;
     }
@@ -168,7 +172,7 @@ export default function NegociosPage() {
         </section> : <>
           <div className="gestion-list-heading"><h2>Negocios registrados</h2><div className="list-actions"><input placeholder="Buscar en esta página" aria-label="Buscar negocios" value={busqueda} onChange={e=>setBusqueda(e.target.value)}/><IonButton fill="clear" onClick={()=>void cargar()} aria-label="Actualizar listado"><IonIcon icon={refreshOutline}/></IonButton></div></div>
           {cargando ? <div className="loading-state"><IonSpinner name="crescent"/> Cargando negocios...</div> : <div className="negocios-list">
-            {filtrados.map(n => <article className="negocio-row" key={n.id}><div className="negocio-monogram">{n.nombreComercial.trim().charAt(0).toLocaleUpperCase('es')}</div><div className="negocio-row-main"><h3>{n.nombreComercial}</h3><p>{n.descripcion || 'Sin descripción comercial.'}</p><small>Registro {new Date(n.fechaCreacion).toLocaleDateString('es-CO')}</small></div><div className="negocio-row-right">
+            {filtrados.map(n => <article className="negocio-row" key={n.id}><div className="negocio-monogram">{n.nombreComercial.trim().charAt(0).toLocaleUpperCase('es')}</div><div className="negocio-row-main"><h3>{n.nombreComercial}</h3><p className="negocio-categorias-listado">{n.categorias?.length ? n.categorias.map(categoria => nombresCategoria[categoria]).join(' · ') : 'Sin categoría'}</p><p>{n.descripcion || 'Sin descripción comercial.'}</p><small>Registro {new Date(n.fechaCreacion).toLocaleDateString('es-CO')}</small></div><div className="negocio-row-right">
               <span className={`status-pill status-${n.estado.toLowerCase()}`}>{nombresEstado[n.estado]}</span>
               <div className="negocio-row-actions">
                 <IonButton fill="outline" size="small" disabled={Boolean(cambiandoId)} onClick={()=>void editar(n.id)}><IonIcon icon={createOutline} slot="start"/> Editar</IonButton>

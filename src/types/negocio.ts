@@ -1,8 +1,11 @@
+import type { CategoriaNegocio } from './catalogo';
+
 export type TipoPersona = 'NATURAL' | 'JURIDICA';
 export type TipoDocumento = 'CEDULA_CIUDADANIA' | 'CEDULA_EXTRANJERIA' | 'NIT' | 'PASAPORTE';
 export type EstadoNegocio = 'PENDIENTE_VERIFICACION' | 'ACTIVO' | 'RECHAZADO' | 'SUSPENDIDO' | 'INACTIVO';
 
 export interface NegocioRequest {
+  categorias: CategoriaNegocio[];
   nombreComercial: string;
   razonSocial: string;
   tipoPersona: TipoPersona;

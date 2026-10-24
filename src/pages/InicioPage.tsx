@@ -3,7 +3,9 @@ import { arrowForwardOutline, micOutline } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import BrandHeader from '../components/BrandHeader';
-import catalog from '../data/catalog.json';
+import CatalogoCategorias from '../components/CatalogoCategorias';
+import NegociosPublicos from '../components/NegociosPublicos';
+import { useCatalogoPublico } from '../hooks/useCatalogoPublico';
 
 const categorias = [
   { nombre: 'Ríos y paisajes', subtitulo: 'NATURALEZA', ruta: '/destinos', imagen: '/images/rio-puenteadero.webp' },
@@ -15,6 +17,7 @@ const categorias = [
 export default function InicioPage() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
+  const { negocios, cargando, error, actualizar } = useCatalogoPublico();
   return <IonPage>
     <BrandHeader />
     <IonContent fullscreen>
@@ -38,11 +41,13 @@ export default function InicioPage() {
             <small>0{i+1} · {categoria.subtitulo}</small><strong>{categoria.nombre}</strong><span aria-hidden="true">↗</span>
           </button>)}
         </div>
+        <CatalogoCategorias/>
         <section className="sofia-teaser"><div className="sofia-icon">✦</div><div><strong>¿No sabes por dónde empezar?</strong><p>Sofía te ayuda a descubrir Mutatá por voz.</p></div><IonButton fill="clear" color="light" onClick={() => navigate('/sofia')}><IonIcon icon={micOutline} slot="start" /> Hablar</IonButton></section>
-        <div className="section-heading feature-section"><span>NATURALEZA EN ESTADO PURO</span><h2>Rincones que te <em>roban el aliento.</em></h2></div>
-        <div className="preview-grid">{catalog.attractions.slice(0,3).map(item => <button className="preview-card" key={item.id} onClick={() => navigate('/destinos')}><img src={item.imageUrl} alt={item.title} loading="lazy" /><div><small>{item.category}</small><h3>{item.title}</h3><p>{item.description}</p></div></button>)}</div>
+        <div className="section-heading feature-section"><span>SERVICIOS DEL TERRITORIO</span><h2>Descubre los negocios de <em>Mutatá.</em></h2></div>
+        <NegociosPublicos negocios={negocios.slice(0,3)} cargando={cargando} error={error} actualizar={actualizar} mensajeVacio="Todavía no hay negocios publicados."/>
+        <IonButton fill="outline" onClick={() => navigate('/catalogo')}>Ver catálogo completo <IonIcon icon={arrowForwardOutline} slot="end"/></IonButton>
         <section className="culture-preview"><img src="/images/cultura-local.webp" alt="Artesanía y cultura local" /><div><span className="eyebrow">RAÍCES VIVAS</span><h2>La verdadera riqueza está en <em>su gente.</em></h2><p>Un espacio para conocer los saberes, historias y tradiciones del territorio con respeto por sus comunidades.</p></div></section>
-        <div className="disclaimer-bottom">Proyecto independiente de turismo. No es el sitio oficial de la Alcaldía de Mutatá. Las experiencias mostradas son demostrativas y requieren validación local.</div>
+        <div className="disclaimer-bottom">Proyecto independiente de turismo. No es el sitio oficial de la Alcaldía de Mutatá. Consulta directamente con cada negocio para conocer sus servicios.</div>
       </main>
     </IonContent>
   </IonPage>;

@@ -1,18 +1,13 @@
+import { Link } from 'react-router-dom';
+import { imagenEditorialCategoria } from './OfertaPublicaCard';
 import { nombresCategoria } from '../data/categoriasCatalogo';
 import type { NegocioPublico } from '../types/catalogo';
 
 export default function NegocioPublicoCard({ negocio }: { negocio: NegocioPublico }) {
-  return <article className="catalog-card"><div className="catalog-card-body">
+  return <article className="catalog-card marketplace-card"><img className="marketplace-card-image" src={negocio.categorias.length ? imagenEditorialCategoria[negocio.categorias[0]] : '/images/hero-mutata.webp'} alt="Paisajes y cultura de Mutatá, imagen editorial" loading="lazy"/><div className="catalog-card-body marketplace-card-body">
     <span>{negocio.categorias.length ? negocio.categorias.map(categoria => nombresCategoria[categoria]).join(' · ') : 'Sin categoría'}</span>
     <h2>{negocio.nombreComercial}</h2>
     <p>{negocio.descripcion || 'Sin descripción disponible.'}</p>
-    <dl className="catalog-contact">
-      <div><dt>Teléfono</dt><dd>{negocio.telefonoContacto
-        ? <a href={`tel:${negocio.telefonoContacto.replace(/[^\d+]/g, '')}`}>{negocio.telefonoContacto}</a>
-        : 'Teléfono no disponible'}</dd></div>
-      <div><dt>Correo</dt><dd>{negocio.correoContacto
-        ? <a href={`mailto:${encodeURIComponent(negocio.correoContacto)}`}>{negocio.correoContacto}</a>
-        : 'Correo no disponible'}</dd></div>
-    </dl>
+    <div className="marketplace-actions"><Link className="marketplace-primary-link" to={`/negocios/${encodeURIComponent(negocio.id)}`}>Ver negocio <span aria-hidden="true">↗</span></Link></div>
   </div></article>;
 }

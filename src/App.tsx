@@ -1,6 +1,6 @@
 import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, compassOutline, flashOutline, bedOutline, micOutline } from 'ionicons/icons';
+import { homeOutline, compassOutline, bedOutline, bagHandleOutline, mapOutline } from 'ionicons/icons';
 import { Navigate, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import AccesoProtegido from './auth/AccesoProtegido';
@@ -18,6 +18,16 @@ import NuevaReservaPage from './pages/NuevaReservaPage';
 import MisReservasPage from './pages/MisReservasPage';
 import ReservaDetallePage from './pages/ReservaDetallePage';
 import ReservasOperadorPage from './pages/ReservasOperadorPage';
+import NegocioDetallePage from './pages/NegocioDetallePage';
+import OfertaDetallePage from './pages/OfertaDetallePage';
+import PaquetesPage from './pages/PaquetesPage';
+import PaqueteDetallePage from './pages/PaqueteDetallePage';
+import PaquetesOperadorPage from './pages/PaquetesOperadorPage';
+import MiViajePage from './pages/MiViajePage';
+import MisViajesPage from './pages/MisViajesPage';
+import ViajeDetallePage from './pages/ViajeDetallePage';
+import OperadorResumenPage from './pages/OperadorResumenPage';
+import { ViajeProvider, useViaje } from './context/ViajeContext';
 import { MonedaProvider } from './context/MonedaContext';
 import NegociosPage from './pages/NegociosPage';
 import SofiaPage from './pages/SofiaPage';
@@ -35,10 +45,21 @@ setupIonicReact({ mode: 'md' });
 
 function AppNavigation() {
   const { usuario, cargandoSesion } = useAuth();
+  const { cantidadItems } = useViaje();
   return (
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
+            <Route path="/aventuras" element={<DestinosPage />} />
+            <Route path="/negocios/:negocioId" element={<NegocioDetallePage />} />
+            <Route path="/negocios/:negocioId/ofertas/:ofertaId" element={<OfertaDetallePage />} />
+            <Route path="/paquetes" element={<PaquetesPage />} />
+            <Route path="/paquetes/:paqueteId" element={<PaqueteDetallePage />} />
+            <Route path="/mi-viaje" element={<AccesoProtegido ruta="/mi-viaje" roles={['TURISTA']}><MiViajePage /></AccesoProtegido>} />
+            <Route path="/viajes" element={<AccesoProtegido ruta="/viajes" roles={['TURISTA']}><MisViajesPage /></AccesoProtegido>} />
+            <Route path="/viajes/:id" element={<AccesoProtegido ruta="/viajes/:id" roles={['TURISTA']}><ViajeDetallePage /></AccesoProtegido>} />
+            <Route path="/operador" element={<AccesoProtegido ruta="/operador" roles={['OPERADOR']}><OperadorResumenPage /></AccesoProtegido>} />
+            <Route path="/operador/negocios/:negocioId/paquetes" element={<AccesoProtegido ruta="/operador/negocios/:negocioId/paquetes" roles={['OPERADOR']}><PaquetesOperadorPage /></AccesoProtegido>} />
             <Route path="/inicio" element={<InicioPage />} />
             <Route path="/catalogo" element={<CatalogoPage tipo="todos" />} />
             <Route path="/restaurantes" element={<CatalogoPage tipo="restaurantes" />} />
@@ -74,10 +95,10 @@ function AppNavigation() {
           </IonRouterOutlet>
           <IonTabBar slot="bottom" className="explora-tabs" hidden={cargandoSesion || !usuario}>
             <IonTabButton tab="inicio" href="/inicio"><IonIcon icon={homeOutline} /><IonLabel>Inicio</IonLabel></IonTabButton>
-            <IonTabButton tab="destinos" href="/destinos"><IonIcon icon={compassOutline} /><IonLabel>Destinos</IonLabel></IonTabButton>
-            <IonTabButton tab="experiencias" href="/experiencias"><IonIcon icon={flashOutline} /><IonLabel>Aventuras</IonLabel></IonTabButton>
+            <IonTabButton tab="aventuras" href="/aventuras"><IonIcon icon={compassOutline} /><IonLabel>Aventuras</IonLabel></IonTabButton>
             <IonTabButton tab="alojamientos" href="/alojamientos"><IonIcon icon={bedOutline} /><IonLabel>Hospedajes</IonLabel></IonTabButton>
-            <IonTabButton tab="sofia" href="/sofia"><IonIcon icon={micOutline} /><IonLabel>Sofía</IonLabel></IonTabButton>
+            <IonTabButton tab="paquetes" href="/paquetes"><IonIcon icon={bagHandleOutline} /><IonLabel>Paquetes</IonLabel></IonTabButton>
+            <IonTabButton tab="mi-viaje" href="/mi-viaje"><IonIcon icon={mapOutline} /><IonLabel>Mi viaje{cantidadItems > 0 ? ` (${cantidadItems})` : ''}</IonLabel></IonTabButton>
           </IonTabBar>
         </IonTabs>
       </IonReactRouter>
@@ -86,7 +107,7 @@ function AppNavigation() {
 
 const App = () => (
   <IonApp>
-    <MonedaProvider><AuthProvider><AppNavigation /></AuthProvider></MonedaProvider>
+    <MonedaProvider><AuthProvider><ViajeProvider><AppNavigation /></ViajeProvider></AuthProvider></MonedaProvider>
   </IonApp>
 );
 

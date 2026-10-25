@@ -16,7 +16,9 @@ export const reservasApi = {
       body: JSON.stringify({
         negocioExperienciaId: body.negocioExperienciaId,
         fechaReserva: body.fechaReserva,
+        fechaFin: body.fechaFin ?? null,
         cantidadPersonas: body.cantidadPersonas,
+        cantidadTrayectos: body.cantidadTrayectos ?? null,
         observaciones: body.observaciones,
       }),
     });

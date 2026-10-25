@@ -23,7 +23,7 @@ export default function ExperienciasPublicasPage() {
       <div className="tourism-filters"><IonSearchbar value={busqueda} onIonInput={e => setBusqueda(e.detail.value ?? '')} placeholder="Buscar experiencias" debounce={150}/>
         <label>Dificultad<select value={dificultad} onChange={e => setDificultad(dificultadesExperiencia.find(valor => valor === e.target.value) ?? '')}><option value="">Todas</option>{dificultadesExperiencia.map(valor => <option key={valor} value={valor}>{nombresDificultad[valor]}</option>)}</select></label></div>
       <EstadoConsulta {...consulta} sinDatos={!experiencias.length} mensajeVacio={texto ? 'No encontramos experiencias con esa búsqueda.' : 'No hay experiencias disponibles.'}>
-        <div className="catalog-grid">{experiencias.map(experiencia => <TarjetaTuristica key={experiencia.id} nombre={experiencia.nombre} descripcion={experiencia.descripcion} etiqueta={`Dificultad: ${nombresDificultad[experiencia.dificultad]}`} ruta={`/catalogo/experiencias/${encodeURIComponent(experiencia.slug)}`}/>)}</div>
+        <div className="catalog-grid">{experiencias.map(experiencia => <TarjetaTuristica key={experiencia.id} accion="Ver destinos" nombre={experiencia.nombre} descripcion={experiencia.descripcion} etiqueta={`Dificultad: ${nombresDificultad[experiencia.dificultad]}`} ruta={`/catalogo/experiencias/${encodeURIComponent(experiencia.slug)}`}/>)}</div>
       </EstadoConsulta>
     </main>
   </IonContent></IonPage>;

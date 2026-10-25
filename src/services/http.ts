@@ -34,7 +34,7 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
       },
     });
   } catch {
-    throw new ApiError(0, 'No hay conexión con el backend. Comprueba la URL API y que Spring Boot esté encendido.');
+    throw new ApiError(0, 'No pudimos conectar con el servicio. Revisa tu conexión e inténtalo de nuevo.');
   }
 
   if (!response.ok) {
@@ -43,8 +43,11 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
       const data: unknown = await response.json();
       if (data && typeof data === 'object') {
         const error = data as Record<string, unknown>;
-        message = [error.detail, error.message, error.title]
-          .find((value): value is string => typeof value === 'string' && Boolean(value.trim())) ?? '';
+        // Los fallos internos nunca deben presentar SQL, excepciones o trazas al viajero.
+        if (response.status < 500) message = [error.detail, error.message, error.title]
+          .find((value): value is string => typeof value === 'string' && Boolean(value.trim())
+            && value.length <= 450 && !/(?:java\.|org\.|exception|stack\s*trace|\bSQL\b|\bselect\b.+\bfrom\b|\bat\s+\w+\.\w+\()/i.test(value)
+            && !/^[\s]*[\[{]/.test(value)) ?? '';
       }
     } catch { /* A veces el servidor no devuelve JSON. */ }
     if (!message) {
@@ -55,6 +58,7 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
         404: 'El recurso solicitado no existe.',
         409: 'Existe un conflicto con el estado actual de los datos.',
         422: 'No se pudo procesar la solicitud.',
+        500: 'No pudimos completar la solicitud. Inténtalo de nuevo más tarde.',
         502: 'El servicio externo no respondió correctamente.',
       } as Record<number, string>)[response.status] ?? `No se pudo completar la solicitud (HTTP ${response.status}).`;
     }

@@ -27,7 +27,7 @@ export default function DestinoDetallePage() {
   const experiencias = useConsultaApi<ExperienciaPublica[]>(cargarExperiencias, []);
   const datos = destino.datos;
   return <IonPage><BrandHeader title={datos?.nombre ?? 'Destino'}/><IonContent fullscreen><main className="page-width tourism-detail">
-    <NavegacionTuristica/>
+    <NavegacionTuristica/><div className="destination-editorial" aria-hidden="true"><img src="/images/rio-bedo.webp" alt=""/><span>Naturaleza y aventura en Mutatá</span></div>
     <EstadoConsulta {...destino} sinDatos={!datos} mensajeVacio="No encontramos este destino.">
       {datos && <><span className="eyebrow">{nombresTipoDestino[datos.tipo]}</span><h1>{datos.nombre}</h1>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}
@@ -35,7 +35,7 @@ export default function DestinoDetallePage() {
         {datos.comoLlegar && <section><h2>Cómo llegar</h2><p>{datos.comoLlegar}</p></section>}
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
         <section><h2>Experiencias en este destino</h2><EstadoConsulta {...experiencias} sinDatos={!experiencias.datos.length} mensajeVacio="No hay experiencias disponibles en este destino.">
-          <div className="catalog-grid">{experiencias.datos.map(experiencia => <TarjetaTuristica key={experiencia.id} nombre={experiencia.nombre} descripcion={experiencia.descripcion} etiqueta={`Dificultad: ${nombresDificultad[experiencia.dificultad]}`} ruta={`/destinos/${encodeURIComponent(datos.slug)}/experiencias/${encodeURIComponent(experiencia.slug)}`}/>)}</div>
+          <div className="catalog-grid">{experiencias.datos.map(experiencia => <TarjetaTuristica key={experiencia.id} nombre={experiencia.nombre} descripcion={experiencia.descripcion} etiqueta={`Dificultad: ${nombresDificultad[experiencia.dificultad]}`} accion="Ver ofertas" ruta={`/destinos/${encodeURIComponent(datos.slug)}/experiencias/${encodeURIComponent(experiencia.slug)}`}/>)}</div>
         </EstadoConsulta></section>
       </>}
     </EstadoConsulta>

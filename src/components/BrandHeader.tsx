@@ -1,11 +1,13 @@
 import { IonButtons, IonButton, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/react';
-import { businessOutline, personCircleOutline, logInOutline } from 'ionicons/icons';
+import { businessOutline, personCircleOutline, logInOutline, mapOutline } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useViaje } from '../context/ViajeContext';
 
 export default function BrandHeader({ title, mostrarGestion = true }: { title?: string; mostrarGestion?: boolean }) {
   const navigate = useNavigate();
   const { usuario, tieneRol } = useAuth();
+  const { cantidadItems } = useViaje();
   return (
     <IonHeader translucent>
       <IonToolbar className="explora-toolbar">
@@ -15,6 +17,9 @@ export default function BrandHeader({ title, mostrarGestion = true }: { title?: 
         </div>
         {title && <IonTitle className="title-desktop">{title}</IonTitle>}
         <IonButtons slot="end">
+          {(!usuario || tieneRol('TURISTA')) && <IonButton aria-label={`Mi viaje, ${cantidadItems} servicios`} onClick={() => navigate('/mi-viaje')}>
+            <IonIcon icon={mapOutline} slot="start"/><span className="gestion-text">Mi viaje</span>{cantidadItems > 0 && <span className="trip-count">{cantidadItems}</span>}
+          </IonButton>}
           {mostrarGestion && tieneRol('ADMIN','SUPER_ADMIN') &&
             <IonButton aria-label="Gestión de negocios" onClick={() => navigate('/gestion/negocios')}>
               <IonIcon icon={businessOutline} slot="start" /><span className="gestion-text">Gestión</span>

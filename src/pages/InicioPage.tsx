@@ -1,56 +1,57 @@
 import { IonContent, IonPage, IonButton, IonIcon } from '@ionic/react';
 import { arrowForwardOutline, micOutline } from 'ionicons/icons';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+import { useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
-import CatalogoCategorias from '../components/CatalogoCategorias';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import NegociosPublicos from '../components/NegociosPublicos';
+import TarjetaTuristica from '../components/TarjetaTuristica';
+import TarjetaPaqueteComercial from '../components/TarjetaPaqueteComercial';
+import EstadoConsulta from '../components/EstadoConsulta';
 import { useCatalogoPublico } from '../hooks/useCatalogoPublico';
+import { useConsultaApi } from '../hooks/useConsultaApi';
+import { destinosApi } from '../services/destinosApi';
+import { paquetesComercialesApi } from '../services/paquetesComercialesApi';
+import { nombresTipoDestino } from '../data/turismo';
+import type { DestinoPublico } from '../types/destino';
+import type { CategoriaNegocio } from '../types/catalogo';
 
-const categorias = [
-  { nombre: 'Ríos y paisajes', subtitulo: 'NATURALEZA', ruta: '/destinos', imagen: '/images/rio-puenteadero.webp' },
-  { nombre: 'Experiencias únicas', subtitulo: 'AVENTURA', ruta: '/catalogo/experiencias', imagen: '/images/rio-bedo.webp' },
-  { nombre: 'Dónde quedarte', subtitulo: 'DESCANSO', ruta: '/alojamientos', imagen: '/images/naturaleza-comunidad.webp' },
-  { nombre: 'Nuestra cultura', subtitulo: 'TRADICIÓN', ruta: '/destinos', imagen: '/images/cultura-local.webp' },
+const servicios: { categoria: CategoriaNegocio; titulo: string; texto: string; ruta: string }[] = [
+  { categoria: 'HOSPEDAJE', titulo: 'Un lugar para descansar', texto: 'DÓNDE HOSPEDARTE', ruta: '/alojamientos' },
+  { categoria: 'RESTAURANTE', titulo: 'Sabores que cuentan historias', texto: 'GASTRONOMÍA LOCAL', ruta: '/restaurantes' },
+  { categoria: 'TRANSPORTE', titulo: 'El camino también es parte del viaje', texto: 'CÓMO MOVERTE', ruta: '/transporte' },
+  { categoria: 'VIDA_NOCTURNA', titulo: 'Mutatá después del atardecer', texto: 'VIDA NOCTURNA', ruta: '/vida-nocturna' },
 ];
-
 export default function InicioPage() {
-  const navigate = useNavigate();
-  const { usuario } = useAuth();
-  const { negocios, cargando, error, actualizar } = useCatalogoPublico();
-  return <IonPage>
-    <BrandHeader />
-    <IonContent fullscreen>
-      <div className="prototype-ribbon">EXPLORA MUTATÁ · TURISMO Y EXPERIENCIAS LOCALES</div>
-      <section className="hero-home">
-        <div className="hero-home-bg" />
-        <div className="hero-home-copy page-width">
-          <span className="eyebrow">◆ EL CORAZÓN NATURAL DE URABÁ</span>
-          <h1>Hay lugares que se visitan.<br/><em>Mutatá se vive.</em></h1>
-          <p>Ríos que cuentan historias, selva que abraza y una cultura que te recibe con los brazos abiertos. Tu próxima aventura comienza aquí.</p>
-          <IonButton className="btn-explora" onClick={() => navigate('/destinos')}>Descubrir destinos <IonIcon icon={arrowForwardOutline} slot="end" /></IonButton>
-          <IonButton fill="outline" color="light" onClick={() => navigate(usuario ? "/mi-cuenta" : "/registro")} style={{ marginLeft: 12 }}>
-            {usuario ? "Mi cuenta" : "Crear cuenta de turista"}
-          </IonButton>
-        </div>
+  const catalogo = useCatalogoPublico();
+  const cargarDestinos = useCallback((signal: AbortSignal) => destinosApi.listarPublicos(undefined, { signal }), []);
+  const destinos = useConsultaApi<DestinoPublico[]>(cargarDestinos, []);
+  const cargarPaquetes = useCallback((signal: AbortSignal) => paquetesComercialesApi.listarPublicos(undefined, { signal }), []);
+  const paquetes = useConsultaApi(cargarPaquetes, []);
+  return <IonPage><BrandHeader/><IonContent fullscreen>
+    <section className="hero-home">
+      <div className="hero-home-bg"/>
+      <div className="hero-home-copy page-width"><span className="eyebrow">EL CORAZÓN NATURAL DE URABÁ</span>
+        <h1>Descubre Mutatá.<br/><em>Vive tu propia aventura.</em></h1>
+        <p>Naturaleza, sabores y experiencias auténticas. Encuentra tu lugar, conoce a quienes lo hacen especial y construye un viaje a tu medida.</p>
+        <div className="hero-actions"><IonButton className="btn-explora" routerLink="/aventuras">Explorar aventuras <IonIcon icon={arrowForwardOutline} slot="end"/></IonButton><IonButton fill="outline" color="light" routerLink="/mi-viaje">Armar mi viaje</IonButton></div>
+        <div className="hero-note"><span>01 · Descubre</span><span>02 · Combina</span><span>03 · Reserva</span></div>
+      </div>
+    </section>
+    <main className="page-width home-content"><NavegacionTuristica/>
+      <section className="home-section"><div className="section-heading"><span>AVENTURAS POR DESCUBRIR</span><h2>Tu próximo recuerdo <em>empieza aquí.</em></h2><p>Elige un destino y encuentra las experiencias y ofertas disponibles.</p></div>
+        <EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="Pronto encontrarás nuevos destinos para tu próxima aventura."><div className="catalog-grid">{destinos.datos.slice(0,3).map(destino => <TarjetaTuristica key={destino.id} nombre={destino.nombre} descripcion={destino.descripcion} etiqueta={nombresTipoDestino[destino.tipo]} ruta={`/destinos/${encodeURIComponent(destino.slug)}`}/>)}</div></EstadoConsulta>
+        <Link className="catalog-detail-link" to="/aventuras">Todas las aventuras →</Link>
       </section>
-      <main className="page-width home-content">
-        <div className="section-heading"><span>DESCUBRE MUTATÁ</span><h2>¿Qué te gustaría <em>vivir hoy?</em></h2></div>
-        <div className="category-grid">
-          {categorias.map((categoria,i) => <button className="category-tile" key={categoria.nombre} style={{ backgroundImage: `linear-gradient(0deg, rgba(11,36,34,.82), rgba(11,36,34,.07)),url('${categoria.imagen}')` }} onClick={() => navigate(categoria.ruta)}>
-            <small>0{i+1} · {categoria.subtitulo}</small><strong>{categoria.nombre}</strong><span aria-hidden="true">↗</span>
-          </button>)}
-        </div>
-        <NavegacionTuristica/>
-        <CatalogoCategorias/>
-        <section className="sofia-teaser"><div className="sofia-icon">✦</div><div><strong>¿No sabes por dónde empezar?</strong><p>Sofía te ayuda a descubrir Mutatá por voz.</p></div><IonButton fill="clear" color="light" onClick={() => navigate('/sofia')}><IonIcon icon={micOutline} slot="start" /> Hablar</IonButton></section>
-        <div className="section-heading feature-section"><span>SERVICIOS DEL TERRITORIO</span><h2>Descubre los negocios de <em>Mutatá.</em></h2></div>
-        <NegociosPublicos negocios={negocios.slice(0,3)} cargando={cargando} error={error} actualizar={actualizar} mensajeVacio="Todavía no hay negocios publicados."/>
-        <IonButton fill="outline" onClick={() => navigate('/catalogo')}>Ver catálogo completo <IonIcon icon={arrowForwardOutline} slot="end"/></IonButton>
-        <section className="culture-preview"><img src="/images/cultura-local.webp" alt="Artesanía y cultura local" /><div><span className="eyebrow">RAÍCES VIVAS</span><h2>La verdadera riqueza está en <em>su gente.</em></h2><p>Un espacio para conocer los saberes, historias y tradiciones del territorio con respeto por sus comunidades.</p></div></section>
-        <div className="disclaimer-bottom">Proyecto independiente de turismo. No es el sitio oficial de la Alcaldía de Mutatá. Consulta directamente con cada negocio para conocer sus servicios.</div>
-      </main>
-    </IonContent>
-  </IonPage>;
+      <section className="home-section"><div className="section-heading"><span>VIAJES CON TODO EL SENTIDO</span><h2>Planes para <em>dejarte llevar.</em></h2><p>Explora los paquetes publicados por los negocios del territorio.</p></div>
+        <EstadoConsulta {...paquetes} sinDatos={!paquetes.datos.length} mensajeVacio="No hay paquetes disponibles en este momento."><div className="catalog-grid">{paquetes.datos.slice(0,3).map(paquete => <TarjetaPaqueteComercial key={paquete.id} paquete={paquete}/>)}</div></EstadoConsulta>
+        <Link className="catalog-detail-link" to="/paquetes">Explorar paquetes →</Link>
+      </section>
+      <section className="trip-invitation"><div><span className="eyebrow">UN VIAJE, MUCHAS POSIBILIDADES</span><h2>Hazlo <em>a tu manera.</em></h2><p>Combina aventuras, hospedaje, comida y transporte de distintos negocios en Mi viaje. Cotiza antes de reservar.</p></div><IonButton className="btn-explora" routerLink="/mi-viaje">Comenzar mi viaje <IonIcon icon={arrowForwardOutline} slot="end"/></IonButton></section>
+      {servicios.map(seccion => <section className="home-section" key={seccion.categoria}><div className="section-heading"><span>{seccion.texto}</span><h2>{seccion.titulo}</h2></div><NegociosPublicos negocios={catalogo.negocios.filter(negocio => negocio.categorias.includes(seccion.categoria)).slice(0,3)} cargando={catalogo.cargando} error={catalogo.error} actualizar={catalogo.actualizar} mensajeVacio="Aún no hay negocios publicados en esta categoría."/><Link className="catalog-detail-link" to={seccion.ruta}>Explorar opciones →</Link></section>)}
+      <section className="sofia-teaser"><div className="sofia-icon" aria-hidden="true">✦</div><div><strong>¿No sabes por dónde empezar?</strong><p>Sofía te ayuda a descubrir Mutatá por voz.</p></div><IonButton fill="clear" color="light" routerLink="/sofia"><IonIcon icon={micOutline} slot="start"/>Hablar con Sofía</IonButton></section>
+      <section className="culture-preview"><img src="/images/cultura-local.webp" alt="Artesanía y cultura local de Mutatá" loading="lazy"/><div><span className="eyebrow">RAÍCES VIVAS</span><h2>La verdadera riqueza está en <em>su gente.</em></h2><p>Conoce los saberes, historias y tradiciones del territorio con respeto por sus comunidades.</p><Link className="catalog-detail-link" to="/guias">Explorar con un guía local →</Link></div></section>
+      <div className="disclaimer-bottom">Proyecto independiente de turismo. No es el sitio oficial de la Alcaldía de Mutatá. Las solicitudes de reserva están sujetas a la confirmación de cada negocio.</div>
+    </main>
+  </IonContent></IonPage>;
 }

@@ -36,7 +36,7 @@ export default function ExperienciaDetallePage() {
   const destinos = useConsultaApi<DestinoPublico[]>(cargarDestinos, []);
   const datos = experiencia.datos;
   return <IonPage><BrandHeader title={datos?.nombre ?? 'Experiencia'}/><IonContent fullscreen><main className="page-width tourism-detail">
-    <NavegacionTuristica/>
+    <NavegacionTuristica/><div className="adventure-path" aria-label="Tu ruta de aventura"><span>Aventuras</span><span aria-hidden="true">→</span><span>{destinos.datos[0]?.nombre || "Destino"}</span><span aria-hidden="true">→</span><strong>{datos?.nombre || "Experiencia"}</strong><span aria-hidden="true">→</span><span>Ofertas</span></div>
     <EstadoConsulta {...experiencia} sinDatos={!datos} mensajeVacio="No encontramos esta experiencia.">
       {datos && <><span className="eyebrow">EXPERIENCIAS DE MUTATÁ</span><h1>{datos.nombre}</h1>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}

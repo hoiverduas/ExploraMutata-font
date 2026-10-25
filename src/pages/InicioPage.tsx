@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import BrandHeader from '../components/BrandHeader';
 import CatalogoCategorias from '../components/CatalogoCategorias';
+import NavegacionTuristica from '../components/NavegacionTuristica';
 import NegociosPublicos from '../components/NegociosPublicos';
 import { useCatalogoPublico } from '../hooks/useCatalogoPublico';
 
 const categorias = [
   { nombre: 'Ríos y paisajes', subtitulo: 'NATURALEZA', ruta: '/destinos', imagen: '/images/rio-puenteadero.webp' },
-  { nombre: 'Experiencias únicas', subtitulo: 'AVENTURA', ruta: '/experiencias', imagen: '/images/rio-bedo.webp' },
+  { nombre: 'Experiencias únicas', subtitulo: 'AVENTURA', ruta: '/catalogo/experiencias', imagen: '/images/rio-bedo.webp' },
   { nombre: 'Dónde quedarte', subtitulo: 'DESCANSO', ruta: '/alojamientos', imagen: '/images/naturaleza-comunidad.webp' },
   { nombre: 'Nuestra cultura', subtitulo: 'TRADICIÓN', ruta: '/destinos', imagen: '/images/cultura-local.webp' },
 ];
@@ -41,6 +42,7 @@ export default function InicioPage() {
             <small>0{i+1} · {categoria.subtitulo}</small><strong>{categoria.nombre}</strong><span aria-hidden="true">↗</span>
           </button>)}
         </div>
+        <NavegacionTuristica/>
         <CatalogoCategorias/>
         <section className="sofia-teaser"><div className="sofia-icon">✦</div><div><strong>¿No sabes por dónde empezar?</strong><p>Sofía te ayuda a descubrir Mutatá por voz.</p></div><IonButton fill="clear" color="light" onClick={() => navigate('/sofia')}><IonIcon icon={micOutline} slot="start" /> Hablar</IonButton></section>
         <div className="section-heading feature-section"><span>SERVICIOS DEL TERRITORIO</span><h2>Descubre los negocios de <em>Mutatá.</em></h2></div>

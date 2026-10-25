@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonPage, IonSpinner } from '@ionic/react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, matchPath } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
@@ -36,7 +36,7 @@ function RevalidarRol({ children, roles }: { children: ReactNode; roles: Rol[] }
 export default function AccesoProtegido({ children, roles, ruta }: { children: ReactNode; roles?: Rol[]; ruta?: string }) {
   const { usuario, cargandoSesion } = useAuth();
   const location = useLocation();
-  const rutaActiva = !ruta || location.pathname === ruta;
+  const rutaActiva = !ruta || Boolean(matchPath({ path: ruta, end: true }, location.pathname));
   const requiereRoles = Boolean(roles?.length);
 
   if (!usuario) {

@@ -32,7 +32,7 @@ El catálogo general muestra una tarjeta por negocio. La deduplicación por ID e
 
 DESTINO ya no es `CategoriaNegocio`, no aparece en selectores de negocios y no se envía al endpoint público.
 
-`/destinos` se mantiene en la navegación turística mediante `DestinosPage`. Recupera `catalog.attractions` de la fuente editorial anterior, con búsqueda, filtros e imágenes existentes. No consulta negocios ni se utiliza como respaldo para estos. **Destinos será un recurso independiente de negocios** cuando se construya su módulo; no se crearon APIs ni tablas nuevas.
+`/destinos` se mantiene en la navegación turística y ahora consume su recurso independiente `/api/v1/public/destinos`. Su detalle por slug y las experiencias asociadas usan los controllers reales del backend `f72df2e`. No consulta el catálogo de negocios ni usa el JSON editorial como fallback. No se crearon APIs ni tablas nuevas. La integración de destinos, experiencias, ofertas y monedas está documentada en [INTEGRACION_TURISMO_OFERTAS_MONEDAS.md](INTEGRACION_TURISMO_OFERTAS_MONEDAS.md).
 
 Las imágenes editoriales de Inicio siguen separadas de sus negocios públicos. Ningún listado de negocios recurre a `src/data/catalog.json` como respaldo.
 
@@ -50,7 +50,9 @@ Las imágenes editoriales de Inicio siguen separadas de sus negocios públicos. 
 
 Se conservan carga, error con reintento, listado vacío, búsqueda sin resultados, cancelación de consultas anteriores y actualización al regresar a una vista retenida por Ionic. No se agregaron imágenes ni datos de negocios inventados.
 
-## Validación realizada y límites
+## Validación de multicategoría anterior y límites
+
+Las comprobaciones siguientes corresponden a la tarea previa de multicategoría. En la integración posterior de destinos, experiencias, ofertas y monedas únicamente se ejecutó compilación/typecheck, sin pruebas funcionales ni E2E.
 
 El backend del usuario sigue ejecutándose en su computadora. Desde el entorno en la nube, `GET localhost:8080/actuator/health` no conecta (curl código 7, sin respuesta HTTP). El proxy de Vite devuelve HTTP 500. Por ello no se afirman resultados de PostgreSQL ni de guardados autenticados.
 
@@ -65,7 +67,7 @@ El backend del usuario sigue ejecutándose en su computadora. Desde el entorno e
 | Vida nocturna | ⚠️ BLOQUEADA | Query VIDA_NOCTURNA correcta; datos reales pendientes. |
 | Guías | ⚠️ BLOQUEADA | Query GUIA correcta; datos reales pendientes. |
 | Transporte | ⚠️ BLOQUEADA | Query TRANSPORTE correcta; datos reales pendientes. |
-| Destino no consulta endpoint de negocio | ✅ PASS | Chromium: `/destinos` muestra tarjetas editoriales y no emite ninguna petición de negocios. |
+| Destino no consulta endpoint de negocio | ✅ PASS | En la tarea previa `/destinos` no emitía peticiones de negocios; ahora tiene su propia API de destinos, pendiente de pruebas funcionales. |
 | Negocio real multicategoría aparece en varias secciones | ⚠️ BLOQUEADA | Requiere backend real y un negocio publicado con varias categorías. |
 | No se duplica en catálogo general | ✅ PASS | Prueba pura de unicidad por ID; sin estado global entre secciones. Confirmación con datos reales pendiente. |
 | Formulario ADMIN permite varias categorías | ✅ PASS | Ejecución aislada del componente compartido: seis opciones y selección múltiple. Guardado autenticado pendiente. |

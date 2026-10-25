@@ -1,6 +1,7 @@
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonModal, IonPage, IonSpinner, IonTitle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addOutline, refreshOutline, createOutline, arrowBackOutline, powerOutline, listOutline } from 'ionicons/icons';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import HistorialNegocioModal from '../components/HistorialNegocioModal';
 import NegocioCampos from '../components/NegocioCampos';
@@ -169,6 +170,7 @@ export default function MisNegociosPage() {
             {filtrados.map(n => <article className="negocio-row" key={n.id}><div className="negocio-monogram">{n.nombreComercial.trim().charAt(0).toLocaleUpperCase('es')}</div><div className="negocio-row-main"><h3>{n.nombreComercial}</h3><p className="negocio-categorias-listado">{n.categorias?.length ? n.categorias.map(categoria => nombresCategoria[categoria]).join(' · ') : 'Sin categoría'}</p><p>{n.descripcion || 'Sin descripción comercial.'}</p><small>Registro {new Date(n.fechaCreacion).toLocaleDateString('es-CO')}</small></div><div className="negocio-row-right">
               <span className={`status-pill status-${n.estado.toLowerCase()}`}>{nombresEstado[n.estado]}</span>
               <div className="negocio-row-actions">
+                <Link className="resource-inline-link" to={`/operador/negocios/${encodeURIComponent(n.id)}/ofertas`}>Ofertas de experiencias</Link>
                 <IonButton fill="outline" size="small" disabled={Boolean(cambiandoId)} onClick={()=>void editar(n.id, true)}>Consultar</IonButton>
                 {puedeEditar(n.estado) && <IonButton fill="outline" size="small" disabled={Boolean(cambiandoId)} onClick={()=>void editar(n.id)}><IonIcon icon={createOutline} slot="start"/> Editar</IonButton>}
                 {accionesOperador[n.estado].map(accion => (

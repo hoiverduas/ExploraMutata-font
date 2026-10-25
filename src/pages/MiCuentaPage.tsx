@@ -36,6 +36,8 @@ export default function MiCuentaPage() {
       {tieneRol('TURISTA') && !tieneRol('OPERADOR') && <section className="profile-actions"><h2>Ofrece tus servicios</h2><Link className="profile-action" to="/operador/solicitud"><IonIcon icon={storefrontOutline}/> Quiero ofrecer servicios <span>→</span></Link><p>Solicita acceso para registrar y administrar tus servicios turísticos.</p></section>}
       {tieneRol('OPERADOR') && <section className="profile-actions"><h2>Mi espacio de operador</h2><Link className="profile-action" to="/operador/negocios"><IonIcon icon={storefrontOutline}/> Mis negocios <span>→</span></Link><Link className="profile-action" to="/operador/solicitud">Estado de mi solicitud <span>→</span></Link></section>}
       {esAdmin && <section className="profile-actions"><h2>Administración</h2>
+        <Link className="profile-action" to="/gestion/destinos"><IonIcon icon={storefrontOutline}/> Destinos y sus experiencias <span>→</span></Link>
+        <Link className="profile-action" to="/gestion/experiencias"><IonIcon icon={storefrontOutline}/> Experiencias turísticas <span>→</span></Link>
         <Link className="profile-action" to="/gestion/negocios"><IonIcon icon={storefrontOutline}/> Gestionar negocios <span>→</span></Link>
         <Link className="profile-action" to="/gestion/operadores/solicitudes"><IonIcon icon={personAddOutline}/> Solicitudes de operadores <span>→</span></Link>
         {tieneRol('SUPER_ADMIN') && <Link className="profile-action" to="/gestion/administradores/invitar"><IonIcon icon={personAddOutline}/> Invitar administrador <span>→</span></Link>}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMoneda } from '../context/MonedaContext';
 import { monedasApi } from '../services/monedasApi';
+import { formatearPrecio } from '../domain/precios';
 import type { Moneda, PrecioConvertidoResponse } from '../types/moneda';
 
 interface Props {
@@ -14,10 +15,6 @@ interface ConversionConsultada {
   precios: PrecioConvertidoResponse | null;
 }
 const campos: Record<Moneda, 'cop' | 'usd' | 'eur'> = { COP: 'cop', USD: 'usd', EUR: 'eur' };
-const locales: Record<Moneda, string> = { COP: 'es-CO', USD: 'en-US', EUR: 'es-ES' };
-const formatearPrecio = (valor: number, moneda: Moneda) => new Intl.NumberFormat(locales[moneda], {
-  style: 'currency', currency: moneda, currencyDisplay: 'code',
-}).format(valor);
 
 export default function PrecioOferta({ precioDesde, moneda: monedaOrigen, preciosConvertidos }: Props) {
   const { moneda: monedaSeleccionada } = useMoneda();

@@ -14,6 +14,10 @@ import DestinosAdminPage from './pages/DestinosAdminPage';
 import ExperienciasAdminPage from './pages/ExperienciasAdminPage';
 import DestinoExperienciasAdminPage from './pages/DestinoExperienciasAdminPage';
 import OfertasNegocioPage from './pages/OfertasNegocioPage';
+import NuevaReservaPage from './pages/NuevaReservaPage';
+import MisReservasPage from './pages/MisReservasPage';
+import ReservaDetallePage from './pages/ReservaDetallePage';
+import ReservasOperadorPage from './pages/ReservasOperadorPage';
 import { MonedaProvider } from './context/MonedaContext';
 import NegociosPage from './pages/NegociosPage';
 import SofiaPage from './pages/SofiaPage';
@@ -55,6 +59,10 @@ function AppNavigation() {
             <Route path="/operador/solicitud" element={<AccesoProtegido ruta="/operador/solicitud"><SolicitudOperadorPage /></AccesoProtegido>} />
             <Route path="/operador/negocios" element={<AccesoProtegido ruta="/operador/negocios" roles={['OPERADOR']}><MisNegociosPage /></AccesoProtegido>} />
             <Route path="/gestion/operadores/solicitudes" element={<AccesoProtegido ruta="/gestion/operadores/solicitudes" roles={['ADMIN','SUPER_ADMIN']}><SolicitudesOperadorAdminPage /></AccesoProtegido>} />
+            <Route path="/reservas" element={<AccesoProtegido ruta="/reservas" roles={['TURISTA']}><MisReservasPage /></AccesoProtegido>} />
+            <Route path="/reservas/:id" element={<AccesoProtegido ruta="/reservas/:id" roles={['TURISTA']}><ReservaDetallePage /></AccesoProtegido>} />
+            <Route path="/destinos/:destinoSlug/experiencias/:experienciaSlug/reservar/:ofertaId" element={<AccesoProtegido ruta="/destinos/:destinoSlug/experiencias/:experienciaSlug/reservar/:ofertaId" roles={['TURISTA']}><NuevaReservaPage /></AccesoProtegido>} />
+            <Route path="/operador/reservas" element={<AccesoProtegido ruta="/operador/reservas" roles={['OPERADOR']}><ReservasOperadorPage /></AccesoProtegido>} />
             <Route path="/mi-cuenta" element={<AccesoProtegido ruta="/mi-cuenta"><MiCuentaPage /></AccesoProtegido>} />
             <Route path="/gestion/destinos" element={<AccesoProtegido ruta="/gestion/destinos" roles={['ADMIN','SUPER_ADMIN']}><DestinosAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/experiencias" element={<AccesoProtegido ruta="/gestion/experiencias" roles={['ADMIN','SUPER_ADMIN']}><ExperienciasAdminPage /></AccesoProtegido>} />

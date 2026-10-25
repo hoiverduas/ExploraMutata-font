@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { IonButton, IonContent, IonPage, IonSpinner } from '@ionic/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import { usuariosApi } from '../services/usuariosApi';
 import type { RegistroTuristaRequest } from '../types/usuario';
 
 export default function RegistroTuristaPage() {
   const navigate = useNavigate();
+  const [search] = useSearchParams();
+  const continuar = search.get('continuar');
+  const continuarLocal = continuar?.startsWith('/') && !continuar.startsWith('//') ? continuar : null;
+  const rutaLogin = continuarLocal ? `/ingresar?continuar=${encodeURIComponent(continuarLocal)}` : '/ingresar';
   const [form, setForm] = useState<RegistroTuristaRequest>({ nombres:'', apellidos:'', correo:'', telefono:'', contrasena:'' });
   const [confirmacion, setConfirmacion] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -23,7 +27,9 @@ export default function RegistroTuristaPage() {
       await usuariosApi.registroTurista({ ...form, correo: form.correo.trim().toLowerCase() });
       setForm({ nombres:'', apellidos:'', correo:'', telefono:'', contrasena:'' });
       setConfirmacion('');
-      navigate('/ingresar?registrado=1', { replace: true });
+      const parametros = new URLSearchParams({ registrado: '1' });
+      if (continuarLocal) parametros.set('continuar', continuarLocal);
+      navigate(`/ingresar?${parametros}`, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo completar el registro.');
     } finally { setCargando(false); }
@@ -45,7 +51,7 @@ export default function RegistroTuristaPage() {
           {error && <div className="notice-error" role="alert">{error}</div>}
           <IonButton type="submit" expand="block" className="btn-explora" disabled={cargando}>{cargando ? <><IonSpinner name="dots"/> Registrando…</> : 'Crear mi cuenta'}</IonButton>
         </form>
-        <p className="auth-footer">¿Ya tienes cuenta? <Link to="/ingresar">Inicia sesión</Link>.</p>
+        <p className="auth-footer">¿Ya tienes cuenta? <Link to={rutaLogin}>Inicia sesión</Link>.</p>
       </section>
     </main>
   </IonContent></IonPage>;

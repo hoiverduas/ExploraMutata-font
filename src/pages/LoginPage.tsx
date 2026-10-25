@@ -14,15 +14,16 @@ export default function LoginPage() {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
   const registrado = search.get('registrado') === '1';
+  const continuar = search.get('continuar');
+  const continuarLocal = continuar?.startsWith('/') && !continuar.startsWith('//') ? continuar : null;
+  const rutaRegistro = continuarLocal ? `/registro?continuar=${encodeURIComponent(continuarLocal)}` : '/registro';
 
   async function ingresar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); setError(''); setGuardando(true);
     try {
       const perfil = await iniciarSesion(correo, contrasena);
-      const continuar = search.get('continuar');
-      const destino = continuar?.startsWith('/') && !continuar.startsWith('//')
-        ? continuar : perfil.roles.includes('SUPER_ADMIN') || perfil.roles.includes('ADMIN')
-          ? '/gestion/negocios' : '/mi-cuenta';
+      const destino = continuarLocal ?? (perfil.roles.includes('SUPER_ADMIN') || perfil.roles.includes('ADMIN')
+          ? '/gestion/negocios' : '/mi-cuenta');
       navigate(destino, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No fue posible iniciar sesión.');
@@ -41,7 +42,7 @@ export default function LoginPage() {
           {error && <div className="notice-error" role="alert">{error}</div>}
           <IonButton className="btn-explora" type="submit" expand="block" disabled={guardando}>{guardando ? <><IonSpinner name="dots"/> Ingresando…</> : 'Ingresar'}</IonButton>
         </form>
-        <p className="auth-footer">¿Aún no tienes una cuenta? <Link to="/registro">Regístrate como turista</Link>.</p>
+        <p className="auth-footer">¿Aún no tienes una cuenta? <Link to={rutaRegistro}>Regístrate como turista</Link>.</p>
       </section>
     </main>
   </IonContent></IonPage>;

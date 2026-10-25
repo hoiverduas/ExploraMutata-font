@@ -22,7 +22,7 @@ export default function InicioPage() {
   return <IonPage>
     <BrandHeader />
     <IonContent fullscreen>
-      <div className="prototype-ribbon">EXPLORA MUTATÁ · PROTOTIPO EN DESARROLLO · SIN RESERVAS REALES</div>
+      <div className="prototype-ribbon">EXPLORA MUTATÁ · TURISMO Y EXPERIENCIAS LOCALES</div>
       <section className="hero-home">
         <div className="hero-home-bg" />
         <div className="hero-home-copy page-width">

@@ -111,7 +111,22 @@ export interface CamposHospedaje {
   incluyeDesayuno: boolean;
 }
 export interface OfertaHospedajeRequest extends CamposOfertaEspecializadaRequest, CamposHospedaje {}
-export interface OfertaHospedajeResponse extends CamposHospedaje { oferta: OfertaNegocioResponse; }
+export const amenidadesHospedaje = [
+  'WIFI', 'AIRE_ACONDICIONADO', 'VENTILADOR', 'PISCINA', 'PARQUEADERO', 'BANO_PRIVADO',
+  'AGUA_CALIENTE', 'COCINA', 'TELEVISION', 'MASCOTAS_PERMITIDAS', 'ACCESIBILIDAD', 'BALCON',
+  'VISTA_RIO', 'HAMACAS', 'PARRILLA', 'ZONA_SOCIAL', 'ACCESO_RIO', 'CASCADA', 'DESAYUNO',
+  'LAVANDERIA', 'ZONA_CAMPING',
+] as const;
+export type AmenidadHospedaje = typeof amenidadesHospedaje[number];
+export interface OfertaHospedajeResponse extends CamposHospedaje {
+  oferta: OfertaNegocioResponse;
+  cantidadUnidades: number | null;
+  estadiaMinimaNoches: number | null;
+  estadiaMaximaNoches: number | null;
+  horaCheckIn: string | null;
+  horaCheckOut: string | null;
+  amenidades: AmenidadHospedaje[];
+}
 
 export const tiposServicioTransporte = ['TRASLADO', 'IDA_Y_REGRESO', 'TRANSPORTE_LOCAL', 'TOUR', 'OTRO'] as const;
 export type TipoServicioTransporte = typeof tiposServicioTransporte[number];

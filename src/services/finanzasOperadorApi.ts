@@ -24,8 +24,15 @@ function extraerBancos(payload: unknown): WompiBanco[] {
     const id = [banco.id, banco.bankId, banco.bank_id].find(v => typeof v === 'string');
     const nombre = [banco.name, banco.nombre, banco.bankName, banco.bank_name].find(v => typeof v === 'string');
     const codigo = [banco.code, banco.codigo, banco.bankCode, banco.bank_code].find(v => typeof v === 'string' || typeof v === 'number');
+    const depositoElectronico = [banco.isElectronicDeposit, banco.depositoElectronico, banco.is_electronic_deposit]
+      .find(v => typeof v === 'boolean');
     if (typeof id !== 'string' || typeof nombre !== 'string') return [];
-    return [{ id, nombre, codigo: codigo == null ? null : String(codigo) }];
+    return [{
+      id,
+      nombre,
+      codigo: codigo == null ? null : String(codigo),
+      depositoElectronico: depositoElectronico === true,
+    }];
   });
 }
 

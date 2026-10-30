@@ -12,6 +12,12 @@ export type ModeloPrecio = typeof modelosPrecio[number];
 export const unidadesDuracionOferta = ['UNICO', 'DIA', 'NOCHE', 'SEMANA', 'MES'] as const;
 export type UnidadDuracionOferta = typeof unidadesDuracionOferta[number];
 
+export const tiposInventario = [
+  'CUPO', 'PERSONA', 'HABITACION', 'UNIDAD_ALOJAMIENTO', 'ESPACIO_CAMPING',
+  'CABALLO', 'MOTO', 'BOTE', 'EQUIPO', 'VEHICULO', 'MESA', 'GRUPO', 'TRAYECTO', 'RESERVA',
+] as const;
+export type TipoInventario = typeof tiposInventario[number];
+
 export const nombresModeloPrecio: Record<ModeloPrecio, string> = {
   FIJO: 'Precio fijo', POR_PERSONA: 'Por persona', POR_DIA: 'Por día', POR_NOCHE: 'Por noche',
   POR_PERSONA_Y_DIA: 'Por persona y día', POR_PERSONA_Y_NOCHE: 'Por persona y noche',
@@ -47,7 +53,23 @@ export interface OfertaNegocioResponse extends OfertaNegocioRequest {
   id: number;
   negocioId: string;
   negocioNombreComercial: string;
+  negocioWhatsapp: string | null;
+  negocioInstagramUrl: string | null;
+  negocioFacebookUrl: string | null;
   preciosConvertidos: PrecioConvertidoResponse | null;
+  controlaDisponibilidad: boolean | null;
+  requiereHorario: boolean | null;
+  tipoInventario: TipoInventario | null;
+  capacidadPorInventario: number | null;
+  usaUbicacionNegocio: boolean | null;
+  puntoEncuentroNombre: string | null;
+  puntoEncuentroDireccion: string | null;
+  puntoEncuentroMunicipio: string | null;
+  puntoEncuentroVereda: string | null;
+  puntoEncuentroReferencia: string | null;
+  puntoEncuentroLatitud: number | null;
+  puntoEncuentroLongitud: number | null;
+  puntoEncuentroComoLlegar: string | null;
   estado: EstadoOferta;
   fechaCreacion: string;
   fechaActualizacion: string;

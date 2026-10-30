@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import type { PaqueteComercialResponse } from '../types/paqueteComercial';
 import { nombresModeloPaquete } from '../types/paqueteComercial';
 import PrecioOferta from './PrecioOferta';
+import BotonFavorito from './BotonFavorito';
 
 const unidades = { UNICO: 'servicio', DIA: 'día(s)', NOCHE: 'noche(s)', SEMANA: 'semana(s)', MES: 'mes(es)' } as const;
 export default function TarjetaPaqueteComercial({ paquete }: { paquete: PaqueteComercialResponse }) {
@@ -11,7 +12,7 @@ export default function TarjetaPaqueteComercial({ paquete }: { paquete: PaqueteC
       {paquete.descripcion && <p className="package-card-description">{paquete.descripcion}</p>}
       <p>{paquete.totalItems} servicio(s) · Desde {paquete.minimoPersonas} persona(s){paquete.maximoPersonas !== null ? ` · Máximo ${paquete.maximoPersonas}` : ''}</p>
       {paquete.precio !== null && paquete.moneda ? <><PrecioOferta precioDesde={paquete.precio} moneda={paquete.moneda}/><small>{nombresModeloPaquete[paquete.modeloPrecio]}</small></> : <p>Precio según los servicios incluidos. Consulta la cotización.</p>}
-      <Link className="resource-inline-link" to={`/paquetes/${encodeURIComponent(paquete.id)}`}>Ver paquete <span aria-hidden="true">→</span></Link>
+      <div className="marketplace-actions"><Link className="resource-inline-link" to={`/paquetes/${encodeURIComponent(paquete.id)}`}>Ver paquete <span aria-hidden="true">→</span></Link><BotonFavorito tipo="PAQUETE" recursoId={paquete.id} compacto/></div>
     </div>
   </article>;
 }

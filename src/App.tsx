@@ -30,6 +30,8 @@ import ViajeDetallePage from './pages/ViajeDetallePage';
 import OperadorResumenPage from './pages/OperadorResumenPage';
 import FinanzasOperadorPage from './pages/FinanzasOperadorPage';
 import FinanzasAdminPage from './pages/FinanzasAdminPage';
+import ComercialOperadorPage from './pages/ComercialOperadorPage';
+import ComercialAdminPage from './pages/ComercialAdminPage';
 import MisFavoritosPage from './pages/MisFavoritosPage';
 import MisResenasPage from './pages/MisResenasPage';
 import ResenasOperadorPage from './pages/ResenasOperadorPage';
@@ -102,6 +104,7 @@ function AppNavigation() {
             <Route path="/destinos/:destinoSlug/experiencias/:experienciaSlug/reservar/:ofertaId" element={<AccesoProtegido ruta="/destinos/:destinoSlug/experiencias/:experienciaSlug/reservar/:ofertaId" roles={['TURISTA']}><NuevaReservaPage /></AccesoProtegido>} />
             <Route path="/operador/reservas" element={<AccesoProtegido ruta="/operador/reservas" roles={['OPERADOR']}><ReservasOperadorPage /></AccesoProtegido>} />
             <Route path="/operador/finanzas" element={<AccesoProtegido ruta="/operador/finanzas" roles={['OPERADOR']}><FinanzasOperadorPage /></AccesoProtegido>} />
+            <Route path="/operador/comercial" element={<AccesoProtegido ruta="/operador/comercial" roles={['OPERADOR']}><ComercialOperadorPage /></AccesoProtegido>} />
             <Route path="/operador/resenas" element={<AccesoProtegido ruta="/operador/resenas" roles={['OPERADOR']}><ResenasOperadorPage /></AccesoProtegido>} />
             <Route path="/mi-cuenta" element={<AccesoProtegido ruta="/mi-cuenta"><MiCuentaPage /></AccesoProtegido>} />
             <Route path="/gestion/destinos" element={<AccesoProtegido ruta="/gestion/destinos" roles={['ADMIN','SUPER_ADMIN']}><DestinosAdminPage /></AccesoProtegido>} />
@@ -112,6 +115,7 @@ function AppNavigation() {
             <Route path="/operador/negocios/:negocioId/ofertas" element={<AccesoProtegido ruta="/operador/negocios/:negocioId/ofertas" roles={['OPERADOR']}><OfertasNegocioPage /></AccesoProtegido>} />
             <Route path="/gestion/negocios" element={<AccesoProtegido ruta="/gestion/negocios" roles={['ADMIN','SUPER_ADMIN']}><NegociosPage /></AccesoProtegido>} />
             <Route path="/gestion/finanzas" element={<AccesoProtegido ruta="/gestion/finanzas" roles={['ADMIN','SUPER_ADMIN']}><FinanzasAdminPage /></AccesoProtegido>} />
+            <Route path="/gestion/comercial" element={<AccesoProtegido ruta="/gestion/comercial" roles={['ADMIN','SUPER_ADMIN']}><ComercialAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/resenas" element={<AccesoProtegido ruta="/gestion/resenas" roles={['ADMIN','SUPER_ADMIN']}><ModeracionResenasAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/administradores/invitar" element={<AccesoProtegido ruta="/gestion/administradores/invitar" roles={['SUPER_ADMIN']}><InvitarAdministradorPage /></AccesoProtegido>} />
             <Route path="/" element={<Navigate to="/inicio" replace />} />

@@ -10,6 +10,18 @@ import type { NegocioResponse } from '../types/negocio';
 import type { RedesNegocioRequest } from '../types/redesNegocio';
 
 const opcional = (valor: string) => valor.trim() || null;
+const dominioValido = (valor: string, dominios: string[]) => {
+  const limpio = valor.trim();
+  if (!limpio) return true;
+  if (limpio.startsWith('@')) return true;
+  try {
+    const normalizado = /^https?:\/\//i.test(limpio) ? limpio : `https://${limpio}`;
+    const host = new URL(normalizado).hostname.toLocaleLowerCase('es');
+    return dominios.some(dominio => host === dominio || host.endsWith(`.${dominio}`));
+  } catch {
+    return false;
+  }
+};
 
 export default function ContenidoNegocioPage() {
   const { negocioId } = useParams<{ negocioId: string }>();
@@ -61,9 +73,14 @@ export default function ContenidoNegocioPage() {
   const guardarRedes = async () => {
     if (!negocioId || guardando) return;
     if (redes.whatsappContacto.length > 25 || redes.instagramUrl.length > 300 || redes.facebookUrl.length > 300) return setError('Revisa la longitud de WhatsApp, Instagram y Facebook.');
-    for (const url of [redes.instagramUrl, redes.facebookUrl]) {
-      if (url.trim() && !/^https?:\/\//i.test(url.trim())) return setError('Instagram y Facebook deben usar una URL completa que comience por http:// o https://.');
-    }
+    const numero = redes.whatsappContacto.replace(/[^0-9]/g, '');
+    if (redes.whatsappContacto.trim() && !(/^3\d{9}$/.test(numero) || /^[1-9]\d{7,14}$/.test(numero))) return setError('WhatsApp debe ser un número válido, por ejemplo +573001234567.');
+    if (!dominioValido(redes.instagramUrl, ['instagram.com'])) return setError('Instagram debe apuntar a instagram.com o usar @usuario.');
+    if (!dominioValido(redes.facebookUrl, ['facebook.com', 'fb.com'])) return setError('Facebook debe apuntar a facebook.com/fb.com o usar @usuario.');
+    if (redes.mostrarWhatsapp && !redes.whatsappContacto.trim()) return setError('Registra un WhatsApp antes de hacerlo público.');
+    if (redes.notificacionesWhatsapp && !redes.whatsappContacto.trim()) return setError('Registra un WhatsApp antes de activar notificaciones.');
+    if (redes.mostrarInstagram && !redes.instagramUrl.trim()) return setError('Registra Instagram antes de hacerlo público.');
+    if (redes.mostrarFacebook && !redes.facebookUrl.trim()) return setError('Registra Facebook antes de hacerlo público.');
     const body: RedesNegocioRequest = {
       whatsappContacto: opcional(redes.whatsappContacto),
       instagramUrl: opcional(redes.instagramUrl),

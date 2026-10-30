@@ -25,7 +25,7 @@ export interface FranjaHorariaRequest {
 }
 
 export interface SalidaProgramadaResponse {
-  id: string;
+  id: string | null;
   ofertaId: number;
   franjaHorariaId: string | null;
   fecha: string;

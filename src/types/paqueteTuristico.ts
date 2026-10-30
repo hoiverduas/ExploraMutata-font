@@ -34,17 +34,23 @@ export interface PaqueteTuristicoItemRequest {
   observaciones: string | null;
 }
 
-export interface PaqueteTuristicoItem extends PaqueteTuristicoItemRequest {
+export interface PaqueteTuristicoItem {
   id: string;
+  ofertaId: number;
   varianteId: string | null;
   varianteNombre: string | null;
   ofertaNombre: string;
   categoria: CategoriaNegocio;
   negocioId: string;
   negocioNombreComercial: string;
+  fechaInicio: string;
+  fechaFin: string | null;
+  cantidadPersonas: number;
+  cantidadTrayectos: number | null;
   franjaHorariaId: string | null;
   salidaProgramadaId: string | null;
   orden: number;
+  observaciones: string | null;
   reservaId: string | null;
   estadoReserva: EstadoReserva | null;
   totalReserva: number | null;

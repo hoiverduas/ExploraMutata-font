@@ -102,7 +102,7 @@ export default function FinanzasOperadorPage() {
         proveedor: 'WOMPI',
         entidadFinanciera: banco.nombre,
         bancoIdWompi: banco.id,
-        tipoCuentaWompi: form.tipoCuentaWompi,
+        ...(banco.depositoElectronico ? {} : { tipoCuentaWompi: form.tipoCuentaWompi }),
         numeroCuenta: form.numeroCuenta,
         titular: form.titular.trim(),
         predeterminada: form.predeterminada,
@@ -124,6 +124,12 @@ export default function FinanzasOperadorPage() {
   };
 
   const negocio = negocios.find(item => item.id === negocioId);
+  const bancoSeleccionado = bancos.find(item => item.id === form.bancoIdWompi);
+  const esDepositoElectronico = bancoSeleccionado?.depositoElectronico === true;
+  const descripcionTipoDestino = (cuenta: CuentaPagoNegocioResponse) =>
+    cuenta.tipoDestino === 'DEPOSITO_ELECTRONICO'
+      ? 'depósito electrónico'
+      : cuenta.tipoCuentaWompi.toLocaleLowerCase('es');
 
   return <IonPage><BrandHeader title="Finanzas de mis negocios"/><IonContent fullscreen><main className="page-width gestion-page">
     <div className="gestion-heading"><div><span className="eyebrow">MI ESPACIO DE OPERADOR</span><h1>Pagos y <em>liquidaciones.</em></h1><p>Consulta tus movimientos y prepara la cuenta donde recibirás las liquidaciones.</p></div><IonButton fill="outline" disabled={cargando || !negocioId} onClick={() => void cargarFinanzas(negocioId)}>Actualizar</IonButton></div>
@@ -135,14 +141,17 @@ export default function FinanzasOperadorPage() {
       {negocioId && <><section className="gestion-form-panel"><h2>Cuenta para recibir liquidaciones</h2><p>La cuenta se registra cifrada en el backend; el frontend solo vuelve a mostrar su referencia enmascarada.</p>
         <div className="form-actions"><IonButton fill="outline" disabled={cargandoBancos || guardando} onClick={() => void cargarBancos()}>{cargandoBancos ? 'Consultando Wompi…' : bancos.length ? 'Actualizar bancos Wompi' : 'Consultar bancos Wompi'}</IonButton></div>
         {bancos.length > 0 && <div className="negocio-form">
-          <label>Banco<select value={form.bancoIdWompi} onChange={e => setForm(v => ({ ...v, bancoIdWompi: e.target.value }))}><option value="">Selecciona</option>{bancos.map(b => <option key={b.id} value={b.id}>{b.nombre}{b.codigo ? ` · ${b.codigo}` : ''}</option>)}</select></label>
-          <label>Tipo de cuenta<select value={form.tipoCuentaWompi} onChange={e => setForm(v => ({ ...v, tipoCuentaWompi: e.target.value as TipoCuentaBancariaWompi }))}><option value="AHORROS">Ahorros</option><option value="CORRIENTE">Corriente</option></select></label>
-          <label>Número de cuenta<input inputMode="numeric" maxLength={20} value={form.numeroCuenta} onChange={e => setForm(v => ({ ...v, numeroCuenta: e.target.value.replace(/\D/g, '') }))}/></label>
+          <label>Entidad financiera o billetera<select value={form.bancoIdWompi} onChange={e => setForm(v => ({ ...v, bancoIdWompi: e.target.value }))}><option value="">Selecciona</option>{bancos.map(b => <option key={b.id} value={b.id}>{b.nombre}{b.depositoElectronico ? ' · Billetera / depósito electrónico' : b.codigo ? ` · ${b.codigo}` : ''}</option>)}</select></label>
+          {esDepositoElectronico
+            ? <label>Tipo de producto<input value="Depósito electrónico" readOnly/></label>
+            : <label>Tipo de cuenta<select value={form.tipoCuentaWompi} onChange={e => setForm(v => ({ ...v, tipoCuentaWompi: e.target.value as TipoCuentaBancariaWompi }))}><option value="AHORROS">Ahorros</option><option value="CORRIENTE">Corriente</option></select></label>}
+          <label>{esDepositoElectronico ? 'Número de celular / producto' : 'Número de cuenta'}<input inputMode="numeric" maxLength={20} value={form.numeroCuenta} onChange={e => setForm(v => ({ ...v, numeroCuenta: e.target.value.replace(/\D/g, '') }))}/></label>
+          {esDepositoElectronico && <p>Wompi identifica esta entidad como depósito electrónico. No necesitas escoger Ahorros o Corriente; Explora Mutatá enviará el formato técnico compatible con Pagos a Terceros.</p>}
           <label>Titular<input maxLength={180} value={form.titular} onChange={e => setForm(v => ({ ...v, titular: e.target.value }))}/></label>
           <label><input type="checkbox" checked={form.predeterminada} onChange={e => setForm(v => ({ ...v, predeterminada: e.target.checked }))}/> Usar como cuenta predeterminada</label>
           <div className="form-actions"><IonButton disabled={guardando} onClick={() => void registrarCuenta()}>{guardando ? 'Registrando…' : 'Registrar cuenta'}</IonButton></div>
         </div>}
-        <div className="negocios-list">{cuentas.map(cuenta => <article className="negocio-row" key={cuenta.id}><div><h3>{cuenta.entidadFinanciera}</h3><p>{cuenta.tipoCuentaWompi.toLocaleLowerCase('es')} · {cuenta.referenciaDestinoEnmascarada} · {cuenta.titular}</p>{cuenta.observacionVerificacion && <p>{cuenta.observacionVerificacion}</p>}</div><span className={`status-pill status-${cuenta.estado === 'ACTIVA' ? 'activo' : cuenta.estado === 'PENDIENTE_VERIFICACION' ? 'borrador' : 'inactivo'}`}>{estadoTexto(cuenta.estado)}</span></article>)}{!cuentas.length && <p className="empty-state">No hay cuentas registradas para este negocio.</p>}</div>
+        <div className="negocios-list">{cuentas.map(cuenta => <article className="negocio-row" key={cuenta.id}><div><h3>{cuenta.entidadFinanciera}</h3><p>{descripcionTipoDestino(cuenta)} · {cuenta.referenciaDestinoEnmascarada} · {cuenta.titular}</p>{cuenta.observacionVerificacion && <p>{cuenta.observacionVerificacion}</p>}</div><span className={`status-pill status-${cuenta.estado === 'ACTIVA' ? 'activo' : cuenta.estado === 'PENDIENTE_VERIFICACION' ? 'borrador' : 'inactivo'}`}>{estadoTexto(cuenta.estado)}</span></article>)}{!cuentas.length && <p className="empty-state">No hay cuentas registradas para este negocio.</p>}</div>
       </section>
 
       <section className="gestion-form-panel"><h2>Liquidaciones</h2><div className="negocios-list">{liquidaciones.map(item => <article className="negocio-row" key={item.id}><div><h3>{formatearPrecio(item.monto, item.moneda)}</h3><p>{estadoTexto(item.estado)} · creada {fecha(item.fechaCreacion)}{item.fechaPago ? ` · pagada ${fecha(item.fechaPago)}` : ''}</p>{item.observacion && <p>{item.observacion}</p>}{dispersiones[item.id] && <div>{dispersiones[item.id].map(d => <p key={d.id}><strong>Intento {d.numeroIntento}:</strong> {estadoTexto(d.estado)}{d.referenciaTransaccionProveedor ? ` · ${d.referenciaTransaccionProveedor}` : ''}{d.mensajeError ? ` · ${d.mensajeError}` : ''}</p>)}</div>}</div><IonButton size="small" fill="outline" onClick={() => void verDispersiones(item.id)}>Ver dispersiones</IonButton></article>)}{!liquidaciones.length && <p className="empty-state">Aún no hay liquidaciones para este negocio.</p>}</div></section>

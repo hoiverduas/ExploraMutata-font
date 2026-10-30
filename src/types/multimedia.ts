@@ -22,7 +22,7 @@ export interface MediaAssetResponse {
   titulo: string | null;
   descripcion: string | null;
   altText: string | null;
-  orden: number;
+  orden: number | null;
   estado: EstadoMedia;
   autor: string | null;
   fuente: string | null;

@@ -60,6 +60,7 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
         422: 'No se pudo procesar la solicitud.',
         500: 'No pudimos completar la solicitud. Inténtalo de nuevo más tarde.',
         502: 'El servicio externo no respondió correctamente.',
+        503: 'El servicio no está disponible temporalmente.',
       } as Record<number, string>)[response.status] ?? `No se pudo completar la solicitud (HTTP ${response.status}).`;
     }
     if (response.status === 401 && !isPublic && authToken) {

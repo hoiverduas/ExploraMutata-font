@@ -68,7 +68,7 @@ export interface CuentaPagoNegocioRequest {
   proveedor: ProveedorPago;
   entidadFinanciera: string;
   bancoIdWompi: string;
-  tipoCuentaWompi: TipoCuentaBancariaWompi;
+  tipoCuentaWompi?: TipoCuentaBancariaWompi;
   numeroCuenta: string;
   titular: string;
   predeterminada: boolean;
@@ -242,6 +242,7 @@ export interface WompiBanco {
   id: string;
   nombre: string;
   codigo: string | null;
+  depositoElectronico: boolean;
 }
 
 export interface WompiCuentaOrigen {

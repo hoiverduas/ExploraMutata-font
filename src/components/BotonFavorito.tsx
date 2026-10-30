@@ -17,6 +17,7 @@ export default function BotonFavorito({ tipo, recursoId, compacto = false }: {
   const [favorito, setFavorito] = useState(false);
   const [consultando, setConsultando] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState('');
   const vivo = useRef(true);
 
   const esTurista = tieneRol('TURISTA');
@@ -41,7 +42,7 @@ export default function BotonFavorito({ tipo, recursoId, compacto = false }: {
       navigate(`/ingresar?continuar=${continuar}`);
       return;
     }
-    setGuardando(true);
+    setGuardando(true); setError('');
     try {
       if (favorito) {
         await favoritosApi.eliminar(tipo, recursoId);
@@ -50,6 +51,8 @@ export default function BotonFavorito({ tipo, recursoId, compacto = false }: {
         await favoritosApi.agregar({ tipoRecurso: tipo, recursoId });
         if (vivo.current) setFavorito(true);
       }
+    } catch (err) {
+      if (vivo.current) setError(err instanceof Error ? err.message : 'No se pudo actualizar el favorito.');
     } finally {
       if (vivo.current) setGuardando(false);
     }
@@ -62,7 +65,7 @@ export default function BotonFavorito({ tipo, recursoId, compacto = false }: {
     className="favorite-button"
     disabled={guardando || consultando}
     aria-label={texto}
-    title={texto}
+    title={error || texto}
     onClick={() => void cambiar()}
   >
     {guardando || consultando ? <IonSpinner name="crescent"/> : <IonIcon icon={favorito ? heart : heartOutline}/>}

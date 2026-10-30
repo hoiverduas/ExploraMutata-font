@@ -13,7 +13,7 @@ interface FiltrosCercanos extends FiltrosMapa {
   radioKm?: number;
 }
 
-function query(params: Record<string, string | number | undefined>): string {
+function query<T extends object>(params: T): string {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([clave, valor]) => {
     if (valor !== undefined) search.set(clave, String(valor));

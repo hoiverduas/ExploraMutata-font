@@ -221,9 +221,16 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     try {
       if (accion === 'agregar') {
         await agregarOferta({
-          ofertaId: oferta.id, fechaInicio: datos.fechaInicio, fechaFin: datos.fechaFin,
-          cantidadPersonas: datos.cantidadPersonas, cantidadTrayectos: datos.cantidadTrayectos,
-          orden: null, observaciones: observaciones.trim() || null,
+          ofertaId: oferta.id,
+          varianteId: parametros.varianteId,
+          fechaInicio: datos.fechaInicio,
+          fechaFin: datos.fechaFin,
+          cantidadPersonas: datos.cantidadPersonas,
+          cantidadTrayectos: datos.cantidadTrayectos,
+          franjaId: parametros.franjaId,
+          salidaId: parametros.salidaId,
+          orden: null,
+          observaciones: observaciones.trim() || null,
         });
         if (origen === contexto.current) navigate('/mi-viaje');
       } else {

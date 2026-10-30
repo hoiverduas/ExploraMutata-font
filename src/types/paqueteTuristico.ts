@@ -23,20 +23,27 @@ export interface ActualizarPaqueteTuristicoRequest {
 
 export interface PaqueteTuristicoItemRequest {
   ofertaId: number;
+  varianteId?: string | null;
   fechaInicio: string;
   fechaFin: string | null;
   cantidadPersonas: number;
   cantidadTrayectos: number | null;
+  franjaId?: string | null;
+  salidaId?: string | null;
   orden: number | null;
   observaciones: string | null;
 }
 
 export interface PaqueteTuristicoItem extends PaqueteTuristicoItemRequest {
   id: string;
+  varianteId: string | null;
+  varianteNombre: string | null;
   ofertaNombre: string;
   categoria: CategoriaNegocio;
   negocioId: string;
   negocioNombreComercial: string;
+  franjaHorariaId: string | null;
+  salidaProgramadaId: string | null;
   orden: number;
   reservaId: string | null;
   estadoReserva: EstadoReserva | null;

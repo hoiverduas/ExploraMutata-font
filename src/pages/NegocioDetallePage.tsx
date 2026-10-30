@@ -9,6 +9,8 @@ import PaquetesComercialesNegocio from '../components/PaquetesComercialesNegocio
 import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
 import RedesContactoPublicas from '../components/RedesContactoPublicas';
 import UbicacionPublica from '../components/UbicacionPublica';
+import BotonFavorito from '../components/BotonFavorito';
+import ResenasNegocioPublicas from '../components/ResenasNegocioPublicas';
 import { categoriasCatalogo, nombresCategoria } from '../data/categoriasCatalogo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { listarNegociosPublicos } from '../services/catalogoApi';
@@ -39,7 +41,7 @@ export default function NegocioDetallePage() {
       <EstadoConsulta {...consulta} sinDatos={!negocio} mensajeVacio="El negocio no está disponible.">
         {negocio && <>
           <section className="marketplace-hero"><img className="marketplace-hero-image" src={negocio.categorias.length ? imagenEditorialCategoria[negocio.categorias[0]] : '/images/hero-mutata.webp'} alt="Paisajes de Mutatá, imagen editorial"/>
-            <div className="marketplace-hero-copy"><span className="eyebrow">DESCUBRE MUTATÁ</span><h1>{negocio.nombreComercial}</h1><div className="marketplace-badges">{negocio.categorias.map(valor => <span key={valor}>{nombresCategoria[valor]}</span>)}</div>{negocio.descripcion && <p>{negocio.descripcion}</p>}</div>
+            <div className="marketplace-hero-copy"><span className="eyebrow">DESCUBRE MUTATÁ</span><div className="detail-title-actions"><h1>{negocio.nombreComercial}</h1><BotonFavorito tipo="NEGOCIO" recursoId={negocio.id}/></div><div className="marketplace-badges">{negocio.categorias.map(valor => <span key={valor}>{nombresCategoria[valor]}</span>)}</div>{negocio.descripcion && <p>{negocio.descripcion}</p>}</div>
           </section>
           <GaleriaMultimediaPublica tipo="NEGOCIO" entidadId={negocio.id}/>
           <section className="marketplace-section"><h2>Conecta con el negocio</h2><dl className="catalog-contact">
@@ -54,7 +56,7 @@ export default function NegocioDetallePage() {
             <div className="tourism-filters"><label>Categoría<select value={categoria} onChange={e => setCategoria(categoriasCatalogo.find(item => item.categoria === e.target.value)?.categoria ?? '')}><option value="">Todas las ofertas</option>{categoriasCatalogo.map(item => <option key={item.categoria} value={item.categoria}>{item.nombre}</option>)}</select></label></div>
             <EstadoConsulta {...ofertas} sinDatos={!ofertas.datos.length} mensajeVacio="Este negocio todavía no tiene ofertas publicadas para esta categoría."><div className="catalog-grid">{ofertas.datos.map(oferta => <OfertaPublicaCard oferta={oferta} key={oferta.id}/>)}</div></EstadoConsulta>
           </section>
-          <PaquetesComercialesNegocio negocioId={negocio.id}/>
+          <ResenasNegocioPublicas negocioId={negocio.id}/><PaquetesComercialesNegocio negocioId={negocio.id}/>
         </>}
       </EstadoConsulta>
     </main>

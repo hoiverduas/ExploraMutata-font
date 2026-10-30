@@ -7,6 +7,7 @@ import NavegacionTuristica from '../components/NavegacionTuristica';
 import OfertasPublicas from '../components/OfertasPublicas';
 import TarjetaTuristica from '../components/TarjetaTuristica';
 import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
+import BotonFavorito from '../components/BotonFavorito';
 import { nombresDificultad, nombresTipoDestino } from '../data/turismo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { destinoExperienciasApi } from '../services/destinoExperienciasApi';
@@ -39,13 +40,13 @@ export default function ExperienciaDetallePage() {
   return <IonPage><BrandHeader title={datos?.nombre ?? 'Experiencia'}/><IonContent fullscreen><main className="page-width tourism-detail">
     <NavegacionTuristica/><div className="adventure-path" aria-label="Tu ruta de aventura"><span>Aventuras</span><span aria-hidden="true">→</span><span>{destinos.datos[0]?.nombre || "Destino"}</span><span aria-hidden="true">→</span><strong>{datos?.nombre || "Experiencia"}</strong><span aria-hidden="true">→</span><span>Ofertas</span></div>
     <EstadoConsulta {...experiencia} sinDatos={!datos} mensajeVacio="No encontramos esta experiencia.">
-      {datos && <><span className="eyebrow">EXPERIENCIAS DE MUTATÁ</span><h1>{datos.nombre}</h1>
+      {datos && <><span className="eyebrow">EXPERIENCIAS DE MUTATÁ</span><div className="detail-title-actions"><h1>{datos.nombre}</h1><BotonFavorito tipo="EXPERIENCIA" recursoId={datos.id}/></div>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}
         <GaleriaMultimediaPublica tipo="EXPERIENCIA" entidadId={datos.id}/>
         <dl className="tourism-facts"><div><dt>Dificultad</dt><dd>{nombresDificultad[datos.dificultad]}</dd></div>{datos.duracionReferencia && <div><dt>Duración de referencia</dt><dd>{datos.duracionReferencia}</dd></div>}</dl>
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
         <section><h2>{destinoSlug ? 'Tu destino' : 'Dónde vivir esta experiencia'}</h2><EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="No hay destinos disponibles para esta experiencia.">
-          <div className="catalog-grid">{destinos.datos.map(destino => <TarjetaTuristica key={destino.id} nombre={destino.nombre} descripcion={destino.descripcion} etiqueta={nombresTipoDestino[destino.tipo]} ruta={destinoSlug ? `/destinos/${encodeURIComponent(destino.slug)}` : `/destinos/${encodeURIComponent(destino.slug)}/experiencias/${encodeURIComponent(datos.slug)}`}/>)}</div>
+          <div className="catalog-grid">{destinos.datos.map(destino => <TarjetaTuristica key={destino.id} nombre={destino.nombre} descripcion={destino.descripcion} etiqueta={nombresTipoDestino[destino.tipo]} ruta={destinoSlug ? `/destinos/${encodeURIComponent(destino.slug)}` : `/destinos/${encodeURIComponent(destino.slug)}/experiencias/${encodeURIComponent(datos.slug)}`} favorito={{ tipo: 'DESTINO', recursoId: destino.id }}/>)}</div>
         </EstadoConsulta></section>
         {destinoSlug && slug && !destinos.cargando && !destinos.error && destinos.datos.length > 0 && <OfertasPublicas destinoSlug={destinoSlug} experienciaSlug={slug}/>}
       </>}

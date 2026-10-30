@@ -10,6 +10,7 @@ import PrecioOferta from '../components/PrecioOferta';
 import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
 import RedesContactoPublicas from '../components/RedesContactoPublicas';
 import UbicacionPublica from '../components/UbicacionPublica';
+import ConfiguracionComercialOfertaPublica from '../components/ConfiguracionComercialOfertaPublica';
 import { imagenEditorialCategoria } from '../components/OfertaPublicaCard';
 import { nombresCategoria } from '../data/categoriasCatalogo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
@@ -39,6 +40,7 @@ export default function OfertaDetallePage() {
           <RedesContactoPublicas whatsapp={oferta.negocioWhatsapp} instagramUrl={oferta.negocioInstagramUrl} facebookUrl={oferta.negocioFacebookUrl}/>
         </section>
         <UbicacionPublica tipo="OFERTA" entidadId={String(oferta.id)}/>
+        <ConfiguracionComercialOfertaPublica ofertaId={oferta.id} moneda={oferta.moneda}/>
         <div className="offer-layout"><DatosOferta key={`datos-${oferta.negocioId}-${oferta.id}`} oferta={oferta}/><CotizadorOferta key={`cotizador-${oferta.negocioId}-${oferta.id}`} oferta={oferta}/></div>
       </>}
     </EstadoConsulta>

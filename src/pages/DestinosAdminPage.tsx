@@ -14,7 +14,8 @@ const estados: { valor: EstadoDestino; texto: string }[] = [
 ];
 type FormularioDestino = Omit<DestinoRequest, 'latitud' | 'longitud'> & { latitud: string; longitud: string };
 const formularioVacio: FormularioDestino = {
-  nombre: '', tipo: 'OTRO', descripcion: '', ubicacionReferencia: '', latitud: '', longitud: '', comoLlegar: '', recomendaciones: '',
+  nombre: '', tipo: 'OTRO', descripcion: '', ubicacionReferencia: '', direccion: '', municipio: '', vereda: '',
+  latitud: '', longitud: '', comoLlegar: '', recomendaciones: '',
 };
 const opcional = (valor: string | null | undefined) => valor?.trim() || null;
 
@@ -56,7 +57,8 @@ export default function DestinosAdminPage() {
     try {
       const destino = await destinosApi.buscar(id);
       setFormulario({ nombre: destino.nombre, tipo: destino.tipo, descripcion: destino.descripcion ?? '',
-        ubicacionReferencia: destino.ubicacionReferencia ?? '', latitud: destino.latitud == null ? '' : String(destino.latitud),
+        ubicacionReferencia: destino.ubicacionReferencia ?? '', direccion: destino.direccion ?? '', municipio: destino.municipio ?? '',
+        vereda: destino.vereda ?? '', latitud: destino.latitud == null ? '' : String(destino.latitud),
         longitud: destino.longitud == null ? '' : String(destino.longitud), comoLlegar: destino.comoLlegar ?? '', recomendaciones: destino.recomendaciones ?? '' });
       setEditandoId(id); setMostrarFormulario(true);
     } catch (err) { setError(err instanceof Error ? err.message : 'No se pudo consultar el destino.'); }
@@ -67,8 +69,10 @@ export default function DestinosAdminPage() {
     setError(''); setMensaje('');
     const nombre = formulario.nombre.trim();
     if (!nombre || nombre.length > 150) { setError('Indica un nombre de hasta 150 caracteres.'); return; }
-    if ((formulario.descripcion?.length ?? 0) > 2000 || (formulario.comoLlegar?.length ?? 0) > 2000 || (formulario.recomendaciones?.length ?? 0) > 2000 || (formulario.ubicacionReferencia?.length ?? 0) > 500) {
-      setError('Revisa los límites de los textos del destino.'); return;
+    if ((formulario.descripcion?.length ?? 0) > 2000 || (formulario.comoLlegar?.length ?? 0) > 2000 || (formulario.recomendaciones?.length ?? 0) > 2000
+      || (formulario.ubicacionReferencia?.length ?? 0) > 500 || (formulario.direccion?.length ?? 0) > 250
+      || (formulario.municipio?.length ?? 0) > 100 || (formulario.vereda?.length ?? 0) > 120) {
+      setError('Revisa los límites de los textos y la ubicación del destino.'); return;
     }
     const tieneLatitud = formulario.latitud.trim() !== '';
     const tieneLongitud = formulario.longitud.trim() !== '';
@@ -79,7 +83,8 @@ export default function DestinosAdminPage() {
       setError('La latitud debe estar entre -90 y 90, y la longitud entre -180 y 180.'); return;
     }
     const body: DestinoRequest = { nombre, tipo: formulario.tipo, descripcion: opcional(formulario.descripcion),
-      ubicacionReferencia: opcional(formulario.ubicacionReferencia), latitud, longitud,
+      ubicacionReferencia: opcional(formulario.ubicacionReferencia), direccion: opcional(formulario.direccion),
+      municipio: opcional(formulario.municipio), vereda: opcional(formulario.vereda), latitud, longitud,
       comoLlegar: opcional(formulario.comoLlegar), recomendaciones: opcional(formulario.recomendaciones) };
     setGuardando(true);
     try {
@@ -108,6 +113,9 @@ export default function DestinosAdminPage() {
         <label>Tipo *<select value={formulario.tipo} onChange={e => campo('tipo', tipos.find(tipo => tipo.valor === e.target.value)?.valor ?? 'OTRO')}>{tipos.map(tipo => <option key={tipo.valor} value={tipo.valor}>{tipo.texto}</option>)}</select></label>
         <label className="form-full">Descripción<textarea rows={4} maxLength={2000} value={formulario.descripcion ?? ''} onChange={e => campo('descripcion', e.target.value)}/></label>
         <label className="form-full">Ubicación de referencia<input maxLength={500} value={formulario.ubicacionReferencia ?? ''} onChange={e => campo('ubicacionReferencia', e.target.value)}/></label>
+        <label className="form-full">Dirección<input maxLength={250} value={formulario.direccion ?? ''} onChange={e => campo('direccion', e.target.value)}/></label>
+        <label>Municipio<input maxLength={100} value={formulario.municipio ?? ''} onChange={e => campo('municipio', e.target.value)}/></label>
+        <label>Vereda<input maxLength={120} value={formulario.vereda ?? ''} onChange={e => campo('vereda', e.target.value)}/></label>
         <label>Latitud<input type="number" min={-90} max={90} step="any" value={formulario.latitud} onChange={e => campo('latitud', e.target.value)}/></label>
         <label>Longitud<input type="number" min={-180} max={180} step="any" value={formulario.longitud} onChange={e => campo('longitud', e.target.value)}/></label>
         <label className="form-full">Cómo llegar<textarea rows={4} maxLength={2000} value={formulario.comoLlegar ?? ''} onChange={e => campo('comoLlegar', e.target.value)}/></label>

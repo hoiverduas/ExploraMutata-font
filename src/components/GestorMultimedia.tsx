@@ -91,6 +91,12 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
     if (validacion) return setError(validacion);
     const tiposValidos = archivos.every(a => a.type.startsWith('image/') || a.type.startsWith('video/'));
     if (!tiposValidos) return setError('Selecciona únicamente imágenes o videos.');
+    if (archivos.length > 20) return setError('El backend admite como máximo 20 archivos por lote.');
+    if (archivos.length > 1 && !['GALERIA', 'REEL'].includes(form.rol)) return setError('La carga múltiple solo admite los roles Galería o Reel.');
+    if ((form.rol === 'PORTADA' || form.rol === 'MINIATURA') && !archivos.every(a => a.type.startsWith('image/'))) return setError('Portada y miniatura requieren archivos de imagen.');
+    if ((form.rol === 'VIDEO_PRINCIPAL' || form.rol === 'REEL') && !archivos.every(a => a.type.startsWith('video/'))) return setError('Video principal y Reel requieren archivos de video.');
+    const excedeTamano = archivos.some(a => a.type.startsWith('image/') ? a.size > 15 * 1024 * 1024 : a.size > 250 * 1024 * 1024);
+    if (excedeTamano) return setError('Una imagen supera 15 MB o un video supera 250 MB, límites actuales del backend.');
     setGuardando(true); setError(''); setMensaje('');
     try {
       const metadata = normalizar(form);

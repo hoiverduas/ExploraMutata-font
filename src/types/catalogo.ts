@@ -13,4 +13,14 @@ export interface NegocioPublico {
   descripcion: string | null;
   correoContacto: string;
   telefonoContacto: string;
+  whatsappContacto: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  direccion: string | null;
+  municipio: string | null;
+  vereda: string | null;
+  ubicacionReferencia: string | null;
+  latitud: number | null;
+  longitud: number | null;
+  comoLlegar: string | null;
 }

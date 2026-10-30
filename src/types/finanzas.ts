@@ -243,3 +243,23 @@ export interface WompiBanco {
   nombre: string;
   codigo: string | null;
 }
+
+export interface WompiCuentaOrigen {
+  id: string;
+  balanceInCents: number | null;
+  number: string | null;
+  status: string;
+  isMain: boolean | null;
+  accountType: string | null;
+  bank: {
+    code: string | null;
+    name: string | null;
+  } | null;
+  updatedAt: string | null;
+}
+
+export interface DiagnosticoWompiPagosTerceros {
+  salud: unknown;
+  cuentasOrigen: WompiCuentaOrigen[];
+  bancos: unknown;
+}

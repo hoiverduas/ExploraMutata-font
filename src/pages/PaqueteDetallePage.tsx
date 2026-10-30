@@ -8,6 +8,7 @@ import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import PrecioOferta from '../components/PrecioOferta';
 import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
+import BotonFavorito from '../components/BotonFavorito';
 import TotalesViaje from '../components/viaje/TotalesViaje';
 import { useViaje } from '../context/ViajeContext';
 import { nombresCategoria } from '../data/categoriasCatalogo';
@@ -90,7 +91,7 @@ export default function PaqueteDetallePage() {
   return <IonPage><BrandHeader title={paquete?.nombre ?? 'Paquete turístico'}/><IonContent fullscreen><main className="page-width tourism-detail package-detail">
     <NavegacionTuristica/><Link className="resource-inline-link" to="/paquetes">Volver a paquetes</Link>
     <EstadoConsulta {...consulta} sinDatos={!paquete} mensajeVacio="Este paquete no está disponible.">
-      {paquete && <><div className="package-detail-heading"><div><span className="eyebrow">UN PLAN DE <Link to={`/negocios/${encodeURIComponent(paquete.negocioId)}`}>{paquete.negocioNombre}</Link></span><h1>{paquete.nombre}</h1><p>{paquete.descripcion}</p></div><img src="/images/naturaleza-comunidad.webp" alt=""/></div>
+      {paquete && <><div className="package-detail-heading"><div><span className="eyebrow">UN PLAN DE <Link to={`/negocios/${encodeURIComponent(paquete.negocioId)}`}>{paquete.negocioNombre}</Link></span><div className="detail-title-actions"><h1>{paquete.nombre}</h1><BotonFavorito tipo="PAQUETE" recursoId={paquete.id}/></div><p>{paquete.descripcion}</p></div><img src="/images/naturaleza-comunidad.webp" alt=""/></div>
         <GaleriaMultimediaPublica tipo="PAQUETE_COMERCIAL" entidadId={paquete.id}/>
         <dl className="tourism-facts"><div><dt>Duración</dt><dd>{paquete.duracionCantidad} {duraciones[paquete.duracionUnidad]}</dd></div><div><dt>Personas</dt><dd>Mínimo {paquete.minimoPersonas}{paquete.maximoPersonas !== null ? ` · Máximo ${paquete.maximoPersonas}` : ''}</dd></div><div><dt>Precio</dt><dd>{nombresModeloPaquete[paquete.modeloPrecio]}{paquete.capacidadGrupo !== null ? ` · Hasta ${paquete.capacidadGrupo} personas por grupo` : ''}</dd></div></dl>
         {paquete.precio !== null && paquete.moneda && <PrecioOferta precioDesde={paquete.precio} moneda={paquete.moneda}/>}

@@ -33,3 +33,19 @@ export interface MediaAssetResponse {
   fechaActualizacion: string;
   version: number;
 }
+
+
+export interface MediaUploadRequest {
+  rol: RolMedia;
+  titulo: string | null;
+  descripcion: string | null;
+  altText: string | null;
+  orden: number | null;
+  autor: string | null;
+  fuente: string | null;
+  fuenteUrl: string | null;
+  derechosConfirmados: boolean;
+  fechaAutorizacion: string | null;
+}
+
+export type MediaMetadataUpdateRequest = MediaUploadRequest;

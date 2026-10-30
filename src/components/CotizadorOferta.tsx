@@ -30,6 +30,7 @@ interface FormularioCotizacion {
   cantidadTrayectos: string;
   varianteId: string;
   horario: string;
+  codigoPromocion: string;
 }
 interface CotizacionVigente {
   respuesta: CotizacionOfertaResponse;
@@ -52,9 +53,11 @@ function ResumenCotizacion({ cotizacion }: { cotizacion: CotizacionOfertaRespons
     {cotizacion.cantidadTrayectos !== null && <div><dt>Trayectos</dt><dd>{cotizacion.cantidadTrayectos}</dd></div>}
     {cotizacion.varianteNombre && <div><dt>Opción</dt><dd>{cotizacion.varianteNombre}</dd></div>}
     {cotizacion.tarifaNombre && <div><dt>Tarifa aplicada</dt><dd>{cotizacion.tarifaNombre}</dd></div>}
+    {cotizacion.promocionNombre && <div><dt>Promoción</dt><dd>{cotizacion.promocionNombre}{cotizacion.promocionCodigo ? ' · ' + cotizacion.promocionCodigo : ''}</dd></div>}
     {cotizacion.horario && <div><dt>Horario</dt><dd>{cotizacion.horario.horaInicio}{cotizacion.horario.horaFin ? ` – ${cotizacion.horario.horaFin}` : ''}{cotizacion.horario.nombre ? ` · ${cotizacion.horario.nombre}` : ''}</dd></div>}
     {cotizacion.horario?.puntoEncuentro && <div><dt>Punto de encuentro</dt><dd>{cotizacion.horario.puntoEncuentro}</dd></div>}
   </dl><p>{cotizacion.detalle}</p>
+    {cotizacion.descuento !== null && cotizacion.descuento > 0 && cotizacion.subtotal !== null && <div className="marketplace-facts"><div><dt>Subtotal</dt><dd>{formatearPrecio(cotizacion.subtotal, cotizacion.moneda)}</dd></div><div><dt>Descuento</dt><dd>-{formatearPrecio(cotizacion.descuento, cotizacion.moneda)}</dd></div></div>}
     <p className="quote-price"><span>Total cotizado</span><strong>{total === null ? 'Precio por consultar' : formatearPrecio(total, convertir ? moneda : cotizacion.moneda)}</strong></p>
     {convertir && cotizacion.total !== null && <p>Referencia original: {formatearPrecio(cotizacion.total, cotizacion.moneda)}.{cotizacion.totalConvertido?.fechaTasa && ` Tasa del ${cotizacion.totalConvertido.fechaTasa}.`}</p>}
     {!convertir && moneda !== cotizacion.moneda && cotizacion.total !== null && <p>Conversión a {moneda} no disponible. Se conserva el total original en {cotizacion.moneda}.</p>}
@@ -70,7 +73,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const location = useLocation();
   const navigate = useNavigate();
   const [formulario, setFormulario] = useState<FormularioCotizacion>({
-    cantidadPersonas: '1', fechaInicio: '', fechaFin: '', cantidadTrayectos: '', varianteId: '', horario: '',
+    cantidadPersonas: '1', fechaInicio: '', fechaFin: '', cantidadTrayectos: '', varianteId: '', horario: '', codigoPromocion: '',
   });
   const [variantes, setVariantes] = useState<OfertaVarianteResponse[]>([]);
   const [salidas, setSalidas] = useState<SalidaProgramadaResponse[]>([]);
@@ -99,7 +102,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     revision.current++;
     consulta.current?.abort();
     setCotizada(null); setCotizando(false); setError(''); setErrorAgenda('');
-    setFormulario({ cantidadPersonas: '1', fechaInicio: '', fechaFin: '', cantidadTrayectos: '', varianteId: '', horario: '' });
+    setFormulario({ cantidadPersonas: '1', fechaInicio: '', fechaFin: '', cantidadTrayectos: '', varianteId: '', horario: '', codigoPromocion: '' });
     setSalidas([]); setDisponibilidadDia(null); setDisponibilidadHospedaje(null);
     return () => { contexto.current = null; revision.current++; consulta.current?.abort(); };
   }, [location.pathname, location.key, oferta.id, oferta.version, usuario?.id]);
@@ -191,6 +194,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       franjaId,
       salidaId,
       varianteId: formulario.varianteId || null,
+      codigoPromocion: formulario.codigoPromocion.trim() || null,
     };
     const controller = new AbortController();
     consulta.current?.abort(); consulta.current = controller;
@@ -220,6 +224,10 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     const origen = contexto.current; if (!origen) return;
     const datos = cotizada.respuesta;
     const parametros = cotizada.parametros;
+    if (accion === 'agregar' && parametros.codigoPromocion) {
+      setError('Para conservar una promoción por código, realiza la reserva directamente. Los códigos todavía no se guardan dentro de Mi viaje.');
+      return;
+    }
     mutando.current = true; setGuardando(true); setError('');
     try {
       if (accion === 'agregar') {
@@ -246,6 +254,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
           franjaId: parametros.franjaId,
           salidaId: parametros.salidaId,
           varianteId: parametros.varianteId,
+          codigoPromocion: parametros.codigoPromocion,
           observaciones: observaciones.trim() || null,
         });
         if (origen === contexto.current) navigate(`/reservas/${encodeURIComponent(reserva.id)}`, { state: { reservaCreada: true } });
@@ -268,6 +277,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       <label>Fecha de inicio<input type="date" required min={fechaActualReservas()} disabled={guardando} value={formulario.fechaInicio} onChange={e => cambiar('fechaInicio', e.target.value)}/></label>
       {mostrarFin && <label>Fecha de fin{usaNoches && duracionUnidadEfectiva === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
       {mostrarTrayectos && <label>Trayectos (opcional)<input type="number" min={1} step={1} disabled={guardando} value={formulario.cantidadTrayectos} onChange={e => cambiar('cantidadTrayectos', e.target.value)} placeholder="Según la oferta"/></label>}
+      <label>Código promocional (opcional)<input maxLength={50} disabled={guardando} value={formulario.codigoPromocion} onChange={e => cambiar('codigoPromocion', e.target.value.toUpperCase())} placeholder="Ej. AVENTURA20"/></label>
       {oferta.requiereHorario && <label className="form-full">Horario *<select required disabled={guardando || consultandoAgenda || !formulario.fechaInicio} value={formulario.horario} onChange={e => cambiar('horario', e.target.value)}><option value="">{consultandoAgenda ? 'Consultando horarios…' : 'Selecciona un horario'}</option>{salidas.map(salida => {
         const valor = selectorSalida(salida);
         return valor ? <option key={`${valor}-${salida.fecha}-${salida.horaInicio}`} value={valor}>{salida.horaInicio}{salida.horaFin ? ` – ${salida.horaFin}` : ''}{salida.nombre ? ` · ${salida.nombre}` : ''} · {salida.cupoDisponible} cupo(s)</option> : null;

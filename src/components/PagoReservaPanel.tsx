@@ -68,7 +68,7 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
   };
 
   const pagar = async () => {
-    if (!orden || pagando || orden.estado === 'PAGADA' || !pagable) return;
+    if (!orden || pagando || !['CREADA', 'PENDIENTE'].includes(orden.estado) || !pagable) return;
     setPagando(true); setError('');
     try {
       const preparacion = await pagosApi.prepararWompi(orden.id);
@@ -102,10 +102,11 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
       </dl>
       {intento && <div className="quote-summary"><h3>Último intento</h3><PagoEstadoBadge estado={intento.estado}/><p>{intento.metodoPago ? `Método: ${intento.metodoPago}. ` : ''}{intento.mensajeEstado || 'Estado recibido desde la pasarela.'}</p></div>}
       <div className="form-actions">
-        {orden.estado !== 'PAGADA' && pagable && <IonButton disabled={pagando || cargando} onClick={() => void pagar()}>{pagando ? 'Abriendo Wompi…' : intento && ['RECHAZADO','ERROR','ANULADO'].includes(intento.estado) ? 'Intentar pago de nuevo' : 'Pagar con Wompi'}</IonButton>}
+        {['CREADA', 'PENDIENTE'].includes(orden.estado) && pagable && <IonButton disabled={pagando || cargando} onClick={() => void pagar()}>{pagando ? 'Abriendo Wompi…' : intento && ['RECHAZADO','ERROR','ANULADO'].includes(intento.estado) ? 'Intentar pago de nuevo' : 'Pagar con Wompi'}</IonButton>}
         <IonButton fill="outline" disabled={cargando || pagando} onClick={() => void actualizar()}>{cargando ? <IonSpinner/> : 'Actualizar estado'}</IonButton>
       </div>
       {orden.estado === 'PAGADA' && <div className="notice-success" role="status">El backend confirmó el pago aprobado por Wompi.</div>}
+      {(orden.estado === 'CANCELADA' || orden.estado === 'VENCIDA') && <div className="notice-error" role="status">Esta orden ya no admite nuevos intentos de pago.</div>}
     </>}
     {error && <div className="notice-error" role="alert">{error}</div>}
     <small>El estado definitivo se confirma mediante el webhook firmado de Wompi; la pantalla no acepta como prueba de pago un resultado enviado solo por el navegador.</small>

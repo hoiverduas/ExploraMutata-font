@@ -19,6 +19,20 @@ export interface NegocioRequest {
 export interface NegocioResponse extends NegocioRequest {
   id: string;
   operadorId: string | null;
+  whatsappContacto: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  mostrarWhatsapp: boolean;
+  mostrarInstagram: boolean;
+  mostrarFacebook: boolean;
+  notificacionesWhatsapp: boolean;
+  direccion: string | null;
+  municipio: string | null;
+  vereda: string | null;
+  ubicacionReferencia: string | null;
+  latitud: number | null;
+  longitud: number | null;
+  comoLlegar: string | null;
   estado: EstadoNegocio;
   fechaCreacion: string;
   fechaActualizacion: string;

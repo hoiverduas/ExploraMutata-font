@@ -5,6 +5,8 @@ import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import TarjetaTuristica from '../components/TarjetaTuristica';
+import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
+import UbicacionPublica from '../components/UbicacionPublica';
 import { nombresDificultad, nombresTipoDestino } from '../data/turismo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { destinosApi } from '../services/destinosApi';
@@ -31,8 +33,10 @@ export default function DestinoDetallePage() {
     <EstadoConsulta {...destino} sinDatos={!datos} mensajeVacio="No encontramos este destino.">
       {datos && <><span className="eyebrow">{nombresTipoDestino[datos.tipo]}</span><h1>{datos.nombre}</h1>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}
-        {datos.ubicacionReferencia && <section><h2>Ubicación</h2><p>{datos.ubicacionReferencia}</p></section>}
+        <GaleriaMultimediaPublica tipo="DESTINO" entidadId={datos.id}/>
+        {(datos.direccion || datos.vereda || datos.municipio || datos.ubicacionReferencia) && <section><h2>Ubicación</h2><p>{[datos.direccion, datos.vereda, datos.municipio, datos.ubicacionReferencia].filter(Boolean).join(' · ')}</p></section>}
         {datos.comoLlegar && <section><h2>Cómo llegar</h2><p>{datos.comoLlegar}</p></section>}
+        <UbicacionPublica tipo="DESTINO" entidadId={datos.id}/>
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
         <section><h2>Experiencias en este destino</h2><EstadoConsulta {...experiencias} sinDatos={!experiencias.datos.length} mensajeVacio="No hay experiencias disponibles en este destino.">
           <div className="catalog-grid">{experiencias.datos.map(experiencia => <TarjetaTuristica key={experiencia.id} nombre={experiencia.nombre} descripcion={experiencia.descripcion} etiqueta={`Dificultad: ${nombresDificultad[experiencia.dificultad]}`} accion="Ver ofertas" ruta={`/destinos/${encodeURIComponent(datos.slug)}/experiencias/${encodeURIComponent(experiencia.slug)}`}/>)}</div>

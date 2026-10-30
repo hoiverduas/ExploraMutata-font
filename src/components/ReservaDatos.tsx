@@ -1,4 +1,5 @@
 import { formatearFechaReserva } from '../domain/reservas';
+import { formatearPrecio } from '../domain/precios';
 import type { ReservaResponse } from '../types/reserva';
 import PrecioReserva from './PrecioReserva';
 import { Link } from 'react-router-dom';
@@ -26,6 +27,12 @@ export default function ReservaDatos({ reserva, mostrarCliente = false }: { rese
         <div><dt>Teléfono del cliente</dt><dd>{reserva.turistaTelefono ? <a href={`tel:${reserva.turistaTelefono.replace(/[^\d+]/g, '')}`}>{reserva.turistaTelefono}</a> : 'Teléfono no disponible'}</dd></div>
       </>}
     </dl>
+    {reserva.descuentoReserva !== null && reserva.descuentoReserva > 0 && <div className="notice-success">
+      <strong>{reserva.promocionNombre ? 'Promoción: ' + reserva.promocionNombre : 'Promoción aplicada'}</strong>
+      {reserva.promocionCodigo && <p>Código: {reserva.promocionCodigo}</p>}
+      {reserva.subtotalReserva !== null && <p>Subtotal: {formatearPrecio(reserva.subtotalReserva, reserva.monedaReserva)}</p>}
+      <p>Descuento: -{formatearPrecio(reserva.descuentoReserva, reserva.monedaReserva)}</p>
+    </div>}
     <PrecioReserva precioReserva={reserva.precioReserva} monedaReserva={reserva.monedaReserva} totalReserva={reserva.totalReserva}/>
     {reserva.detalleCotizacion && <p>{reserva.detalleCotizacion}</p>}
     <div><h3>Observaciones</h3><p>{reserva.observaciones || 'Sin observaciones.'}</p></div>

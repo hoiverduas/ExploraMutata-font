@@ -170,6 +170,7 @@ export default function MisNegociosPage() {
             {filtrados.map(n => <article className="negocio-row" key={n.id}><div className="negocio-monogram">{n.nombreComercial.trim().charAt(0).toLocaleUpperCase('es')}</div><div className="negocio-row-main"><h3>{n.nombreComercial}</h3><p className="negocio-categorias-listado">{n.categorias?.length ? n.categorias.map(categoria => nombresCategoria[categoria]).join(' · ') : 'Sin categoría'}</p><p>{n.descripcion || 'Sin descripción comercial.'}</p><small>Registro {new Date(n.fechaCreacion).toLocaleDateString('es-CO')}</small></div><div className="negocio-row-right">
               <span className={`status-pill status-${n.estado.toLowerCase()}`}>{nombresEstado[n.estado]}</span>
               <div className="negocio-row-actions">
+                <Link className="resource-inline-link" to={`/operador/negocios/${encodeURIComponent(n.id)}/contenido`}>Contenido, ubicación y redes</Link>
                 <Link className="resource-inline-link" to={`/operador/negocios/${encodeURIComponent(n.id)}/ofertas`}>Gestionar ofertas</Link>
                 <Link className="resource-inline-link" to={`/operador/negocios/${encodeURIComponent(n.id)}/paquetes`}>Gestionar paquetes</Link>
                 <IonButton fill="outline" size="small" disabled={Boolean(cambiandoId)} onClick={()=>void editar(n.id, true)}>Consultar</IonButton>

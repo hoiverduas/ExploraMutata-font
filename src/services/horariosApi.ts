@@ -1,6 +1,6 @@
 import { apiRequest } from './http';
 import type {
-  FranjaHorariaRequest, FranjaHorariaResponse, HorariosOfertaResponse,
+  ExcepcionFranjaRequest, FranjaHorariaRequest, FranjaHorariaResponse, HorariosOfertaResponse,
   SalidaProgramadaRequest, SalidaProgramadaResponse,
 } from '../types/horario';
 
@@ -28,6 +28,12 @@ export const horariosApi = {
   },
   actualizarFranja(negocioId: string, ofertaId: number, franjaId: string, body: FranjaHorariaRequest): Promise<FranjaHorariaResponse> {
     return apiRequest<FranjaHorariaResponse>(`${root(negocioId, ofertaId)}/franjas/${encodeURIComponent(franjaId)}`, { method: 'PUT', body: JSON.stringify(body) });
+  },
+  configurarExcepcionFranja(negocioId: string, ofertaId: number, franjaId: string, fecha: string, body: ExcepcionFranjaRequest): Promise<SalidaProgramadaResponse> {
+    return apiRequest<SalidaProgramadaResponse>(
+      `${root(negocioId, ofertaId)}/franjas/${encodeURIComponent(franjaId)}/fechas/${encodeURIComponent(fecha)}`,
+      { method: 'PUT', body: JSON.stringify(body) },
+    );
   },
   listarSalidas(negocioId: string, ofertaId: number, desde: string, hasta: string): Promise<SalidaProgramadaResponse[]> {
     const p = new URLSearchParams({ desde, hasta });

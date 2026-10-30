@@ -223,10 +223,28 @@ export default function FinanzasAdminPage() {
   const diagnosticarWompi = async () => {
     setGuardando(true); setError(''); setDiagnostico(null);
     try {
-      const [salud, cuentasOrigen, bancos] = await Promise.all([
+      const [saludResultado, cuentasResultado, bancosResultado] = await Promise.allSettled([
         finanzasAdminApi.saludWompi(), finanzasAdminApi.cuentasOrigenWompi(), finanzasAdminApi.bancosWompi(),
       ]);
-      setDiagnostico({ salud, cuentasOrigen, bancos });
+
+      if (cuentasResultado.status === 'rejected' && bancosResultado.status === 'rejected') {
+        throw cuentasResultado.reason ?? bancosResultado.reason;
+      }
+
+      const saludDisponible = saludResultado.status === 'fulfilled';
+      const saludError = saludDisponible
+        ? null
+        : saludResultado.reason instanceof Error
+          ? saludResultado.reason.message
+          : 'El monitoreo de disponibilidad de Wompi no respondió correctamente.';
+
+      setDiagnostico({
+        salud: saludDisponible ? saludResultado.value : null,
+        saludDisponible,
+        saludError,
+        cuentasOrigen: cuentasResultado.status === 'fulfilled' ? cuentasResultado.value : [],
+        bancos: bancosResultado.status === 'fulfilled' ? bancosResultado.value : [],
+      });
     } catch (err) {
       const texto = err instanceof Error ? err.message : 'No se pudo consultar Wompi Pagos a Terceros.';
       setError(err instanceof ApiError && err.status === 503
@@ -274,7 +292,8 @@ export default function FinanzasAdminPage() {
       </div>
       <IonButton fill="outline" disabled={guardando} onClick={() => void diagnosticarWompi()}>{guardando ? 'Consultando…' : diagnostico ? 'Volver a validar conexión' : 'Validar conexión con Wompi'}</IonButton>
       {diagnostico && <>
-        <div className="notice-success" role="status">Pagos a Terceros respondió correctamente desde el backend. Las credenciales privadas nunca se exponen al navegador.</div>
+        <div className="notice-success" role="status">La integración con Pagos a Terceros respondió correctamente desde el backend. Las credenciales privadas nunca se exponen al navegador.</div>
+        {!diagnostico.saludDisponible && <div className="notice-error" role="status">El endpoint de monitoreo /health no respondió correctamente, pero las consultas operativas de cuentas y bancos sí pueden seguir funcionando. {diagnostico.saludError}</div>}
         <h3>Cuentas origen disponibles</h3>
         <div className="negocios-list">
           {diagnostico.cuentasOrigen.map(cuenta => <article className="negocio-row" key={cuenta.id}>

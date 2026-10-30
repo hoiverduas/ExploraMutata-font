@@ -22,7 +22,7 @@ export default function MisReservasPage() {
         <div className="negocios-list">{consulta.datos.map(reserva => <article className="gestion-form-panel reserva-card" key={reserva.id}>
           <div className="gestion-form-heading"><h2>{reserva.negocioNombreComercial}</h2><EstadoReservaBadge estado={reserva.estado}/></div>
           <ReservaDatos reserva={reserva}/>
-          <Link className="resource-inline-link" to={`/reservas/${encodeURIComponent(reserva.id)}`}>Ver detalle de la reserva <span aria-hidden="true">→</span></Link>
+          <div className="marketplace-actions"><Link className="resource-inline-link" to={`/reservas/${encodeURIComponent(reserva.id)}`}>Ver detalle de la reserva <span aria-hidden="true">→</span></Link>{reserva.estado === 'COMPLETADA' && <Link className="marketplace-primary-link" to={`/reservas/${encodeURIComponent(reserva.id)}`}>Escribir reseña</Link>}</div>
         </article>)}</div>
       </EstadoConsulta>
     </main>

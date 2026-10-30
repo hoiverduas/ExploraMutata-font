@@ -144,3 +144,28 @@ main,section,article,form,fieldset{min-width:0}h1,h2,h3,p,a,dd{overflow-wrap:any
 .marketplace-badges{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}.marketplace-badges>span{font-size:11px;line-height:1.5;color:var(--forest);background:#eaf1e4;padding:6px 10px;border-radius:20px}.marketplace-primary-link{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 18px;border-radius:12px;background:var(--pine);color:white;text-decoration:none;font-size:13px;font-weight:700;min-height:44px}.marketplace-primary-link:hover{background:var(--forest)}.marketplace-includes{display:grid;gap:13px;padding-left:20px;line-height:1.7}.marketplace-includes li>span{display:block;font-size:12px;color:var(--muted)}.quote-price>span{display:block;font-size:12px;color:var(--forest);margin-bottom:8px}.quote-price>strong{display:block}.offer-layout{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:30px}.offer-layout .offer-quote{margin-top:30px}.package-hero{display:block;margin:0 0 25px;border-radius:0;background:linear-gradient(90deg,#123e35ed,#123e35b8),url('/images/rio-puenteadero.webp') center/cover;padding:55px 0;color:#fff}.package-hero h1{font:600 clamp(34px,5vw,56px)/1.15 'Playfair Display',Georgia,serif;max-width:750px}.package-hero .eyebrow{color:#f4c39e}.package-hero p{line-height:1.8;max-width:680px;color:#e0e9df}.package-builder-layout{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,2fr);gap:25px;margin-top:25px}.package-builder-option{display:flex;flex-direction:column;gap:8px;background:#fff;color:var(--ink);border:1px solid var(--line);width:100%;padding:18px;text-align:left;font:inherit;border-radius:15px;margin:10px 0;cursor:pointer}.package-builder-option span{font-size:12px;color:var(--muted)}.package-builder-option-selected{border-color:var(--forest);background:#eef4e9}.package-builder-main>.gestion-form-panel{margin-bottom:22px}.tourism-filters input{max-width:100%;min-width:0;width:120px;min-height:43px;border:1px solid #dce5db;border-radius:10px;background:#fff;color:var(--ink);padding:10px;font:inherit}
 @media(max-width:900px){.offer-layout{grid-template-columns:1fr;gap:5px}.package-builder-layout{grid-template-columns:1fr}.package-builder-list{display:flex;flex-wrap:wrap;gap:9px}.package-builder-list h2,.package-builder-list>p{width:100%}.package-builder-option{width:calc(50% - 5px);margin:0}.package-builder-list>p{margin-bottom:0}}
 @media(max-width:600px){.package-hero{padding-block:34px}.package-builder-option{width:100%}.tourism-filters input{width:100%}.marketplace-primary-link{width:100%}.offer-layout .offer-quote{margin-top:18px}}
+
+
+/* Favoritos y reseñas */
+.detail-title-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.favorite-button{margin:0;--border-radius:999px;--padding-start:12px;--padding-end:12px}
+.favorite-button ion-spinner{width:18px;height:18px}
+.rating-stars{display:flex;align-items:center;gap:3px;margin:8px 0 12px}
+.rating-star{font-size:24px;line-height:1;color:#c7cec6;background:transparent;border:0;padding:0;cursor:default}
+button.rating-star{cursor:pointer;transition:transform .15s ease,color .15s ease}
+button.rating-star:hover{transform:scale(1.08)}
+.rating-star.active{color:#d69a22}
+.reviews-section{margin-top:34px}
+.reviews-summary{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#f6f8f4;border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0 20px}
+.reviews-summary>strong{font:600 34px/1 'Playfair Display',Georgia,serif;color:var(--pine)}
+.reviews-summary .rating-stars{margin:0}
+.reviews-list{display:grid;gap:16px}
+.review-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 20px #16382c0a}
+.review-card h3{margin:4px 0 8px}
+.review-card p{line-height:1.65}
+.review-response{margin-top:14px;padding:14px 16px;border-left:3px solid var(--forest);background:#f2f6ef;border-radius:0 12px 12px 0}
+.review-response p{margin:6px 0}
+.review-form-panel{margin-top:20px}
+.review-form-panel .rating-stars{margin-bottom:18px}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:600px){.detail-title-actions{align-items:flex-start}.reviews-summary{align-items:flex-start}.rating-star{font-size:22px}}

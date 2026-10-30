@@ -20,13 +20,14 @@ export interface RechazarReservaRequest {
   motivo: string;
 }
 
-export interface ReservaResponse extends ReservaRequest {
+export interface ReservaResponse {
   id: string;
   turistaId: string;
   turistaNombres: string;
   turistaApellidos: string;
   turistaCorreo: string;
   turistaTelefono: string | null;
+  negocioExperienciaId: number;
   paqueteId: string | null;
   paqueteItemId: string | null;
   varianteId: string | null;
@@ -40,7 +41,9 @@ export interface ReservaResponse extends ReservaRequest {
   experienciaId: string | null;
   experienciaNombre: string | null;
   experienciaSlug: string | null;
+  fechaReserva: string;
   fechaFin: string | null;
+  cantidadPersonas: number;
   cantidadTrayectos: number | null;
   franjaHorariaId: string | null;
   salidaProgramadaId: string | null;
@@ -49,6 +52,7 @@ export interface ReservaResponse extends ReservaRequest {
   cantidadUnidadesAlojamiento: number | null;
   horaCheckInAlojamiento: string | null;
   horaCheckOutAlojamiento: string | null;
+  observaciones: string | null;
   estado: EstadoReserva;
   motivoRechazo: string | null;
   precioReserva: number | null;

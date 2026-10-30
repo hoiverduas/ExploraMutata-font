@@ -39,6 +39,8 @@ export interface PaqueteComercialItemRequest {
 }
 export interface PaqueteComercialItemResponse extends PaqueteComercialItemRequest {
   id: string;
+  varianteId: string | null;
+  varianteNombre: string | null;
   ofertaNombre: string;
   categoria: CategoriaNegocio;
   modeloPrecio: ModeloPrecio;

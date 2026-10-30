@@ -6,18 +6,38 @@ import { finanzasAdminApi } from '../services/finanzasAdminApi';
 import { ApiError } from '../services/http';
 import { negociosApi } from '../services/negociosApi';
 import type {
-  ConciliacionResponse, CuentaPagoNegocioResponse, DispersionPagoResponse, DistribucionPagoResponse,
-  EstadoCuentaPago, LiquidacionResponse, ReembolsoResponse, ReglaComisionResponse,
-  TipoReglaComision,
+  ConciliacionResponse, CuentaPagoNegocioResponse, DiagnosticoWompiPagosTerceros, DispersionPagoResponse,
+  DistribucionPagoResponse, EstadoCuentaPago, LiquidacionResponse, ReembolsoResponse,
+  ReglaComisionResponse, TipoReglaComision, WompiCuentaOrigen,
 } from '../types/finanzas';
 import type { NegocioResponse } from '../types/negocio';
 
 const estadosCuenta: Array<EstadoCuentaPago | ''> = ['', 'PENDIENTE_VERIFICACION', 'ACTIVA', 'RECHAZADA', 'INACTIVA'];
 const estadoTexto = (valor: string) => valor.replaceAll('_', ' ').toLocaleLowerCase('es');
 const fecha = (valor: string | null) => valor ? new Date(valor).toLocaleString('es-CO') : '—';
-const jsonVisible = (valor: unknown) => {
-  try { return JSON.stringify(valor, null, 2); } catch { return String(valor); }
+
+const contarElementosWompi = (valor: unknown): number => {
+  if (Array.isArray(valor)) return valor.length;
+  if (!valor || typeof valor !== 'object') return 0;
+  const obj = valor as Record<string, unknown>;
+  for (const clave of ['data', 'items', 'banks', 'results', 'content']) {
+    const cantidad = contarElementosWompi(obj[clave]);
+    if (cantidad > 0) return cantidad;
+  }
+  return 0;
 };
+
+const nombreCuentaOrigen = (cuenta: WompiCuentaOrigen) =>
+  cuenta.id === 'WOMPI_ACCOUNT' ? 'Wompi Cuenta' : (cuenta.bank?.name || 'Cuenta origen');
+
+const referenciaCuentaOrigen = (cuenta: WompiCuentaOrigen) => {
+  if (cuenta.id === 'WOMPI_ACCOUNT') return 'Cuenta virtual de Wompi';
+  if (!cuenta.number) return 'Número no informado';
+  return cuenta.number.length <= 4 ? cuenta.number : `••••${cuenta.number.slice(-4)}`;
+};
+
+const saldoCuentaOrigen = (cuenta: WompiCuentaOrigen) =>
+  cuenta.balanceInCents == null ? 'Saldo no informado' : formatearPrecio(cuenta.balanceInCents / 100, 'COP');
 
 export default function FinanzasAdminPage() {
   const [negocios, setNegocios] = useState<NegocioResponse[]>([]);
@@ -31,7 +51,7 @@ export default function FinanzasAdminPage() {
   const [distribuciones, setDistribuciones] = useState<DistribucionPagoResponse[]>([]);
   const [reembolsos, setReembolsos] = useState<ReembolsoResponse[]>([]);
   const [pagoId, setPagoId] = useState('');
-  const [diagnostico, setDiagnostico] = useState<unknown>(null);
+  const [diagnostico, setDiagnostico] = useState<DiagnosticoWompiPagosTerceros | null>(null);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
@@ -247,6 +267,30 @@ export default function FinanzasAdminPage() {
       <div className="negocios-list">{conciliaciones.map(c => <article className="negocio-row" key={c.id}><div><strong>{estadoTexto(c.estado)}</strong><p>Interno {formatearPrecio(c.totalInterno, 'COP')} · proveedor {formatearPrecio(c.totalProveedor, 'COP')} · diferencia {formatearPrecio(c.diferencia, 'COP')}</p><small>{fecha(c.desde)} → {fecha(c.hasta)} · {c.cantidadInterna}/{c.cantidadProveedor} transacciones</small></div></article>)}</div>
     </section>
 
-    <section className="gestion-form-panel"><h2>Diagnóstico de Wompi Pagos a Terceros</h2><p>Consulta salud, cuentas origen y bancos usando exclusivamente las credenciales del backend.</p><IonButton fill="outline" disabled={guardando} onClick={() => void diagnosticarWompi()}>{guardando ? 'Consultando…' : 'Probar conexión con Pagos a Terceros'}</IonButton>{diagnostico != null && <pre className="finance-debug">{jsonVisible(diagnostico)}</pre>}</section>
+    <section className="gestion-form-panel">
+      <div className="gestion-form-heading">
+        <div><h2>Wompi Pagos a Terceros</h2><p>Valida la conexión del backend y consulta las cuentas desde las que Explora Mutatá puede dispersar liquidaciones.</p></div>
+        <span className={`status-pill status-${diagnostico ? 'activo' : 'borrador'}`}>{diagnostico ? 'conectado' : 'sin validar'}</span>
+      </div>
+      <IonButton fill="outline" disabled={guardando} onClick={() => void diagnosticarWompi()}>{guardando ? 'Consultando…' : diagnostico ? 'Volver a validar conexión' : 'Validar conexión con Wompi'}</IonButton>
+      {diagnostico && <>
+        <div className="notice-success" role="status">Pagos a Terceros respondió correctamente desde el backend. Las credenciales privadas nunca se exponen al navegador.</div>
+        <h3>Cuentas origen disponibles</h3>
+        <div className="negocios-list">
+          {diagnostico.cuentasOrigen.map(cuenta => <article className="negocio-row" key={cuenta.id}>
+            <div>
+              <h3>{nombreCuentaOrigen(cuenta)}</h3>
+              <p>{referenciaCuentaOrigen(cuenta)} · {cuenta.accountType ? estadoTexto(cuenta.accountType) : 'tipo no informado'} · {saldoCuentaOrigen(cuenta)}</p>
+              <small>ID técnico: {cuenta.id}{cuenta.updatedAt ? ` · actualizado ${fecha(cuenta.updatedAt)}` : ''}</small>
+              {cuenta.id === 'WOMPI_ACCOUNT' && <p>Esta cuenta puede usarse como origen de las dispersiones de prueba configurando <strong>WOMPI_PAGOS_TERCEROS_CUENTA_ORIGEN_ID=WOMPI_ACCOUNT</strong> en el backend.</p>}
+            </div>
+            <span className={`status-pill status-${cuenta.status === 'ACTIVE' ? 'activo' : 'inactivo'}`}>{estadoTexto(cuenta.status)}</span>
+          </article>)}
+          {!diagnostico.cuentasOrigen.length && <p className="empty-state">Wompi respondió, pero no devolvió cuentas origen disponibles.</p>}
+        </div>
+        <p>Bancos disponibles para registrar cuentas de operadores: <strong>{contarElementosWompi(diagnostico.bancos)}</strong>.</p>
+        <small>El envío de una liquidación se realiza desde la sección “Liquidaciones y Pagos a Terceros”. El frontend solo llama al backend; API Key, usuario principal y secretos permanecen del lado servidor.</small>
+      </>}
+    </section>
   </main></IonContent></IonPage>;
 }

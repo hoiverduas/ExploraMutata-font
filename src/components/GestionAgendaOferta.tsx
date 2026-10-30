@@ -39,6 +39,7 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
   const [calendario, setCalendario] = useState({ fechaInicio: hoy, fechaFin: finVentana, cantidadUnidades: '1', estado: 'ABIERTA' as EstadoDisponibilidad });
   const [franja, setFranja] = useState({ diaSemana: '6', horaInicio: '08:00', horaFin: '', cupoTotal: '10', nombre: '', puntoEncuentro: '' });
   const [salida, setSalida] = useState({ fecha: hoy, horaInicio: '08:00', horaFin: '', cupoTotal: '10', nombre: '', puntoEncuentro: '' });
+  const [excepcion, setExcepcion] = useState({ franjaId: '', fecha: hoy, cupoTotal: '', estado: 'ABIERTA' as 'ABIERTA' | 'CERRADA' | 'CANCELADA', nombre: '', puntoEncuentro: '' });
 
   const cargar = async () => {
     setCargando(true); setError('');
@@ -116,6 +117,18 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
     item.estado === 'ACTIVA' ? 'Franja desactivada.' : 'Franja activada.',
   );
 
+  const guardarExcepcion = () => {
+    if (!excepcion.franjaId) return setError('Selecciona la franja que quieres ajustar.');
+    const cupo = excepcion.cupoTotal.trim() ? Number(excepcion.cupoTotal) : null;
+    if (excepcion.fecha < hoy || (cupo !== null && (!Number.isSafeInteger(cupo) || cupo < 1))) return setError('Revisa la fecha y el cupo de la excepción.');
+    void ejecutar(() => horariosApi.configurarExcepcionFranja(negocioId, oferta.id, excepcion.franjaId, excepcion.fecha, {
+      cupoTotal: cupo,
+      estado: excepcion.estado,
+      nombre: excepcion.nombre.trim() || null,
+      puntoEncuentro: excepcion.puntoEncuentro.trim() || null,
+    }), 'Excepción de horario guardada.');
+  };
+
   const crearSalida = () => {
     const cupoTotal = Number(salida.cupoTotal);
     if (!Number.isSafeInteger(cupoTotal) || cupoTotal < 1 || salida.fecha < hoy) return setError('Revisa la fecha y el cupo de la salida.');
@@ -192,6 +205,17 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
             <div className="form-actions"><IonButton size="small" disabled={guardando} onClick={crearFranja}>Crear franja</IonButton></div>
           </div>
           {franjas.length > 0 && <div className="negocios-list">{franjas.map(item => <article className="negocio-row" key={item.id}><div><strong>{diasSemana.find(d => d.id === item.diaSemana)?.nombre} · {item.horaInicio}{item.horaFin ? ` – ${item.horaFin}` : ''}</strong><p>{item.nombre || 'Franja recurrente'} · {item.cupoTotal} cupo(s){item.puntoEncuentro ? ` · ${item.puntoEncuentro}` : ''}</p></div><IonButton size="small" fill="outline" disabled={guardando} onClick={() => cambiarFranja(item)}>{item.estado === 'ACTIVA' ? 'Desactivar' : 'Activar'}</IonButton></article>)}</div>}
+
+          {franjas.length > 0 && <div className="negocio-form">
+            <h4>Excepción para una fecha</h4>
+            <label>Franja<select value={excepcion.franjaId} onChange={e => setExcepcion(v => ({ ...v, franjaId: e.target.value }))}><option value="">Selecciona</option>{franjas.filter(item => item.estado === 'ACTIVA').map(item => <option key={item.id} value={item.id}>{diasSemana.find(d => d.id === item.diaSemana)?.nombre} · {item.horaInicio}{item.nombre ? ` · ${item.nombre}` : ''}</option>)}</select></label>
+            <label>Fecha<input type="date" min={hoy} value={excepcion.fecha} onChange={e => setExcepcion(v => ({ ...v, fecha: e.target.value }))}/></label>
+            <label>Cupo especial (opcional)<input type="number" min={1} step={1} value={excepcion.cupoTotal} onChange={e => setExcepcion(v => ({ ...v, cupoTotal: e.target.value }))}/></label>
+            <label>Estado<select value={excepcion.estado} onChange={e => setExcepcion(v => ({ ...v, estado: e.target.value as 'ABIERTA' | 'CERRADA' | 'CANCELADA' }))}><option value="ABIERTA">Abierta</option><option value="CERRADA">Cerrada</option><option value="CANCELADA">Cancelada</option></select></label>
+            <label>Nombre (opcional)<input maxLength={150} value={excepcion.nombre} onChange={e => setExcepcion(v => ({ ...v, nombre: e.target.value }))}/></label>
+            <label>Punto de encuentro (opcional)<input maxLength={255} value={excepcion.puntoEncuentro} onChange={e => setExcepcion(v => ({ ...v, puntoEncuentro: e.target.value }))}/></label>
+            <div className="form-actions"><IonButton size="small" disabled={guardando || !excepcion.franjaId} onClick={guardarExcepcion}>Guardar excepción</IonButton></div>
+          </div>}
 
           <div className="negocio-form">
             <h4>Nueva salida especial</h4>

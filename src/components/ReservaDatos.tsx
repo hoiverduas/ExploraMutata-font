@@ -9,10 +9,16 @@ export default function ReservaDatos({ reserva, mostrarCliente = false }: { rese
       {reserva.destinoNombre && <div><dt>Destino</dt><dd>{reserva.destinoNombre}</dd></div>}
       {reserva.experienciaNombre && <div><dt>Experiencia</dt><dd>{reserva.experienciaNombre}</dd></div>}
       <div><dt>Negocio</dt><dd>{reserva.negocioNombreComercial}</dd></div>
+      {reserva.varianteNombre && <div><dt>Opción reservada</dt><dd>{reserva.varianteNombre}</dd></div>}
+      {reserva.tarifasAplicadas && <div><dt>Tarifa aplicada</dt><dd>{reserva.tarifasAplicadas}</dd></div>}
       <div><dt>Fecha</dt><dd>{formatearFechaReserva(reserva.fechaReserva)}</dd></div>
       {reserva.fechaFin && <div><dt>Fecha de fin</dt><dd>{formatearFechaReserva(reserva.fechaFin)}</dd></div>}
+      {(reserva.horaInicioReserva || reserva.horaFinReserva) && <div><dt>Horario reservado</dt><dd>{reserva.horaInicioReserva ?? '—'}{reserva.horaFinReserva ? ` – ${reserva.horaFinReserva}` : ''}</dd></div>}
       <div><dt>Cantidad de personas</dt><dd>{reserva.cantidadPersonas}</dd></div>
       {reserva.cantidadTrayectos != null && <div><dt>Trayectos</dt><dd>{reserva.cantidadTrayectos}</dd></div>}
+      {reserva.cantidadUnidadesAlojamiento != null && <div><dt>Unidades de alojamiento</dt><dd>{reserva.cantidadUnidadesAlojamiento}</dd></div>}
+      {reserva.horaCheckInAlojamiento && <div><dt>Check-in</dt><dd>{reserva.horaCheckInAlojamiento}</dd></div>}
+      {reserva.horaCheckOutAlojamiento && <div><dt>Check-out</dt><dd>{reserva.horaCheckOutAlojamiento}</dd></div>}
       {reserva.paqueteId && <div><dt>Viaje</dt><dd>{mostrarCliente ? 'Forma parte de un viaje' : <Link to={`/viajes/${encodeURIComponent(reserva.paqueteId)}`}>Ver viaje asociado →</Link>}</dd></div>}
       {mostrarCliente && <>
         <div><dt>Cliente</dt><dd>{reserva.turistaNombres} {reserva.turistaApellidos}</dd></div>

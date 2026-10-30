@@ -26,3 +26,18 @@ export interface DisponibilidadHospedajeResponse {
   detalle: string;
   nochesDetalle: NocheHospedajeResponse[];
 }
+
+export interface CalendarioHospedajeResponse {
+  ofertaId: number;
+  cantidadUnidadesBase: number;
+  desde: string;
+  hasta: string;
+  noches: NocheHospedajeResponse[];
+}
+
+export interface ConfigurarCalendarioHospedajeRequest {
+  fechaInicio: string;
+  fechaFin: string;
+  cantidadUnidades: number;
+  estado: EstadoDisponibilidad;
+}

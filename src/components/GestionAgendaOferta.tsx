@@ -5,9 +5,10 @@ import { disponibilidadApi } from '../services/disponibilidadApi';
 import { horariosApi } from '../services/horariosApi';
 import { hospedajeBookingApi } from '../services/hospedajeBookingApi';
 import { tiposInventario } from '../types/oferta';
-import type { EstadoDisponibilidad } from '../types/disponibilidad';
+import type { DisponibilidadDiaResponse, EstadoDisponibilidad } from '../types/disponibilidad';
 import type { FranjaHorariaResponse, SalidaProgramadaResponse } from '../types/horario';
 import type { OfertaNegocioResponse, TipoInventario } from '../types/oferta';
+import type { NocheHospedajeResponse } from '../types/hospedajeBooking';
 
 const diasSemana = [
   { id: 1, nombre: 'Lunes' }, { id: 2, nombre: 'Martes' }, { id: 3, nombre: 'Miércoles' },
@@ -28,6 +29,8 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
   const [mensaje, setMensaje] = useState('');
   const [franjas, setFranjas] = useState<FranjaHorariaResponse[]>([]);
   const [salidas, setSalidas] = useState<SalidaProgramadaResponse[]>([]);
+  const [diasDisponibilidad, setDiasDisponibilidad] = useState<DisponibilidadDiaResponse[]>([]);
+  const [nochesHospedaje, setNochesHospedaje] = useState<NocheHospedajeResponse[]>([]);
   const [controla, setControla] = useState(Boolean(oferta.controlaDisponibilidad));
   const [tipoInventario, setTipoInventario] = useState<TipoInventario>(oferta.tipoInventario ?? 'CUPO');
   const [capacidadInventario, setCapacidadInventario] = useState(oferta.capacidadPorInventario == null ? '' : String(oferta.capacidadPorInventario));
@@ -40,11 +43,18 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
   const cargar = async () => {
     setCargando(true); setError('');
     try {
-      const [franjasDatos, salidasDatos] = await Promise.all([
+      const [franjasDatos, salidasDatos, disponibilidadDatos, calendarioDatos] = await Promise.all([
         horariosApi.listarFranjas(negocioId, oferta.id),
         horariosApi.listarSalidas(negocioId, oferta.id, hoy, finVentana),
+        disponibilidadApi.consultarOperador(negocioId, oferta.id, hoy, finVentana),
+        oferta.categoria === 'HOSPEDAJE'
+          ? hospedajeBookingApi.calendarioOperador(negocioId, oferta.id, hoy, finVentana)
+          : Promise.resolve(null),
       ]);
-      setFranjas(franjasDatos); setSalidas(salidasDatos);
+      setFranjas(franjasDatos);
+      setSalidas(salidasDatos);
+      setDiasDisponibilidad(disponibilidadDatos.dias);
+      setNochesHospedaje(calendarioDatos?.noches ?? []);
     } catch (err) { setError(err instanceof Error ? err.message : 'No se pudo consultar la agenda de la oferta.'); }
     finally { setCargando(false); }
   };
@@ -158,6 +168,17 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
           <label><input type="checkbox" checked={requiereHorario} onChange={e => setRequiereHorario(e.target.checked)}/> Requiere seleccionar horario</label>
           <div className="form-actions"><IonButton size="small" disabled={guardando} onClick={guardarRequiereHorario}>Guardar uso de horarios</IonButton></div>
         </div>
+
+        {oferta.categoria === 'HOSPEDAJE' && nochesHospedaje.length > 0 && <div>
+          <h4>Disponibilidad configurada</h4>
+          <div className="negocios-list">{nochesHospedaje.slice(0, 14).map(noche => <article className="negocio-row" key={noche.fecha}><div><strong>{formatearFechaReserva(noche.fecha)}</strong><p>{noche.unidadesDisponibles}/{noche.unidadesTotales} unidad(es) disponibles · {noche.estado.toLocaleLowerCase('es')} · {noche.origen === 'MANUAL' ? 'manual' : 'automática'}</p></div></article>)}</div>
+          {nochesHospedaje.length > 14 && <p className="viaje-note">Se muestran las primeras 14 noches de los próximos 30 días.</p>}
+        </div>}
+        {oferta.categoria !== 'HOSPEDAJE' && diasDisponibilidad.length > 0 && <div>
+          <h4>Disponibilidad configurada</h4>
+          <div className="negocios-list">{diasDisponibilidad.slice(0, 14).map(dia => <article className="negocio-row" key={dia.fecha}><div><strong>{formatearFechaReserva(dia.fecha)}</strong><p>{dia.cupoDisponible}/{dia.cupoTotal} cupo(s) disponibles · {dia.estado.toLocaleLowerCase('es')}</p></div></article>)}</div>
+          {diasDisponibilidad.length > 14 && <p className="viaje-note">Se muestran los primeros 14 días de los próximos 30 días.</p>}
+        </div>}
 
         {requiereHorario && <>
           <div className="negocio-form">

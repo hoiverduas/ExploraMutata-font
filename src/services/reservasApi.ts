@@ -22,6 +22,7 @@ export const reservasApi = {
         franjaId: body.franjaId ?? null,
         salidaId: body.salidaId ?? null,
         varianteId: body.varianteId ?? null,
+        codigoPromocion: body.codigoPromocion ?? null,
         observaciones: body.observaciones,
       }),
     });

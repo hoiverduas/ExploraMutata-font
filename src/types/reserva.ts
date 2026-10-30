@@ -10,6 +10,9 @@ export interface ReservaRequest {
   fechaFin?: string | null;
   cantidadPersonas: number;
   cantidadTrayectos?: number | null;
+  franjaId?: string | null;
+  salidaId?: string | null;
+  varianteId?: string | null;
   observaciones: string | null;
 }
 
@@ -26,6 +29,9 @@ export interface ReservaResponse extends ReservaRequest {
   turistaTelefono: string | null;
   paqueteId: string | null;
   paqueteItemId: string | null;
+  varianteId: string | null;
+  varianteNombre: string | null;
+  tarifasAplicadas: string | null;
   negocioId: string;
   negocioNombreComercial: string;
   destinoId: string | null;
@@ -36,6 +42,13 @@ export interface ReservaResponse extends ReservaRequest {
   experienciaSlug: string | null;
   fechaFin: string | null;
   cantidadTrayectos: number | null;
+  franjaHorariaId: string | null;
+  salidaProgramadaId: string | null;
+  horaInicioReserva: string | null;
+  horaFinReserva: string | null;
+  cantidadUnidadesAlojamiento: number | null;
+  horaCheckInAlojamiento: string | null;
+  horaCheckOutAlojamiento: string | null;
   estado: EstadoReserva;
   motivoRechazo: string | null;
   precioReserva: number | null;

@@ -87,8 +87,11 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const consulta = useRef<AbortController | null>(null);
   const contexto = useRef<object | null>(null);
   const mutando = useRef(false);
-  const usaNoches = ['POR_NOCHE', 'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE'].includes(oferta.modeloPrecio);
-  const mostrarFin = usaNoches || ['POR_DIA', 'POR_PERSONA_Y_DIA'].includes(oferta.modeloPrecio) || oferta.duracionUnidad !== 'UNICO';
+  const varianteSeleccionada = variantes.find(item => item.id === formulario.varianteId) ?? null;
+  const modeloEfectivo = varianteSeleccionada?.modeloPrecio ?? oferta.modeloPrecio;
+  const duracionUnidadEfectiva = varianteSeleccionada?.duracionUnidad ?? oferta.duracionUnidad;
+  const usaNoches = ['POR_NOCHE', 'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE'].includes(modeloEfectivo);
+  const mostrarFin = usaNoches || ['POR_DIA', 'POR_PERSONA_Y_DIA'].includes(modeloEfectivo) || duracionUnidadEfectiva !== 'UNICO';
   const mostrarTrayectos = oferta.categoria === 'TRANSPORTE';
 
   useLayoutEffect(() => {
@@ -169,7 +172,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     if (!Number.isSafeInteger(cantidadPersonas) || cantidadPersonas < 1) return setError('Indica una cantidad entera de al menos una persona.');
     if (!esFechaReservaValida(formulario.fechaInicio) || formulario.fechaInicio < fechaActualReservas()) return setError('Selecciona una fecha de inicio de hoy o posterior.');
     if (fechaFin && (!esFechaReservaValida(fechaFin) || fechaFin < formulario.fechaInicio || (usaNoches && fechaFin === formulario.fechaInicio))) return setError('Revisa la fecha de fin; para alojamiento por noche debe ser posterior al inicio.');
-    if (usaNoches && oferta.duracionUnidad === 'UNICO' && !fechaFin) return setError('Selecciona una fecha de salida para cotizar las noches.');
+    if (usaNoches && duracionUnidadEfectiva === 'UNICO' && !fechaFin) return setError('Selecciona una fecha de salida para cotizar las noches.');
     if (cantidadTrayectos !== null && (!Number.isSafeInteger(cantidadTrayectos) || cantidadTrayectos < 1)) return setError('Indica una cantidad entera de trayectos mayor o igual a uno.');
     if (oferta.requiereHorario && !formulario.horario) return setError('Selecciona un horario disponible para esta fecha.');
     if (oferta.controlaDisponibilidad && disponibilidadDia && (disponibilidadDia.estado !== 'ABIERTA' || disponibilidadDia.cupoDisponible <= 0)) return setError('La fecha seleccionada no tiene disponibilidad.');
@@ -263,7 +266,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       {variantes.length > 0 && <label>Opción<select disabled={guardando} value={formulario.varianteId} onChange={e => cambiar('varianteId', e.target.value)}><option value="">Opción general</option>{variantes.map(variante => <option key={variante.id} value={variante.id}>{variante.nombre}</option>)}</select></label>}
       <label>Personas<input type="number" required min={1} step={1} disabled={guardando} value={formulario.cantidadPersonas} onChange={e => cambiar('cantidadPersonas', e.target.value)}/></label>
       <label>Fecha de inicio<input type="date" required min={fechaActualReservas()} disabled={guardando} value={formulario.fechaInicio} onChange={e => cambiar('fechaInicio', e.target.value)}/></label>
-      {mostrarFin && <label>Fecha de fin{usaNoches && oferta.duracionUnidad === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
+      {mostrarFin && <label>Fecha de fin{usaNoches && duracionUnidadEfectiva === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
       {mostrarTrayectos && <label>Trayectos (opcional)<input type="number" min={1} step={1} disabled={guardando} value={formulario.cantidadTrayectos} onChange={e => cambiar('cantidadTrayectos', e.target.value)} placeholder="Según la oferta"/></label>}
       {oferta.requiereHorario && <label className="form-full">Horario *<select required disabled={guardando || consultandoAgenda || !formulario.fechaInicio} value={formulario.horario} onChange={e => cambiar('horario', e.target.value)}><option value="">{consultandoAgenda ? 'Consultando horarios…' : 'Selecciona un horario'}</option>{salidas.map(salida => {
         const valor = selectorSalida(salida);

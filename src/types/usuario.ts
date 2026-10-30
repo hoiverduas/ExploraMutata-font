@@ -1,5 +1,5 @@
 export type Rol = 'TURISTA' | 'OPERADOR' | 'ADMIN' | 'SUPER_ADMIN';
-export type EstadoUsuario = 'ACTIVO' | 'INACTIVO' | 'BLOQUEADO' | string;
+export type EstadoUsuario = 'ACTIVO' | 'INACTIVO' | 'BLOQUEADO';
 
 export interface UsuarioResponse {
   id: string;
@@ -20,10 +20,20 @@ export interface RegistroTuristaRequest {
   contrasena: string;
 }
 
+export interface LoginRequest {
+  correo: string;
+  contrasena: string;
+}
+
 export interface LoginResponse {
   accessToken: string;
   tokenType: string;
   expiresAt: string;
+}
+
+export interface AceptarInvitacionRequest {
+  tokenInvitacion: string;
+  contrasena: string;
 }
 
 export interface InvitarAdministradorRequest {

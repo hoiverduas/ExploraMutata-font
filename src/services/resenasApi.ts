@@ -35,6 +35,9 @@ export const resenasApi = {
       method: 'PUT', body: JSON.stringify(body),
     });
   },
+  listarAdmin(negocioId: string, options: { signal?: AbortSignal } = {}): Promise<ResenaResponse[]> {
+    return apiRequest<ResenaResponse[]>(`/api/v1/admin/resenas/negocios/${encodeURIComponent(negocioId)}`, { signal: options.signal });
+  },
   moderar(resenaId: string, body: ModerarResenaRequest): Promise<ResenaResponse> {
     return apiRequest<ResenaResponse>(`/api/v1/admin/resenas/${encodeURIComponent(resenaId)}/moderar`, {
       method: 'PATCH', body: JSON.stringify(body),

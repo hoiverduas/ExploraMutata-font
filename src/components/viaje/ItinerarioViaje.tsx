@@ -24,7 +24,8 @@ export default function ItinerarioViaje({ items, editable, ocupado, editar, elim
     {ordenados.filter(item => item.fechaInicio === fecha).map(item => <article className="viaje-item" key={item.id}>
       <div className="viaje-item-icon"><IonIcon icon={iconos[item.categoria]}/></div>
       <div className="viaje-item-body"><span className="eyebrow">{item.categoria.replaceAll('_', ' ')}</span><h3>{item.ofertaNombre}</h3><p>{item.negocioNombreComercial}</p>
-        <p>{item.cantidadPersonas} personas{item.fechaFin ? ` · hasta ${fechaTexto(item.fechaFin)}` : ''}{item.cantidadTrayectos != null ? ` · ${item.cantidadTrayectos} trayectos` : ''}</p>
+        {item.varianteNombre && <p><strong>Opción:</strong> {item.varianteNombre}</p>}
+        <p>{item.cantidadPersonas} personas{item.fechaFin ? ` · hasta ${fechaTexto(item.fechaFin)}` : ''}{item.cantidadTrayectos != null ? ` · ${item.cantidadTrayectos} trayectos` : ''}{(item.franjaHorariaId || item.salidaProgramadaId) ? ' · horario seleccionado' : ''}</p>
         {item.observaciones && <p>{item.observaciones}</p>}
         {item.estadoReserva && <EstadoReservaBadge estado={item.estadoReserva}/>}
         {item.monedaReserva && <p className="viaje-precio-historico"><strong>Precio reservado: {item.totalReserva === null ? 'No especificado' : formatearPrecio(item.totalReserva, item.monedaReserva)}</strong></p>}

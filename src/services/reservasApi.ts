@@ -19,6 +19,9 @@ export const reservasApi = {
         fechaFin: body.fechaFin ?? null,
         cantidadPersonas: body.cantidadPersonas,
         cantidadTrayectos: body.cantidadTrayectos ?? null,
+        franjaId: body.franjaId ?? null,
+        salidaId: body.salidaId ?? null,
+        varianteId: body.varianteId ?? null,
         observaciones: body.observaciones,
       }),
     });

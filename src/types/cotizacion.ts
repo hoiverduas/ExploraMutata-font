@@ -11,7 +11,7 @@ export interface CotizacionOfertaRequest {
   franjaId: string | null;
   salidaId: string | null;
   varianteId: string | null;
-  codigoPromocion: string | null;
+  codigoPromocion?: string | null;
 }
 export interface CotizacionOfertaResponse {
   ofertaId: number;

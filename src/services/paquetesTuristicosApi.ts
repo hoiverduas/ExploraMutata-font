@@ -14,10 +14,13 @@ interface RequestOptions {
 function contenido(body: PaqueteTuristicoItemRequest) {
   return JSON.stringify({
     ofertaId: body.ofertaId,
+    varianteId: body.varianteId ?? null,
     fechaInicio: body.fechaInicio,
     fechaFin: body.fechaFin,
     cantidadPersonas: body.cantidadPersonas,
     cantidadTrayectos: body.cantidadTrayectos,
+    franjaId: body.franjaId ?? null,
+    salidaId: body.salidaId ?? null,
     orden: body.orden,
     observaciones: body.observaciones,
   });

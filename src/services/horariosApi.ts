@@ -16,27 +16,27 @@ export const horariosApi = {
     );
   },
   configurar(negocioId: string, ofertaId: number, requiereHorario: boolean): Promise<{ ofertaId: number; requiereHorario: boolean }> {
-    return apiRequest(`${root(negocioId, ofertaId)}/configuracion`, {
+    return apiRequest<{ ofertaId: number; requiereHorario: boolean }>(`${root(negocioId, ofertaId)}/configuracion`, {
       method: 'PATCH', body: JSON.stringify({ requiereHorario }),
     });
   },
   listarFranjas(negocioId: string, ofertaId: number): Promise<FranjaHorariaResponse[]> {
-    return apiRequest(`${root(negocioId, ofertaId)}/franjas`);
+    return apiRequest<FranjaHorariaResponse[]>(`${root(negocioId, ofertaId)}/franjas`);
   },
   crearFranja(negocioId: string, ofertaId: number, body: FranjaHorariaRequest): Promise<FranjaHorariaResponse> {
-    return apiRequest(`${root(negocioId, ofertaId)}/franjas`, { method: 'POST', body: JSON.stringify(body) });
+    return apiRequest<FranjaHorariaResponse>(`${root(negocioId, ofertaId)}/franjas`, { method: 'POST', body: JSON.stringify(body) });
   },
   actualizarFranja(negocioId: string, ofertaId: number, franjaId: string, body: FranjaHorariaRequest): Promise<FranjaHorariaResponse> {
-    return apiRequest(`${root(negocioId, ofertaId)}/franjas/${encodeURIComponent(franjaId)}`, { method: 'PUT', body: JSON.stringify(body) });
+    return apiRequest<FranjaHorariaResponse>(`${root(negocioId, ofertaId)}/franjas/${encodeURIComponent(franjaId)}`, { method: 'PUT', body: JSON.stringify(body) });
   },
   listarSalidas(negocioId: string, ofertaId: number, desde: string, hasta: string): Promise<SalidaProgramadaResponse[]> {
     const p = new URLSearchParams({ desde, hasta });
-    return apiRequest(`${root(negocioId, ofertaId)}/salidas?${p}`);
+    return apiRequest<SalidaProgramadaResponse[]>(`${root(negocioId, ofertaId)}/salidas?${p}`);
   },
   crearSalida(negocioId: string, ofertaId: number, body: SalidaProgramadaRequest): Promise<SalidaProgramadaResponse> {
-    return apiRequest(`${root(negocioId, ofertaId)}/salidas`, { method: 'POST', body: JSON.stringify(body) });
+    return apiRequest<SalidaProgramadaResponse>(`${root(negocioId, ofertaId)}/salidas`, { method: 'POST', body: JSON.stringify(body) });
   },
   actualizarSalida(negocioId: string, ofertaId: number, salidaId: string, body: SalidaProgramadaRequest): Promise<SalidaProgramadaResponse> {
-    return apiRequest(`${root(negocioId, ofertaId)}/salidas/${encodeURIComponent(salidaId)}`, { method: 'PUT', body: JSON.stringify(body) });
+    return apiRequest<SalidaProgramadaResponse>(`${root(negocioId, ofertaId)}/salidas/${encodeURIComponent(salidaId)}`, { method: 'PUT', body: JSON.stringify(body) });
   },
 };

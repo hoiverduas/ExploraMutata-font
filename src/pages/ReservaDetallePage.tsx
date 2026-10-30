@@ -5,6 +5,7 @@ import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import EstadoReservaBadge from '../components/EstadoReservaBadge';
 import ReservaDatos from '../components/ReservaDatos';
+import PagoReservaPanel from '../components/PagoReservaPanel';
 import { puedeCancelarReserva } from '../domain/reservas';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { ApiError } from '../services/http';
@@ -73,6 +74,7 @@ export default function ReservaDetallePage() {
         {reserva && <section className="gestion-form-panel reserva-card">
           <div className="gestion-form-heading"><h2>{reserva.negocioNombreComercial}</h2><EstadoReservaBadge estado={reserva.estado}/></div>
           <ReservaDatos reserva={reserva}/>
+          <PagoReservaPanel reserva={reserva}/>
           {puedeCancelarReserva(reserva.estado) && <div className="form-actions"><IonButton fill="outline" color="medium" disabled={guardando || consulta.cargando} onClick={() => void cancelar()}>{guardando ? 'Cancelando…' : 'Cancelar reserva'}</IonButton></div>}
         </section>}
       </EstadoConsulta>

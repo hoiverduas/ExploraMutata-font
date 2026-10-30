@@ -23,7 +23,7 @@ export default function DestinosPage() {
       <div className="tourism-filters"><IonSearchbar value={busqueda} onIonInput={e => setBusqueda(e.detail.value ?? '')} placeholder="¿Dónde quieres vivir tu aventura?" debounce={150}/>
         <label>Tipo de destino<select value={tipo} onChange={e => setTipo(tiposDestino.find(valor => valor === e.target.value) ?? '')}><option value="">Todos</option>{tiposDestino.map(valor => <option key={valor} value={valor}>{nombresTipoDestino[valor]}</option>)}</select></label></div>
       <EstadoConsulta {...consulta} sinDatos={!destinos.length} mensajeVacio={texto ? 'No encontramos destinos con esa búsqueda.' : 'No hay destinos disponibles.'}>
-        <div className="catalog-grid">{destinos.map(destino => <TarjetaTuristica key={destino.id} nombre={destino.nombre} descripcion={destino.descripcion} etiqueta={nombresTipoDestino[destino.tipo]} ruta={`/destinos/${encodeURIComponent(destino.slug)}`}/>)}</div>
+        <div className="catalog-grid">{destinos.map(destino => <TarjetaTuristica key={destino.id} nombre={destino.nombre} descripcion={destino.descripcion} etiqueta={nombresTipoDestino[destino.tipo]} ruta={`/destinos/${encodeURIComponent(destino.slug)}`} favorito={{ tipo: 'DESTINO', recursoId: destino.id }}/>)}</div>
       </EstadoConsulta>
     </main>
   </IonContent></IonPage>;

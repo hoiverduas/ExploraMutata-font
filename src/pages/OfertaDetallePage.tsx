@@ -11,6 +11,7 @@ import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
 import RedesContactoPublicas from '../components/RedesContactoPublicas';
 import UbicacionPublica from '../components/UbicacionPublica';
 import ConfiguracionComercialOfertaPublica from '../components/ConfiguracionComercialOfertaPublica';
+import BotonFavorito from '../components/BotonFavorito';
 import { imagenEditorialCategoria } from '../components/OfertaPublicaCard';
 import { nombresCategoria } from '../data/categoriasCatalogo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
@@ -33,7 +34,7 @@ export default function OfertaDetallePage() {
     <EstadoConsulta {...consulta} sinDatos={!oferta} mensajeVacio="La oferta no está disponible.">
       {oferta && <>
         <section className="marketplace-hero"><img className="marketplace-hero-image" src={imagenEditorialCategoria[oferta.categoria]} alt="Naturaleza y cultura de Mutatá, imagen editorial"/>
-          <div className="marketplace-hero-copy"><span className="eyebrow">{nombresCategoria[oferta.categoria]}</span><h1>{oferta.nombre}</h1><Link to={`/negocios/${encodeURIComponent(oferta.negocioId)}`}>{oferta.negocioNombreComercial}</Link>{oferta.descripcionOferta && <p>{oferta.descripcionOferta}</p>}<PrecioOferta precioDesde={oferta.precioDesde} moneda={oferta.moneda} preciosConvertidos={oferta.preciosConvertidos}/><small>{nombresModeloPrecio[oferta.modeloPrecio]}</small></div>
+          <div className="marketplace-hero-copy"><span className="eyebrow">{nombresCategoria[oferta.categoria]}</span><div className="detail-title-actions"><h1>{oferta.nombre}</h1><BotonFavorito tipo="OFERTA" recursoId={String(oferta.id)}/></div><Link to={`/negocios/${encodeURIComponent(oferta.negocioId)}`}>{oferta.negocioNombreComercial}</Link>{oferta.descripcionOferta && <p>{oferta.descripcionOferta}</p>}<PrecioOferta precioDesde={oferta.precioDesde} moneda={oferta.moneda} preciosConvertidos={oferta.preciosConvertidos}/><small>{nombresModeloPrecio[oferta.modeloPrecio]}</small></div>
         </section>
         <GaleriaMultimediaPublica tipo="OFERTA" entidadId={String(oferta.id)}/>
         <section className="marketplace-section"><h2>Contacto del negocio</h2>

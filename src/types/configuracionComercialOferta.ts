@@ -3,6 +3,8 @@ import type { ModeloPrecio, UnidadDuracionOferta } from './oferta';
 export type EstadoVariante = 'ACTIVA' | 'INACTIVA';
 export type EstadoTarifa = 'ACTIVA' | 'INACTIVA';
 export type TipoTarifa = 'GENERAL' | 'RANGO_PERSONAS' | 'TEMPORADA' | 'PROMOCION';
+export type ModoPromocion = 'AUTOMATICA' | 'CODIGO';
+export type TipoDescuentoPromocion = 'PRECIO_ESPECIAL' | 'PORCENTAJE' | 'VALOR_FIJO';
 export type TipoInclusion =
   | 'SEGURO' | 'GUIA' | 'ALIMENTACION' | 'DESAYUNO' | 'ALMUERZO' | 'CENA' | 'REFRIGERIO'
   | 'TRANSPORTE' | 'ENTRADA' | 'EQUIPO' | 'REGISTRO_FOTOGRAFICO' | 'HOSPEDAJE'
@@ -40,14 +42,12 @@ export interface OfertaInclusionResponse {
   fechaActualizacion: string;
 }
 
-export interface OfertaTarifaResponse {
-  id: string;
-  ofertaId: number;
+export interface OfertaTarifaRequest {
   varianteId: string | null;
   nombre: string;
   descripcion: string | null;
   tipo: TipoTarifa;
-  precio: number;
+  precio: number | null;
   modeloPrecio: ModeloPrecio | null;
   minimoPersonas: number | null;
   maximoPersonas: number | null;
@@ -55,6 +55,31 @@ export interface OfertaTarifaResponse {
   fechaHasta: string | null;
   diasSemana: number[];
   prioridad: number | null;
+  modoPromocion: ModoPromocion | null;
+  codigoPromocion: string | null;
+  tipoDescuentoPromocion: TipoDescuentoPromocion | null;
+  valorDescuentoPromocion: number | null;
+}
+
+export interface OfertaTarifaResponse {
+  id: string;
+  ofertaId: number;
+  varianteId: string | null;
+  nombre: string;
+  descripcion: string | null;
+  tipo: TipoTarifa;
+  precio: number | null;
+  modeloPrecio: ModeloPrecio | null;
+  minimoPersonas: number | null;
+  maximoPersonas: number | null;
+  fechaDesde: string | null;
+  fechaHasta: string | null;
+  diasSemana: number[];
+  prioridad: number | null;
+  modoPromocion: ModoPromocion | null;
+  codigoPromocion: string | null;
+  tipoDescuentoPromocion: TipoDescuentoPromocion | null;
+  valorDescuentoPromocion: number | null;
   estado: EstadoTarifa;
   fechaCreacion: string;
   fechaActualizacion: string;

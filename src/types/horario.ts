@@ -40,6 +40,14 @@ export interface SalidaProgramadaResponse {
   estado: EstadoSalidaProgramada;
 }
 
+
+export interface ExcepcionFranjaRequest {
+  cupoTotal: number | null;
+  estado: EstadoSalidaProgramada;
+  nombre: string | null;
+  puntoEncuentro: string | null;
+}
+
 export interface SalidaProgramadaRequest {
   fecha: string;
   horaInicio: string;

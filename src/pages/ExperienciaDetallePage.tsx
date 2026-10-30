@@ -6,6 +6,7 @@ import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import OfertasPublicas from '../components/OfertasPublicas';
 import TarjetaTuristica from '../components/TarjetaTuristica';
+import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
 import { nombresDificultad, nombresTipoDestino } from '../data/turismo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { destinoExperienciasApi } from '../services/destinoExperienciasApi';
@@ -40,6 +41,7 @@ export default function ExperienciaDetallePage() {
     <EstadoConsulta {...experiencia} sinDatos={!datos} mensajeVacio="No encontramos esta experiencia.">
       {datos && <><span className="eyebrow">EXPERIENCIAS DE MUTATÁ</span><h1>{datos.nombre}</h1>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}
+        <GaleriaMultimediaPublica tipo="EXPERIENCIA" entidadId={datos.id}/>
         <dl className="tourism-facts"><div><dt>Dificultad</dt><dd>{nombresDificultad[datos.dificultad]}</dd></div>{datos.duracionReferencia && <div><dt>Duración de referencia</dt><dd>{datos.duracionReferencia}</dd></div>}</dl>
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
         <section><h2>{destinoSlug ? 'Tu destino' : 'Dónde vivir esta experiencia'}</h2><EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="No hay destinos disponibles para esta experiencia.">

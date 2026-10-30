@@ -259,9 +259,6 @@ export interface WompiCuentaOrigen {
 }
 
 export interface DiagnosticoWompiPagosTerceros {
-  salud: unknown | null;
-  saludDisponible: boolean;
-  saludError: string | null;
   cuentasOrigen: WompiCuentaOrigen[];
   bancos: unknown;
 }

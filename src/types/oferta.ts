@@ -4,7 +4,7 @@ import type { Moneda, PrecioConvertidoResponse } from './moneda';
 export const estadosOferta = ['BORRADOR', 'ACTIVA', 'INACTIVA'] as const;
 export type EstadoOferta = typeof estadosOferta[number];
 export const modelosPrecio = [
-  'FIJO', 'POR_PERSONA', 'POR_DIA', 'POR_NOCHE', 'POR_PERSONA_Y_DIA',
+  'FIJO', 'POR_PERSONA', 'POR_PAREJA', 'POR_DIA', 'POR_NOCHE', 'POR_PERSONA_Y_DIA',
   'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE', 'POR_TRAYECTO',
   'POR_PERSONA_Y_TRAYECTO', 'POR_VEHICULO', 'POR_MESA', 'POR_GRUPO',
 ] as const;
@@ -19,19 +19,19 @@ export const tiposInventario = [
 export type TipoInventario = typeof tiposInventario[number];
 
 export const nombresModeloPrecio: Record<ModeloPrecio, string> = {
-  FIJO: 'Precio fijo', POR_PERSONA: 'Por persona', POR_DIA: 'Por día', POR_NOCHE: 'Por noche',
+  FIJO: 'Precio fijo', POR_PERSONA: 'Por persona', POR_PAREJA: 'Por pareja', POR_DIA: 'Por día', POR_NOCHE: 'Por noche',
   POR_PERSONA_Y_DIA: 'Por persona y día', POR_PERSONA_Y_NOCHE: 'Por persona y noche',
   POR_UNIDAD_Y_NOCHE: 'Por unidad y noche', POR_TRAYECTO: 'Por trayecto',
   POR_PERSONA_Y_TRAYECTO: 'Por persona y trayecto', POR_VEHICULO: 'Por vehículo',
   POR_MESA: 'Por mesa', POR_GRUPO: 'Por grupo',
 };
 export const modelosPrecioPorCategoria: Record<CategoriaNegocio, readonly ModeloPrecio[]> = {
-  AVENTURA: ['FIJO', 'POR_PERSONA'],
-  RESTAURANTE: ['FIJO', 'POR_PERSONA', 'POR_DIA', 'POR_PERSONA_Y_DIA'],
-  HOSPEDAJE: ['FIJO', 'POR_NOCHE', 'POR_PERSONA', 'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE'],
+  AVENTURA: ['FIJO', 'POR_PERSONA', 'POR_PAREJA'],
+  RESTAURANTE: ['FIJO', 'POR_PERSONA', 'POR_PAREJA', 'POR_DIA', 'POR_PERSONA_Y_DIA'],
+  HOSPEDAJE: ['FIJO', 'POR_NOCHE', 'POR_PERSONA', 'POR_PAREJA', 'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE'],
   TRANSPORTE: ['FIJO', 'POR_PERSONA', 'POR_TRAYECTO', 'POR_PERSONA_Y_TRAYECTO', 'POR_VEHICULO'],
-  GUIA: ['FIJO', 'POR_PERSONA', 'POR_DIA', 'POR_GRUPO'],
-  VIDA_NOCTURNA: ['FIJO', 'POR_PERSONA', 'POR_MESA'],
+  GUIA: ['FIJO', 'POR_PERSONA', 'POR_PAREJA', 'POR_DIA', 'POR_GRUPO'],
+  VIDA_NOCTURNA: ['FIJO', 'POR_PERSONA', 'POR_PAREJA', 'POR_MESA'],
 };
 
 export interface OfertaNegocioRequest {

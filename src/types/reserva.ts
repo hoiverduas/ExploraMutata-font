@@ -1,5 +1,6 @@
 import type { Moneda } from './moneda';
 import type { ModeloPrecio } from './oferta';
+import type { TipoDescuentoPromocion } from './configuracionComercialOferta';
 
 export const estadosReserva = ['PENDIENTE', 'CONFIRMADA', 'RECHAZADA', 'CANCELADA', 'COMPLETADA'] as const;
 export type EstadoReserva = typeof estadosReserva[number];
@@ -13,6 +14,7 @@ export interface ReservaRequest {
   franjaId?: string | null;
   salidaId?: string | null;
   varianteId?: string | null;
+  codigoPromocion?: string | null;
   observaciones: string | null;
 }
 
@@ -60,6 +62,13 @@ export interface ReservaResponse {
   modeloPrecioReserva: ModeloPrecio | null;
   precioUnitarioReserva: number | null;
   totalReserva: number | null;
+  subtotalReserva: number | null;
+  descuentoReserva: number | null;
+  promocionId: string | null;
+  promocionNombre: string | null;
+  promocionCodigo: string | null;
+  tipoDescuentoPromocion: TipoDescuentoPromocion | null;
+  valorDescuentoPromocion: number | null;
   detalleCotizacion: string | null;
   fechaCreacion: string;
   fechaActualizacion: string;

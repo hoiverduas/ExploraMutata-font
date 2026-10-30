@@ -24,11 +24,12 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
   const authToken = isPublic ? null : (token ?? sessionToken.get());
   let response: Response;
   try {
+    const esFormData = typeof FormData !== 'undefined' && init.body instanceof FormData;
     response = await fetch(`${baseUrl}${path}`, {
       ...init,
       headers: {
         Accept: 'application/json',
-        ...(init.body != null ? { 'Content-Type': 'application/json' } : {}),
+        ...(init.body != null && !esFormData ? { 'Content-Type': 'application/json' } : {}),
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         ...init.headers,
       },

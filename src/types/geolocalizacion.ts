@@ -8,11 +8,18 @@ export interface UbicacionNegocioRequest {
   comoLlegar: string | null;
 }
 
-export interface UbicacionNegocioResponse extends UbicacionNegocioRequest {
+export interface UbicacionNegocioResponse {
   negocioId: string;
   nombreComercial: string;
-  urlGoogleMaps: string;
-  urlWaze: string;
+  direccion: string | null;
+  municipio: string | null;
+  vereda: string | null;
+  ubicacionReferencia: string | null;
+  latitud: number | null;
+  longitud: number | null;
+  comoLlegar: string | null;
+  urlGoogleMaps: string | null;
+  urlWaze: string | null;
 }
 
 export interface PuntoEncuentroOfertaRequest {

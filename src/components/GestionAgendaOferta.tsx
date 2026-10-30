@@ -45,10 +45,6 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
         horariosApi.listarSalidas(negocioId, oferta.id, hoy, finVentana),
       ]);
       setFranjas(franjasDatos); setSalidas(salidasDatos);
-      setControla(Boolean(oferta.controlaDisponibilidad));
-      setTipoInventario(oferta.tipoInventario ?? 'CUPO');
-      setCapacidadInventario(oferta.capacidadPorInventario == null ? '' : String(oferta.capacidadPorInventario));
-      setRequiereHorario(Boolean(oferta.requiereHorario));
     } catch (err) { setError(err instanceof Error ? err.message : 'No se pudo consultar la agenda de la oferta.'); }
     finally { setCargando(false); }
   };

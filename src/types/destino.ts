@@ -11,6 +11,9 @@ export interface DestinoRequest {
   tipo: TipoDestino;
   descripcion: string | null;
   ubicacionReferencia: string | null;
+  direccion: string | null;
+  municipio: string | null;
+  vereda: string | null;
   latitud: number | null;
   longitud: number | null;
   comoLlegar: string | null;

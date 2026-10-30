@@ -39,6 +39,11 @@ const referenciaCuentaOrigen = (cuenta: WompiCuentaOrigen) => {
 const saldoCuentaOrigen = (cuenta: WompiCuentaOrigen) =>
   cuenta.balanceInCents == null ? 'Saldo no informado' : formatearPrecio(cuenta.balanceInCents / 100, 'COP');
 
+const descripcionTipoDestino = (cuenta: CuentaPagoNegocioResponse) =>
+  cuenta.tipoDestino === 'DEPOSITO_ELECTRONICO'
+    ? 'depósito electrónico'
+    : estadoTexto(cuenta.tipoCuentaWompi);
+
 export default function FinanzasAdminPage() {
   const [negocios, setNegocios] = useState<NegocioResponse[]>([]);
   const [negocioId, setNegocioId] = useState('');
@@ -242,7 +247,7 @@ export default function FinanzasAdminPage() {
     {cargando && <div className="loading-state"><IonSpinner/> Consultando finanzas…</div>}
 
     <section className="gestion-form-panel"><div className="gestion-form-heading"><h2>Cuentas de pago de negocios</h2><label>Estado<select value={estadoCuenta} onChange={e => setEstadoCuenta(estadosCuenta.find(v => v === e.target.value) ?? '')}>{estadosCuenta.map(v => <option key={v || 'TODAS'} value={v}>{v ? estadoTexto(v) : 'Todas'}</option>)}</select></label></div>
-      <div className="negocios-list">{cuentas.map(cuenta => <article className="negocio-row" key={cuenta.id}><div><h3>{cuenta.entidadFinanciera} · {cuenta.referenciaDestinoEnmascarada}</h3><p>{cuenta.titular} · {estadoTexto(cuenta.tipoCuentaWompi)} · negocio {cuenta.negocioId}</p>{cuenta.observacionVerificacion && <p>{cuenta.observacionVerificacion}</p>}</div><div className="negocio-row-actions"><span className={`status-pill status-${cuenta.estado === 'ACTIVA' ? 'activo' : cuenta.estado === 'PENDIENTE_VERIFICACION' ? 'borrador' : 'inactivo'}`}>{estadoTexto(cuenta.estado)}</span>{cuenta.estado === 'PENDIENTE_VERIFICACION' && <><IonButton size="small" onClick={() => verificar(cuenta)}>Verificar</IonButton><IonButton size="small" fill="outline" onClick={() => rechazar(cuenta)}>Rechazar</IonButton></>}</div></article>)}{!cuentas.length && <p className="empty-state">No hay cuentas para el filtro seleccionado.</p>}</div>
+      <div className="negocios-list">{cuentas.map(cuenta => <article className="negocio-row" key={cuenta.id}><div><h3>{cuenta.entidadFinanciera} · {cuenta.referenciaDestinoEnmascarada}</h3><p>{cuenta.titular} · {descripcionTipoDestino(cuenta)} · negocio {cuenta.negocioId}</p>{cuenta.observacionVerificacion && <p>{cuenta.observacionVerificacion}</p>}</div><div className="negocio-row-actions"><span className={`status-pill status-${cuenta.estado === 'ACTIVA' ? 'activo' : cuenta.estado === 'PENDIENTE_VERIFICACION' ? 'borrador' : 'inactivo'}`}>{estadoTexto(cuenta.estado)}</span>{cuenta.estado === 'PENDIENTE_VERIFICACION' && <><IonButton size="small" onClick={() => verificar(cuenta)}>Verificar</IonButton><IonButton size="small" fill="outline" onClick={() => rechazar(cuenta)}>Rechazar</IonButton></>}</div></article>)}{!cuentas.length && <p className="empty-state">No hay cuentas para el filtro seleccionado.</p>}</div>
     </section>
 
     <section className="gestion-form-panel"><h2>Comisión y liquidación por negocio</h2><div className="negocio-form">

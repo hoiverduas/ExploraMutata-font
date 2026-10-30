@@ -5,20 +5,37 @@ const categoriasValidas: readonly CategoriaNegocio[] = ['HOSPEDAJE', 'RESTAURANT
 function esCategoria(valor: unknown): valor is CategoriaNegocio {
   return categoriasValidas.some(categoria => categoria === valor);
 }
+function esTextoNullable(valor: unknown): valor is string | null {
+  return valor === null || typeof valor === 'string';
+}
+function esNumeroNullable(valor: unknown): valor is number | null {
+  return valor === null || typeof valor === 'number';
+}
 
 function esNegocioPublico(valor: unknown): valor is NegocioPublico {
   if (!valor || typeof valor !== 'object') return false;
-  return 'id' in valor && typeof valor.id === 'string'
-    && 'nombreComercial' in valor && typeof valor.nombreComercial === 'string'
-    && 'categorias' in valor && Array.isArray(valor.categorias) && valor.categorias.every(esCategoria)
-    && 'descripcion' in valor && (valor.descripcion === null || typeof valor.descripcion === 'string')
-    && 'correoContacto' in valor && typeof valor.correoContacto === 'string'
-    && 'telefonoContacto' in valor && typeof valor.telefonoContacto === 'string';
+  const negocio = valor as Record<string, unknown>;
+  return typeof negocio.id === 'string'
+    && typeof negocio.nombreComercial === 'string'
+    && Array.isArray(negocio.categorias) && negocio.categorias.every(esCategoria)
+    && esTextoNullable(negocio.descripcion)
+    && typeof negocio.correoContacto === 'string'
+    && typeof negocio.telefonoContacto === 'string'
+    && esTextoNullable(negocio.whatsappContacto)
+    && esTextoNullable(negocio.instagramUrl)
+    && esTextoNullable(negocio.facebookUrl)
+    && esTextoNullable(negocio.direccion)
+    && esTextoNullable(negocio.municipio)
+    && esTextoNullable(negocio.vereda)
+    && esTextoNullable(negocio.ubicacionReferencia)
+    && esNumeroNullable(negocio.latitud)
+    && esNumeroNullable(negocio.longitud)
+    && esTextoNullable(negocio.comoLlegar);
 }
 
 export function validarCatalogoPublico(respuesta: unknown): NegocioPublico[] {
   if (!Array.isArray(respuesta) || !respuesta.every(esNegocioPublico)) {
-    throw new Error('La respuesta del catálogo no coincide con el contrato esperado: cada negocio debe incluir categorias como un array de categorías de negocio válidas.');
+    throw new Error('La respuesta del catálogo público no coincide con el contrato actual del backend.');
   }
   return respuesta;
 }

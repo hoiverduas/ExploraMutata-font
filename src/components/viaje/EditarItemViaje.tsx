@@ -14,7 +14,18 @@ interface Props {
   guardar(body: PaqueteTuristicoItemRequest): Promise<void>;
 }
 export default function EditarItemViaje({ item, guardando, error, cerrar, guardar }: Props) {
-  const [form, setForm] = useState<PaqueteTuristicoItemRequest>({ ofertaId: item.ofertaId, fechaInicio: item.fechaInicio, fechaFin: item.fechaFin, cantidadPersonas: item.cantidadPersonas, cantidadTrayectos: item.cantidadTrayectos, orden: item.orden, observaciones: item.observaciones });
+  const [form, setForm] = useState<PaqueteTuristicoItemRequest>({
+    ofertaId: item.ofertaId,
+    varianteId: item.varianteId,
+    fechaInicio: item.fechaInicio,
+    fechaFin: item.fechaFin,
+    cantidadPersonas: item.cantidadPersonas,
+    cantidadTrayectos: item.cantidadTrayectos,
+    franjaId: item.salidaProgramadaId ? null : item.franjaHorariaId,
+    salidaId: item.salidaProgramadaId,
+    orden: item.orden,
+    observaciones: item.observaciones,
+  });
   const [oferta, setOferta] = useState<OfertaNegocioResponse | null>(null);
   const [cargando, setCargando] = useState(true);
   const [errorOferta, setErrorOferta] = useState('');
@@ -47,7 +58,9 @@ export default function EditarItemViaje({ item, guardando, error, cerrar, guarda
       {requiereTrayectos && <label>Trayectos (opcional)<input type="number" min={1} step={1} disabled={guardando} value={form.cantidadTrayectos ?? ''} onChange={event => setForm(actual => ({ ...actual, cantidadTrayectos: event.target.value ? Number(event.target.value) : null }))}/></label>}
       <label>Orden del servicio<input type="number" min={1} step={1} required disabled={guardando} value={form.orden ?? 1} onChange={event => setForm(actual => ({ ...actual, orden: Number(event.target.value) }))}/></label>
       <label>Observaciones<textarea rows={3} maxLength={1000} disabled={guardando} value={form.observaciones ?? ''} onChange={event => setForm(actual => ({ ...actual, observaciones: event.target.value }))}/></label>
-      <p className="viaje-note">Al cambiar el servicio tendrás que cotizar de nuevo. Revisa las unidades y el precio en la nueva cotización.</p>
+      {item.varianteNombre && <p className="viaje-note">Opción seleccionada: <strong>{item.varianteNombre}</strong>.</p>}
+      {(item.franjaHorariaId || item.salidaProgramadaId) && <p className="viaje-note">Se conservará el horario seleccionado. Si cambias la fecha y ya no corresponde con ese horario, la nueva cotización te pedirá ajustar el servicio.</p>}
+      <p className="viaje-note">Al cambiar el servicio tendrás que cotizar de nuevo. Revisa disponibilidad, horario, unidades y precio en la nueva cotización.</p>
       {error && <p className="notice-error" role="alert">{error}</p>}
       <div className="form-actions"><IonButton type="submit" disabled={guardando}>{guardando ? 'Guardando…' : 'Guardar cambios'}</IonButton><IonButton type="button" fill="outline" disabled={guardando} onClick={cerrar}>Cancelar</IonButton></div>
     </form>}

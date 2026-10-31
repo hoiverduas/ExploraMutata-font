@@ -56,6 +56,11 @@ export default function PagoResultadoPage() {
   const ultimo = [...intentos].sort((a,b) => b.fechaActualizacion.localeCompare(a.fechaActualizacion))[0] ?? null;
   const aprobado = orden?.estado === 'PAGADA';
   const coincideTransaccion = !wompiId || !ultimo?.referenciaProveedor || wompiId === ultimo.referenciaProveedor;
+  const mensajeAprobado = orden?.tipoPago === 'ANTICIPO'
+    ? 'Anticipo confirmado. Vuelve a la reserva para consultar el saldo pendiente y pagarlo cuando corresponda.'
+    : orden?.tipoPago === 'SALDO'
+      ? 'Saldo confirmado. Con este pago completaste el valor pendiente de la reserva.'
+      : 'Pago completo confirmado. La orden fue aprobada por el backend.';
 
   return <IonPage><BrandHeader title="Resultado del pago"/><IonContent fullscreen><main className="page-width gestion-page">
     <span className="eyebrow">WOMPI · EXPLORA MUTATÁ</span><h1>Estado de tu <em>pago.</em></h1>
@@ -64,9 +69,14 @@ export default function PagoResultadoPage() {
       {error && <div className="notice-error" role="alert">{error}</div>}
       {orden && <section className="gestion-form-panel">
         <div className="gestion-form-heading"><h2>Orden {orden.referencia}</h2><PagoEstadoBadge estado={orden.estado}/></div>
-        <dl className="reserva-info"><div><dt>Valor cobrado</dt><dd>{formatearPrecio(orden.montoCobro, orden.monedaCobro)}</dd></div>{wompiId && <div><dt>Transacción Wompi</dt><dd>{wompiId}</dd></div>}</dl>
+        <dl className="reserva-info">
+          <div><dt>Tipo de pago</dt><dd>{orden.tipoPago === 'ANTICIPO' ? 'Anticipo' : orden.tipoPago === 'SALDO' ? 'Saldo' : 'Pago completo'}</dd></div>
+          <div><dt>Valor cobrado</dt><dd>{formatearPrecio(orden.montoCobro, orden.monedaCobro)}</dd></div>
+          {orden.tipoPago === 'ANTICIPO' && <div><dt>Porcentaje del total</dt><dd>{Number(orden.porcentajePago).toFixed(0)} %</dd></div>}
+          {wompiId && <div><dt>Transacción Wompi</dt><dd>{wompiId}</dd></div>}
+        </dl>
         {ultimo && <div className="quote-summary"><h3>Último evento registrado</h3><PagoEstadoBadge estado={ultimo.estado}/><p>{ultimo.mensajeEstado || 'Estado procesado por Explora Mutatá.'}</p></div>}
-        {aprobado ? <div className="notice-success">Pago confirmado. La orden ya está marcada como pagada por el backend.</div>
+        {aprobado ? <div className="notice-success">{mensajeAprobado}</div>
           : ultimo && ['RECHAZADO','ANULADO','ERROR'].includes(ultimo.estado)
             ? <div className="notice-error">El intento no fue aprobado. Puedes volver a la reserva e intentar pagar nuevamente.</div>
             : <div className="notice-success">Wompi devolvió al navegador, pero Explora Mutatá aún espera o procesa el webhook. Usa “Actualizar estado” antes de repetir el pago.</div>}

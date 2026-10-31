@@ -133,6 +133,10 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
   const pagoCompleto = saldo < 0.01;
   const primerPago = pagado < 0.01;
   const activa = ordenes.find(esOrdenActiva) ?? null;
+  const sesionWompi = pagoWompiSesion.obtener();
+  const transaccionSincronizable = activa && sesionWompi?.ordenId === activa.id
+    ? sesionWompi.transaccionId
+    : undefined;
   const foco = ordenFoco(ordenes, reserva.id);
   const intento = ultimoIntento(intentos);
   const montoSeleccionado = primerPago
@@ -185,6 +189,31 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
     } catch (err) {
       if (activo.current) {
         setError(err instanceof Error ? err.message : 'No se pudo actualizar el estado del pago.');
+      }
+    } finally {
+      if (activo.current) setCargando(false);
+    }
+  };
+
+  const sincronizarConWompi = async () => {
+    if (!activa || !transaccionSincronizable || cargando || pagando || !pagable) return;
+
+    setCargando(true);
+    setError('');
+    try {
+      await pagosApi.sincronizarWompi(activa.id, transaccionSincronizable);
+      const lista = await pagosApi.listarOrdenesReserva(reserva.id);
+      const nuevoFoco = ordenFoco(lista, reserva.id);
+      const listaIntentos = nuevoFoco ? await pagosApi.listarIntentos(nuevoFoco.id) : [];
+
+      if (activo.current) {
+        setOrdenes(lista);
+        setIntentos(listaIntentos);
+        if (totalPagado(lista) >= totalReserva) pagoWompiSesion.limpiar();
+      }
+    } catch (err) {
+      if (activo.current) {
+        setError(err instanceof Error ? err.message : 'No se pudo sincronizar el pago con Wompi.');
       }
     } finally {
       if (activo.current) setCargando(false);
@@ -328,13 +357,17 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
       </div>}
 
       <div className="form-actions">
-        <IonButton disabled={pagando || cargando} onClick={() => void pagar()}>
-          {pagando
-            ? 'Abriendo Wompi…'
-            : intento && ['RECHAZADO', 'ERROR', 'ANULADO'].includes(intento.estado)
-              ? 'Intentar pago de nuevo'
-              : 'Pagar con Wompi'}
-        </IonButton>
+        {transaccionSincronizable
+          ? <IonButton disabled={pagando || cargando} onClick={() => void sincronizarConWompi()}>
+              {cargando ? 'Sincronizando…' : 'Sincronizar con Wompi'}
+            </IonButton>
+          : <IonButton disabled={pagando || cargando} onClick={() => void pagar()}>
+              {pagando
+                ? 'Abriendo Wompi…'
+                : intento && ['RECHAZADO', 'ERROR', 'ANULADO'].includes(intento.estado)
+                  ? 'Intentar pago de nuevo'
+                  : 'Pagar con Wompi'}
+            </IonButton>}
         <IonButton fill="outline" disabled={cargando || pagando} onClick={() => void actualizar()}>
           {cargando ? <IonSpinner/> : 'Actualizar estado'}
         </IonButton>

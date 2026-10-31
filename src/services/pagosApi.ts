@@ -67,8 +67,16 @@ export function abrirWebCheckoutWompi(preparacion: PreparacionPagoWompiResponse)
 }
 
 export const pagosApi = {
-  crearOrden(reservaId: string): Promise<OrdenPagoResponse> {
-    return apiRequest<OrdenPagoResponse>(`${root}/ordenes/reservas/${encodeURIComponent(reservaId)}`, { method: 'POST' });
+  crearOrden(reservaId: string, porcentajePago: number): Promise<OrdenPagoResponse> {
+    return apiRequest<OrdenPagoResponse>(`${root}/ordenes/reservas/${encodeURIComponent(reservaId)}`, {
+      method: 'POST',
+      body: JSON.stringify({ porcentajePago }),
+    });
+  },
+  listarOrdenesReserva(reservaId: string, options: { signal?: AbortSignal } = {}): Promise<OrdenPagoResponse[]> {
+    return apiRequest<OrdenPagoResponse[]>(`${root}/ordenes/reservas/${encodeURIComponent(reservaId)}`, {
+      signal: options.signal,
+    });
   },
   buscarOrden(ordenId: string, options: { signal?: AbortSignal } = {}): Promise<OrdenPagoResponse> {
     return apiRequest<OrdenPagoResponse>(`${root}/ordenes/${encodeURIComponent(ordenId)}`, { signal: options.signal });

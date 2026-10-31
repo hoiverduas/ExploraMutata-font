@@ -96,6 +96,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const usaNoches = ['POR_NOCHE', 'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE'].includes(modeloEfectivo);
   const mostrarFin = usaNoches || ['POR_DIA', 'POR_PERSONA_Y_DIA'].includes(modeloEfectivo) || duracionUnidadEfectiva !== 'UNICO';
   const mostrarTrayectos = oferta.categoria === 'TRANSPORTE';
+  const requiereHorarioEfectivo = oferta.categoria !== 'HOSPEDAJE' && oferta.requiereHorario;
 
   useLayoutEffect(() => {
     contexto.current = {};
@@ -127,7 +128,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     setConsultandoAgenda(true);
     const tareas: Promise<void>[] = [];
 
-    if (oferta.requiereHorario) {
+    if (requiereHorarioEfectivo) {
       tareas.push(horariosApi.listarPublicos(oferta.id, fecha, fecha, { signal: controller.signal })
         .then(resultado => {
           if (!controller.signal.aborted) setSalidas(resultado.salidas.filter(s => s.estado === 'ABIERTA' && s.cupoDisponible > 0));
@@ -153,7 +154,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       })
       .finally(() => { if (!controller.signal.aborted) setConsultandoAgenda(false); });
     return () => controller.abort();
-  }, [formulario.fechaInicio, formulario.fechaFin, formulario.cantidadPersonas, oferta.id, oferta.categoria, oferta.controlaDisponibilidad, oferta.requiereHorario]);
+  }, [formulario.fechaInicio, formulario.fechaFin, formulario.cantidadPersonas, oferta.id, oferta.categoria, oferta.controlaDisponibilidad, requiereHorarioEfectivo]);
 
   const cambiar = (campo: keyof FormularioCotizacion, valor: string) => {
     if (mutando.current) return;
@@ -177,7 +178,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     if (fechaFin && (!esFechaReservaValida(fechaFin) || fechaFin < formulario.fechaInicio || (usaNoches && fechaFin === formulario.fechaInicio))) return setError('Revisa la fecha de fin; para alojamiento por noche debe ser posterior al inicio.');
     if (usaNoches && duracionUnidadEfectiva === 'UNICO' && !fechaFin) return setError('Selecciona una fecha de salida para cotizar las noches.');
     if (cantidadTrayectos !== null && (!Number.isSafeInteger(cantidadTrayectos) || cantidadTrayectos < 1)) return setError('Indica una cantidad entera de trayectos mayor o igual a uno.');
-    if (oferta.requiereHorario && !formulario.horario) return setError('Selecciona un horario disponible para esta fecha.');
+    if (requiereHorarioEfectivo && !formulario.horario) return setError('Selecciona un horario disponible para esta fecha.');
     if (oferta.controlaDisponibilidad && disponibilidadDia && (disponibilidadDia.estado !== 'ABIERTA' || disponibilidadDia.cupoDisponible <= 0)) return setError('La fecha seleccionada no tiene disponibilidad.');
     if (oferta.categoria === 'HOSPEDAJE' && disponibilidadHospedaje && !disponibilidadHospedaje.disponible) return setError(disponibilidadHospedaje.detalle || 'No hay alojamiento disponible para esas fechas.');
 
@@ -278,7 +279,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       {mostrarFin && <label>Fecha de fin{usaNoches && duracionUnidadEfectiva === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
       {mostrarTrayectos && <label>Trayectos (opcional)<input type="number" min={1} step={1} disabled={guardando} value={formulario.cantidadTrayectos} onChange={e => cambiar('cantidadTrayectos', e.target.value)} placeholder="Según la oferta"/></label>}
       <label>Código promocional (opcional)<input maxLength={50} disabled={guardando} value={formulario.codigoPromocion} onChange={e => cambiar('codigoPromocion', e.target.value.toUpperCase())} placeholder="Ej. AVENTURA20"/></label>
-      {oferta.requiereHorario && <label className="form-full">Horario *<select required disabled={guardando || consultandoAgenda || !formulario.fechaInicio} value={formulario.horario} onChange={e => cambiar('horario', e.target.value)}><option value="">{consultandoAgenda ? 'Consultando horarios…' : 'Selecciona un horario'}</option>{salidas.map(salida => {
+      {requiereHorarioEfectivo && <label className="form-full">Horario *<select required disabled={guardando || consultandoAgenda || !formulario.fechaInicio} value={formulario.horario} onChange={e => cambiar('horario', e.target.value)}><option value="">{consultandoAgenda ? 'Consultando horarios…' : 'Selecciona un horario'}</option>{salidas.map(salida => {
         const valor = selectorSalida(salida);
         return valor ? <option key={`${valor}-${salida.fecha}-${salida.horaInicio}`} value={valor}>{salida.horaInicio}{salida.horaFin ? ` – ${salida.horaFin}` : ''}{salida.nombre ? ` · ${salida.nombre}` : ''} · {salida.cupoDisponible} cupo(s)</option> : null;
       })}</select></label>}
@@ -286,7 +287,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     </form>
 
     {errorAgenda && <div className="notice-error" role="alert">{errorAgenda}</div>}
-    {oferta.requiereHorario && formulario.fechaInicio && !consultandoAgenda && !errorAgenda && salidas.length === 0 && <p>No hay horarios abiertos con cupos para la fecha seleccionada.</p>}
+    {requiereHorarioEfectivo && formulario.fechaInicio && !consultandoAgenda && !errorAgenda && salidas.length === 0 && <p>No hay horarios abiertos con cupos para la fecha seleccionada.</p>}
     {disponibilidadDia && <p className={disponibilidadDia.estado === 'ABIERTA' && disponibilidadDia.cupoDisponible > 0 ? 'notice-success' : 'notice-error'}>Disponibilidad del {formatearFechaReserva(disponibilidadDia.fecha)}: {disponibilidadDia.estado === 'ABIERTA' ? `${disponibilidadDia.cupoDisponible} cupo(s) disponibles` : 'cerrada'}.</p>}
     {disponibilidadHospedaje && <div className={disponibilidadHospedaje.disponible ? 'notice-success' : 'notice-error'}><strong>{disponibilidadHospedaje.disponible ? 'Hospedaje disponible' : 'Sin disponibilidad'}</strong><p>{disponibilidadHospedaje.detalle}</p>{disponibilidadHospedaje.disponible && <p>{disponibilidadHospedaje.noches} noche(s) · {disponibilidadHospedaje.unidadesNecesarias} unidad(es) necesarias{disponibilidadHospedaje.horaCheckIn ? ` · Check-in ${disponibilidadHospedaje.horaCheckIn}` : ''}{disponibilidadHospedaje.horaCheckOut ? ` · Check-out ${disponibilidadHospedaje.horaCheckOut}` : ''}</p>}</div>}
 

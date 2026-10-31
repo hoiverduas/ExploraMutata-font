@@ -53,7 +53,8 @@ export function abrirWebCheckoutWompi(preparacion: PreparacionPagoWompiResponse)
     reference: preparacion.referencia,
     'signature:integrity': preparacion.firmaIntegridad,
   };
-  if (preparacion.urlRedireccion) campos['redirect-url'] = preparacion.urlRedireccion;
+  campos['redirect-url'] = preparacion.urlRedireccion?.trim()
+    || `${window.location.origin}/pagos/resultado`;
 
   Object.entries(campos).forEach(([name, value]) => {
     const input = document.createElement('input');

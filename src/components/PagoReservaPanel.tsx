@@ -32,10 +32,11 @@ function ordenFoco(ordenes: OrdenPagoResponse[], reservaId: string): OrdenPagoRe
 
   const sesion = pagoWompiSesion.obtener();
   if (sesion?.reservaId === reservaId) {
-    const deSesion = ordenes.find(orden => orden.id === sesion.ordenId);
+    const deSesion = ordenes.find(orden => orden.id === sesion.ordenId && orden.estado === 'PAGADA');
     if (deSesion) return deSesion;
   }
-  return ordenes[0] ?? null;
+
+  return ordenes.find(orden => orden.estado === 'PAGADA') ?? null;
 }
 
 function totalPagado(ordenes: OrdenPagoResponse[]): number {

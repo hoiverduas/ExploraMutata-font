@@ -33,25 +33,60 @@ export default function PagoResultadoPage() {
     return { orden: ordenActual, intentos: intentosActuales };
   }, [sesion?.ordenId]);
 
+  const sincronizar = useCallback(async () => {
+    if (!sesion || !wompiId) return consultar();
+
+    pagoWompiSesion.guardar({
+      ...sesion,
+      transaccionId: wompiId,
+    });
+
+    const ordenActual = await pagosApi.sincronizarWompi(sesion.ordenId, wompiId);
+    const intentosActuales = await pagosApi.listarIntentos(sesion.ordenId);
+    if (vivo.current) {
+      setOrden(ordenActual);
+      setIntentos(intentosActuales);
+    }
+    return { orden: ordenActual, intentos: intentosActuales };
+  }, [consultar, sesion?.ordenId, wompiId]);
+
+  const sincronizarAhora = useCallback(async () => {
+    setCargando(true);
+    setError('');
+    try {
+      await sincronizar();
+    } catch (err) {
+      if (vivo.current) setError(err instanceof Error ? err.message : 'No se pudo sincronizar el pago con Wompi.');
+    } finally {
+      if (vivo.current) setCargando(false);
+    }
+  }, [sincronizar]);
+
   useEffect(() => {
     vivo.current = true;
     if (!sesion) { setCargando(false); return () => { vivo.current = false; }; }
     void (async () => {
       setCargando(true); setError('');
       try {
-        for (let intento = 0; intento < 7 && vivo.current; intento++) {
-          const resultado = await consultar();
-          if (!resultado) break;
-          const ultimo = [...resultado.intentos].sort((a,b) => b.fechaActualizacion.localeCompare(a.fechaActualizacion))[0];
-          if (resultado.orden.estado === 'PAGADA' || (ultimo && finalesPago.has(ultimo.estado))) break;
-          if (intento < 6) await esperar(2000);
+        let resultado = wompiId ? await sincronizar() : await consultar();
+        if (resultado) {
+          let ultimo = [...resultado.intentos].sort((a,b) => b.fechaActualizacion.localeCompare(a.fechaActualizacion))[0];
+          if (resultado.orden.estado !== 'PAGADA' && !(ultimo && finalesPago.has(ultimo.estado))) {
+            for (let intento = 0; intento < 6 && vivo.current; intento++) {
+              await esperar(2000);
+              resultado = await consultar();
+              if (!resultado) break;
+              ultimo = [...resultado.intentos].sort((a,b) => b.fechaActualizacion.localeCompare(a.fechaActualizacion))[0];
+              if (resultado.orden.estado === 'PAGADA' || (ultimo && finalesPago.has(ultimo.estado))) break;
+            }
+          }
         }
       } catch (err) {
         if (vivo.current) setError(err instanceof Error ? err.message : 'No se pudo confirmar el estado del pago.');
       } finally { if (vivo.current) setCargando(false); }
     })();
     return () => { vivo.current = false; };
-  }, [consultar, sesion?.ordenId]);
+  }, [consultar, sincronizar, sesion?.ordenId, wompiId]);
 
   const ultimo = [...intentos].sort((a,b) => b.fechaActualizacion.localeCompare(a.fechaActualizacion))[0] ?? null;
   const aprobado = orden?.estado === 'PAGADA';
@@ -81,7 +116,7 @@ export default function PagoResultadoPage() {
             ? <div className="notice-error">El intento no fue aprobado. Puedes volver a la reserva e intentar pagar nuevamente.</div>
             : <div className="notice-success">Wompi devolvió al navegador, pero Explora Mutatá aún espera o procesa el webhook. Usa “Actualizar estado” antes de repetir el pago.</div>}
         {!coincideTransaccion && <div className="notice-error">El identificador retornado por Wompi no coincide con el último intento registrado. No se tomará esta URL como comprobante de pago.</div>}
-        <div className="form-actions"><IonButton fill="outline" disabled={cargando} onClick={() => void consultar()}>{cargando ? 'Consultando…' : 'Actualizar estado'}</IonButton><IonButton routerLink={`/reservas/${encodeURIComponent(sesion.reservaId)}`}>Volver a la reserva</IonButton></div>
+        <div className="form-actions"><IonButton fill="outline" disabled={cargando} onClick={() => void (wompiId ? sincronizarAhora() : consultar())}>{cargando ? 'Consultando…' : wompiId ? 'Sincronizar con Wompi' : 'Actualizar estado'}</IonButton><IonButton routerLink={`/reservas/${encodeURIComponent(sesion.reservaId)}`}>Volver a la reserva</IonButton></div>
       </section>}
     </>}
   </main></IonContent></IonPage>;

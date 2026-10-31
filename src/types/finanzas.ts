@@ -1,6 +1,7 @@
 import type { Moneda } from './moneda';
 
 export type EstadoOrdenPago = 'CREADA' | 'PENDIENTE' | 'PAGADA' | 'CANCELADA' | 'VENCIDA';
+export type TipoPagoReserva = 'ANTICIPO' | 'SALDO' | 'COMPLETO';
 export type EstadoPago = 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | 'ANULADO' | 'ERROR' | 'REEMBOLSO_PARCIAL' | 'REEMBOLSADO' | 'CONTRACARGO';
 export type ProveedorPago = 'WOMPI' | 'EPAYCO' | 'MERCADO_PAGO' | 'MANUAL';
 export type TipoReglaComision = 'PORCENTAJE' | 'VALOR_FIJO';
@@ -23,6 +24,8 @@ export interface OrdenPagoResponse {
   negocioId: string;
   reglaComisionId: string;
   referencia: string;
+  tipoPago: TipoPagoReserva;
+  porcentajePago: number;
   montoOriginal: number;
   monedaOriginal: Moneda;
   montoCobro: number;

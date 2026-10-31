@@ -9,6 +9,7 @@ export interface PagoWompiSesion {
   reservaId: string;
   referencia: string;
   iniciadoEn: string;
+  transaccionId?: string;
 }
 
 export const pagoWompiSesion = {
@@ -28,6 +29,7 @@ export const pagoWompiSesion = {
         reservaId: item.reservaId,
         referencia: item.referencia,
         iniciadoEn: typeof item.iniciadoEn === 'string' ? item.iniciadoEn : '',
+        transaccionId: typeof item.transaccionId === 'string' ? item.transaccionId : undefined,
       };
     } catch {
       return null;
@@ -83,6 +85,12 @@ export const pagosApi = {
   },
   prepararWompi(ordenId: string): Promise<PreparacionPagoWompiResponse> {
     return apiRequest<PreparacionPagoWompiResponse>(`${root}/ordenes/${encodeURIComponent(ordenId)}/wompi`, { method: 'POST' });
+  },
+  sincronizarWompi(ordenId: string, transaccionId: string): Promise<OrdenPagoResponse> {
+    return apiRequest<OrdenPagoResponse>(`${root}/ordenes/${encodeURIComponent(ordenId)}/wompi/sincronizar`, {
+      method: 'POST',
+      body: JSON.stringify({ transaccionId }),
+    });
   },
   listarIntentos(ordenId: string, options: { signal?: AbortSignal } = {}): Promise<PagoResponse[]> {
     return apiRequest<PagoResponse[]>(`${root}/ordenes/${encodeURIComponent(ordenId)}/intentos`, { signal: options.signal });

@@ -34,7 +34,7 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
   const [controla, setControla] = useState(Boolean(oferta.controlaDisponibilidad));
   const [tipoInventario, setTipoInventario] = useState<TipoInventario>(oferta.tipoInventario ?? 'CUPO');
   const [capacidadInventario, setCapacidadInventario] = useState(oferta.capacidadPorInventario == null ? '' : String(oferta.capacidadPorInventario));
-  const [requiereHorario, setRequiereHorario] = useState(Boolean(oferta.requiereHorario));
+  const [requiereHorario, setRequiereHorario] = useState(oferta.categoria === 'HOSPEDAJE' ? false : Boolean(oferta.requiereHorario));
   const [rango, setRango] = useState({ fechaInicio: hoy, fechaFin: finVentana, cupoTotal: '10', estado: 'ABIERTA' as EstadoDisponibilidad });
   const [calendario, setCalendario] = useState({ fechaInicio: hoy, fechaFin: finVentana, cantidadUnidades: '1', estado: 'ABIERTA' as EstadoDisponibilidad });
   const [franja, setFranja] = useState({ diaSemana: '6', horaInicio: '08:00', horaFin: '', cupoTotal: '10', nombre: '', puntoEncuentro: '' });
@@ -177,10 +177,12 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
           <div className="form-actions"><IonButton size="small" disabled={guardando} onClick={guardarDisponibilidad}>Guardar disponibilidad</IonButton></div>
         </div>}
 
-        <div className="negocio-form">
-          <label><input type="checkbox" checked={requiereHorario} onChange={e => setRequiereHorario(e.target.checked)}/> Requiere seleccionar horario</label>
-          <div className="form-actions"><IonButton size="small" disabled={guardando} onClick={guardarRequiereHorario}>Guardar uso de horarios</IonButton></div>
-        </div>
+        {oferta.categoria === 'HOSPEDAJE'
+          ? <div className="notice-success" role="status">Los alojamientos usan fechas, disponibilidad por noche, check-in y check-out. No requieren seleccionar un horario adicional.</div>
+          : <div className="negocio-form">
+              <label><input type="checkbox" checked={requiereHorario} onChange={e => setRequiereHorario(e.target.checked)}/> Requiere seleccionar horario</label>
+              <div className="form-actions"><IonButton size="small" disabled={guardando} onClick={guardarRequiereHorario}>Guardar uso de horarios</IonButton></div>
+            </div>}
 
         {oferta.categoria === 'HOSPEDAJE' && nochesHospedaje.length > 0 && <div>
           <h4>Disponibilidad configurada</h4>
@@ -193,7 +195,7 @@ export default function GestionAgendaOferta({ negocioId, oferta }: { negocioId: 
           {diasDisponibilidad.length > 14 && <p className="viaje-note">Se muestran los primeros 14 días de los próximos 30 días.</p>}
         </div>}
 
-        {requiereHorario && <>
+        {oferta.categoria !== 'HOSPEDAJE' && requiereHorario && <>
           <div className="negocio-form">
             <h4>Nueva franja recurrente</h4>
             <label>Día<select value={franja.diaSemana} onChange={e => setFranja(v => ({ ...v, diaSemana: e.target.value }))}>{diasSemana.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}</select></label>

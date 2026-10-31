@@ -1,4 +1,4 @@
-import { IonButton, IonRange, IonSpinner } from '@ionic/react';
+import { IonButton, IonRange, IonSpinner, useIonViewWillEnter } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
 import { formatearPrecio } from '../domain/precios';
 import { ApiError } from '../services/http';
@@ -190,6 +190,13 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
       if (activo.current) setCargando(false);
     }
   };
+
+  useIonViewWillEnter(() => {
+    // Ionic conserva las páginas montadas. Al volver desde Wompi debemos
+    // consultar nuevamente el backend para no dejar visible una orden ya pagada.
+    setPagando(false);
+    if (pagable) void actualizar();
+  }, [pagable, reserva.id]);
 
   const pagar = async () => {
     if (!activa || pagando || !pagable || !esOrdenActiva(activa)) return;

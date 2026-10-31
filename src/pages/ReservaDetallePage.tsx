@@ -74,6 +74,14 @@ export default function ReservaDetallePage() {
       <EstadoConsulta {...consulta} sinDatos={!reserva} mensajeVacio="La reserva no existe o no pertenece a tu cuenta.">
         {reserva && <section className="gestion-form-panel reserva-card">
           <div className="gestion-form-heading"><h2>{reserva.negocioNombreComercial}</h2><EstadoReservaBadge estado={reserva.estado}/></div>
+          {reserva.estado === 'PENDIENTE' && <div className="quote-summary" role="status">
+            <h3>Esperando confirmación del negocio</h3>
+            <p>Tu solicitud está guardada en Mis reservas. Puedes salir de esta pantalla y volver cuando quieras. Cuando el negocio la confirme, se habilitará el pago.</p>
+            <Link className="resource-inline-link" to="/reservas">Ver todas mis reservas →</Link>
+          </div>}
+          {reserva.estado === 'CONFIRMADA' && <div className="notice-success" role="status">
+            El negocio confirmó tu reserva. Ya puedes elegir el porcentaje del primer pago y continuar con Wompi.
+          </div>}
           <ReservaDatos reserva={reserva}/>
           <PagoReservaPanel reserva={reserva}/><ResenaReservaPanel reserva={reserva}/>
           {puedeCancelarReserva(reserva.estado) && <div className="form-actions"><IonButton fill="outline" color="medium" disabled={guardando || consulta.cargando} onClick={() => void cancelar()}>{guardando ? 'Cancelando…' : 'Cancelar reserva'}</IonButton></div>}

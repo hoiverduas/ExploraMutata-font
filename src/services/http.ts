@@ -34,7 +34,15 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
         ...init.headers,
       },
     });
-  } catch {
+  } catch (error) {
+    // Un AbortController cancelado es parte normal del ciclo de vida de React/Ionic
+    // (cambio de vista, recarga o StrictMode). No debe mostrarse como fallo de conexión.
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw error;
+    }
+    if (init.signal?.aborted) {
+      throw new DOMException('La solicitud fue cancelada.', 'AbortError');
+    }
     throw new ApiError(0, 'No pudimos conectar con el servicio. Revisa tu conexión e inténtalo de nuevo.');
   }
 

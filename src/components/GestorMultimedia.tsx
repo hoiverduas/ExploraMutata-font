@@ -14,7 +14,7 @@ const roles: Array<{ valor: RolMedia; texto: string }> = [
   { valor: 'MINIATURA', texto: 'Miniatura' },
 ];
 
-const nombresEspacio = [
+const nombresEspacioHospedaje = [
   'Portada',
   'Exterior',
   'Fachada',
@@ -41,6 +41,23 @@ const nombresEspacio = [
   'Vista al río',
   'Vista a la montaña',
   'Vista principal',
+];
+
+const nombresContenidoAventura = [
+  'Río Bedó',
+  'Río Puenteadero',
+  'Salto del Tigre',
+  'Río Pavarandó',
+  'Río Cañaduzales',
+  'Cavernas del Río Bedó',
+  'Cascada',
+  'Pozo natural',
+  'Sendero',
+  'Paisaje',
+  'Tubing',
+  'Rappel',
+  'Zona de baño',
+  'Punto de encuentro',
 ];
 
 const vacio = (): MediaUploadRequest => ({
@@ -121,6 +138,19 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
       if (i !== indice) return titulo;
       return personalizado ? '' : valor;
     }));
+  };
+
+  const esContenidoAventura = contexto.tipo === 'DESTINO' || contexto.tipo === 'EXPERIENCIA';
+  const opcionesNombreFoto = esContenidoAventura ? nombresContenidoAventura : nombresEspacioHospedaje;
+  const etiquetaNombreFoto = esContenidoAventura ? 'Lugar / contenido de la foto *' : 'Nombre de la foto *';
+  const placeholderNombreFoto = esContenidoAventura ? 'Ej. Río Bedó, Cascada, Sendero' : 'Ej. Habitación 1, Sala, Baño, Exterior';
+
+  const quitarArchivo = (indice: number) => {
+    setArchivos(actuales => actuales.filter((_, i) => i !== indice));
+    setTitulosArchivos(actuales => actuales.filter((_, i) => i !== indice));
+    setTitulosPersonalizados(actuales => actuales.filter((_, i) => i !== indice));
+    setError('');
+    setMensaje('');
   };
 
   const imagenesSinTitulo = archivos
@@ -284,7 +314,9 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
 
   return <section className="gestion-form-panel media-manager">
     <div className="gestion-form-heading"><div><span className="eyebrow">CONTENIDO VISUAL</span><h2>{titulo}</h2></div><IonButton fill="outline" disabled={cargando || guardando} onClick={() => void cargar()}>Actualizar</IonButton></div>
-    <p>Sube imágenes o videos reales. La portada y la galería pública se alimentan de estos archivos. Para hospedajes, asigna a cada foto un nombre como Habitación 1, Habitación 2, Sala, Baño, Cocina o Exterior.</p>
+    <p>{esContenidoAventura
+      ? 'Sube imágenes o videos reales del destino o la experiencia. Asigna a cada foto el lugar o contenido que representa, por ejemplo Río Bedó, Río Puenteadero, Cascada, Sendero o Pozo natural.'
+      : 'Sube imágenes o videos reales. La portada y la galería pública se alimentan de estos archivos. Para hospedajes, asigna a cada foto un nombre como Habitación 1, Habitación 2, Sala, Baño, Cocina o Exterior.'}</p>
     {mensaje && <div className="notice-success" role="status">{mensaje}</div>}
     {error && <div className="notice-error" role="alert">{error}</div>}
 
@@ -336,17 +368,28 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
                 ? <img src={URL.createObjectURL(archivo)} alt="Vista previa del archivo seleccionado"/>
                 : <div className="media-selected-video">VIDEO</div>}
               <div>
-                <strong>{archivo.name}</strong>
+                <div className="media-selected-heading">
+                  <strong>{archivo.name}</strong>
+                  <button
+                    type="button"
+                    className="media-remove-selected"
+                    disabled={guardando}
+                    onClick={() => quitarArchivo(indice)}
+                    aria-label={`Quitar ${archivo.name}`}
+                  >
+                    Quitar
+                  </button>
+                </div>
                 {esImagen ? <>
                   <label>
-                    Nombre de la foto *
+                    {etiquetaNombreFoto}
                     <select
                       value={titulosPersonalizados[indice] ? '__OTRO__' : tituloArchivo}
                       onChange={e => seleccionarNombreEspacio(indice, e.target.value)}
                       required
                     >
-                      <option value="">Selecciona un espacio</option>
-                      {nombresEspacio.map(nombre => <option value={nombre} key={nombre}>{nombre}</option>)}
+                      <option value="">{esContenidoAventura ? 'Selecciona el lugar o contenido' : 'Selecciona un espacio'}</option>
+                      {opcionesNombreFoto.map(nombre => <option value={nombre} key={nombre}>{nombre}</option>)}
                       <option value="__OTRO__">Otro...</option>
                     </select>
                   </label>
@@ -354,7 +397,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
                     Nombre personalizado *
                     <input
                       maxLength={200}
-                      placeholder="Ej. Suite familiar, Zona BBQ, Mirador"
+                      placeholder={placeholderNombreFoto}
                       value={tituloArchivo}
                       onChange={e => actualizarTituloArchivo(indice, e.target.value)}
                       required

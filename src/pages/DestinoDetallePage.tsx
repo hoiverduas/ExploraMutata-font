@@ -5,7 +5,7 @@ import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import TarjetaTuristica from '../components/TarjetaTuristica';
-import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
+import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
 import UbicacionPublica from '../components/UbicacionPublica';
 import BotonFavorito from '../components/BotonFavorito';
 import { nombresDificultad, nombresTipoDestino } from '../data/turismo';
@@ -30,11 +30,12 @@ export default function DestinoDetallePage() {
   const experiencias = useConsultaApi<ExperienciaPublica[]>(cargarExperiencias, []);
   const datos = destino.datos;
   return <IonPage><BrandHeader title={datos?.nombre ?? 'Destino'}/><IonContent fullscreen><main className="page-width tourism-detail">
-    <NavegacionTuristica/><div className="destination-editorial" aria-hidden="true"><img src="/images/rio-bedo.webp" alt=""/><span>Naturaleza y aventura en Mutatá</span></div>
+    <NavegacionTuristica/>
     <EstadoConsulta {...destino} sinDatos={!datos} mensajeVacio="No encontramos este destino.">
-      {datos && <><span className="eyebrow">{nombresTipoDestino[datos.tipo]}</span><div className="detail-title-actions"><h1>{datos.nombre}</h1><BotonFavorito tipo="DESTINO" recursoId={datos.id}/></div>
+      {datos && <>
+        <CarruselMultimediaPublico tipo="DESTINO" entidadId={datos.id} etiqueta={`Fotos y videos de ${datos.nombre}`}/>
+        <span className="eyebrow">{nombresTipoDestino[datos.tipo]}</span><div className="detail-title-actions"><h1>{datos.nombre}</h1><BotonFavorito tipo="DESTINO" recursoId={datos.id}/></div>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}
-        <GaleriaMultimediaPublica tipo="DESTINO" entidadId={datos.id}/>
         {(datos.direccion || datos.vereda || datos.municipio || datos.ubicacionReferencia) && <section><h2>Ubicación</h2><p>{[datos.direccion, datos.vereda, datos.municipio, datos.ubicacionReferencia].filter(Boolean).join(' · ')}</p></section>}
         {datos.comoLlegar && <section><h2>Cómo llegar</h2><p>{datos.comoLlegar}</p></section>}
         <UbicacionPublica tipo="DESTINO" entidadId={datos.id}/>

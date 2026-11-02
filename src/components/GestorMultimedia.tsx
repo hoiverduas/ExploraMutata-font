@@ -173,6 +173,9 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
     if (!editando || guardando) return;
     const validacion = validar(editForm);
     if (validacion) return setError(validacion);
+    if (editando.tipo === 'IMAGEN' && !editForm.titulo?.trim()) {
+      return setError('El nombre de la foto es obligatorio.');
+    }
     if (editando.tipo === 'VIDEO' && ['PORTADA', 'MINIATURA'].includes(editForm.rol)) return setError('Portada y miniatura requieren una imagen.');
     if (editando.tipo === 'IMAGEN' && ['VIDEO_PRINCIPAL', 'REEL'].includes(editForm.rol)) return setError('Video principal y Reel requieren un video.');
     setGuardando(true); setError(''); setMensaje('');

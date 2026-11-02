@@ -14,6 +14,35 @@ const roles: Array<{ valor: RolMedia; texto: string }> = [
   { valor: 'MINIATURA', texto: 'Miniatura' },
 ];
 
+const nombresEspacio = [
+  'Portada',
+  'Exterior',
+  'Fachada',
+  'Recepción',
+  'Habitación 1',
+  'Habitación 2',
+  'Habitación 3',
+  'Habitación 4',
+  'Habitación principal',
+  'Sala',
+  'Comedor',
+  'Cocina',
+  'Baño 1',
+  'Baño 2',
+  'Baño privado',
+  'Balcón',
+  'Terraza',
+  'Piscina',
+  'Zona social',
+  'Zona de trabajo',
+  'Parqueadero',
+  'Lavandería',
+  'Jardín',
+  'Vista al río',
+  'Vista a la montaña',
+  'Vista principal',
+];
+
 const vacio = (): MediaUploadRequest => ({
   rol: 'GALERIA',
   titulo: null,
@@ -37,6 +66,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
   const [medios, setMedios] = useState<MediaAssetResponse[]>([]);
   const [archivos, setArchivos] = useState<File[]>([]);
   const [titulosArchivos, setTitulosArchivos] = useState<string[]>([]);
+  const [titulosPersonalizados, setTitulosPersonalizados] = useState<boolean[]>([]);
   const [form, setForm] = useState<MediaUploadRequest>(vacio());
   const [editando, setEditando] = useState<MediaAssetResponse | null>(null);
   const [editForm, setEditForm] = useState<MediaUploadRequest>(vacio());
@@ -74,6 +104,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
     setMensaje('');
     setArchivos(seleccionados);
     setTitulosArchivos(seleccionados.map(() => ''));
+    setTitulosPersonalizados(seleccionados.map(() => false));
 
     if (desdeCarpeta && !seleccionados.length) {
       setError('La carpeta seleccionada no contiene imágenes o videos compatibles.');
@@ -82,6 +113,15 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
 
   const actualizarTituloArchivo = (indice: number, valor: string) =>
     setTitulosArchivos(actuales => actuales.map((titulo, i) => i === indice ? valor : titulo));
+
+  const seleccionarNombreEspacio = (indice: number, valor: string) => {
+    const personalizado = valor === '__OTRO__';
+    setTitulosPersonalizados(actuales => actuales.map((estado, i) => i === indice ? personalizado : estado));
+    setTitulosArchivos(actuales => actuales.map((titulo, i) => {
+      if (i !== indice) return titulo;
+      return personalizado ? '' : valor;
+    }));
+  };
 
   const imagenesSinTitulo = archivos
     .map((archivo, indice) => ({ archivo, indice }))
@@ -142,6 +182,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
       if (!vivo.current) return;
       setArchivos([]);
       setTitulosArchivos([]);
+      setTitulosPersonalizados([]);
       setForm(vacio());
       setMensaje(archivos.length === 1 ? 'Archivo subido correctamente.' : 'Archivos subidos correctamente.');
       const input = document.getElementById(`media-files-${contexto.tipo}-${contexto.entidadId}`) as HTMLInputElement | null;
@@ -296,17 +337,39 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
                 : <div className="media-selected-video">VIDEO</div>}
               <div>
                 <strong>{archivo.name}</strong>
-                <label>
-                  {esImagen ? 'Nombre de la foto *' : 'Título del video'}
+                {esImagen ? <>
+                  <label>
+                    Nombre de la foto *
+                    <select
+                      value={titulosPersonalizados[indice] ? '__OTRO__' : tituloArchivo}
+                      onChange={e => seleccionarNombreEspacio(indice, e.target.value)}
+                      required
+                    >
+                      <option value="">Selecciona un espacio</option>
+                      {nombresEspacio.map(nombre => <option value={nombre} key={nombre}>{nombre}</option>)}
+                      <option value="__OTRO__">Otro...</option>
+                    </select>
+                  </label>
+                  {titulosPersonalizados[indice] && <label>
+                    Nombre personalizado *
+                    <input
+                      maxLength={200}
+                      placeholder="Ej. Suite familiar, Zona BBQ, Mirador"
+                      value={tituloArchivo}
+                      onChange={e => actualizarTituloArchivo(indice, e.target.value)}
+                      required
+                    />
+                  </label>}
+                </> : <label>
+                  Título del video
                   <input
                     maxLength={200}
-                    placeholder={esImagen ? 'Ej. Habitación 1, Sala, Baño, Exterior' : 'Ej. Recorrido del alojamiento'}
+                    placeholder="Ej. Recorrido del alojamiento"
                     value={tituloArchivo}
                     onChange={e => actualizarTituloArchivo(indice, e.target.value)}
-                    required={esImagen}
                   />
-                </label>
-                {esImagen && !tituloArchivo.trim() && <small className="media-required-error">Debes asignar un nombre a esta foto.</small>}
+                </label>}
+                {esImagen && !tituloArchivo.trim() && <small className="media-required-error">Debes seleccionar o escribir un nombre para esta foto.</small>}
               </div>
             </article>;
           })}

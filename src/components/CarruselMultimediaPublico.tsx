@@ -65,7 +65,10 @@ export default function CarruselMultimediaPublico({
             key={actual.id}
             className="destination-media-main"
             controls
-            preload="metadata"
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
             poster={actual.thumbnailUrl ?? undefined}
             onPlay={() => setVideoReproduciendo(true)}
             onPause={() => setVideoReproduciendo(false)}

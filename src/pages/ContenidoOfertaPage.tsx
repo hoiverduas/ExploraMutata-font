@@ -95,7 +95,11 @@ export default function ContenidoOfertaPage() {
         </div>
         <div className="form-actions"><IonButton disabled={guardando} onClick={() => void guardar()}>{guardando ? 'Guardando…' : 'Guardar punto de encuentro'}</IonButton></div>
       </section>
-      <GestorMultimedia contexto={{ tipo: 'OFERTA', entidadId: String(id), negocioId }} titulo="Fotos y videos de la oferta"/>
+      <GestorMultimedia
+        contexto={{ tipo: 'OFERTA', entidadId: String(id), negocioId }}
+        titulo="Fotos y videos de la oferta"
+        modo={oferta.categoria === 'AVENTURA' ? 'AVENTURA' : oferta.categoria === 'HOSPEDAJE' ? 'HOSPEDAJE' : 'GENERAL'}
+      />
     </>}
   </main></IonContent></IonPage>;
 }

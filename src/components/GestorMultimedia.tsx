@@ -36,6 +36,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
 }) {
   const [medios, setMedios] = useState<MediaAssetResponse[]>([]);
   const [archivos, setArchivos] = useState<File[]>([]);
+  const [titulosArchivos, setTitulosArchivos] = useState<string[]>([]);
   const [form, setForm] = useState<MediaUploadRequest>(vacio());
   const [editando, setEditando] = useState<MediaAssetResponse | null>(null);
   const [editForm, setEditForm] = useState<MediaUploadRequest>(vacio());
@@ -72,11 +73,19 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
     setError('');
     setMensaje('');
     setArchivos(seleccionados);
+    setTitulosArchivos(seleccionados.map(() => ''));
 
     if (desdeCarpeta && !seleccionados.length) {
       setError('La carpeta seleccionada no contiene imágenes o videos compatibles.');
     }
   };
+
+  const actualizarTituloArchivo = (indice: number, valor: string) =>
+    setTitulosArchivos(actuales => actuales.map((titulo, i) => i === indice ? valor : titulo));
+
+  const imagenesSinTitulo = archivos
+    .map((archivo, indice) => ({ archivo, indice }))
+    .filter(({ archivo, indice }) => archivo.type.startsWith('image/') && !titulosArchivos[indice]?.trim());
   const actualizarEdit = <K extends keyof MediaUploadRequest>(campo: K, valor: MediaUploadRequest[K]) =>
     setEditForm(actual => ({ ...actual, [campo]: valor }));
 
@@ -101,8 +110,11 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
 
   const subir = async () => {
     if (guardando || !archivos.length) return;
-    const validacion = validar(form);
+    const validacion = validar({ ...form, titulo: null });
     if (validacion) return setError(validacion);
+    if (imagenesSinTitulo.length) {
+      return setError('Debes ponerle un nombre a cada imagen antes de subirla.');
+    }
     const tiposValidos = archivos.every(a => a.type.startsWith('image/') || a.type.startsWith('video/'));
     if (!tiposValidos) return setError('Selecciona únicamente imágenes o videos.');
     if (archivos.length > 20) return setError('El backend admite como máximo 20 archivos por lote.');
@@ -113,11 +125,25 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
     if (excedeTamano) return setError('Una imagen supera 15 MB o un video supera 250 MB, límites actuales del backend.');
     setGuardando(true); setError(''); setMensaje('');
     try {
-      const metadata = normalizar(form);
-      if (archivos.length === 1) await multimediaGestionApi.subir(contexto, archivos[0], metadata);
-      else await multimediaGestionApi.subirLote(contexto, archivos, metadata);
+      for (let indice = 0; indice < archivos.length; indice += 1) {
+        const archivo = archivos[indice];
+        const tituloArchivo = archivo.type.startsWith('image/')
+          ? titulosArchivos[indice]?.trim() ?? ''
+          : titulosArchivos[indice]?.trim() || form.titulo || archivo.name;
+
+        const metadata = normalizar({
+          ...form,
+          titulo: tituloArchivo,
+          orden: form.orden === null ? indice : form.orden + indice,
+        });
+
+        await multimediaGestionApi.subir(contexto, archivo, metadata);
+      }
       if (!vivo.current) return;
-      setArchivos([]); setForm(vacio()); setMensaje(archivos.length === 1 ? 'Archivo subido correctamente.' : 'Archivos subidos correctamente.');
+      setArchivos([]);
+      setTitulosArchivos([]);
+      setForm(vacio());
+      setMensaje(archivos.length === 1 ? 'Archivo subido correctamente.' : 'Archivos subidos correctamente.');
       const input = document.getElementById(`media-files-${contexto.tipo}-${contexto.entidadId}`) as HTMLInputElement | null;
       if (input) input.value = '';
       if (carpetaInputRef.current) carpetaInputRef.current.value = '';
@@ -188,17 +214,21 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
     finally { setGuardando(false); }
   };
 
-  const formulario = (metadata: MediaUploadRequest, actualizar: <K extends keyof MediaUploadRequest>(campo: K, valor: MediaUploadRequest[K]) => void) => <div className="negocio-form">
+  const formulario = (
+    metadata: MediaUploadRequest,
+    actualizar: <K extends keyof MediaUploadRequest>(campo: K, valor: MediaUploadRequest[K]) => void,
+    mostrarTitulo = true,
+  ) => <div className="negocio-form">
     <label>Rol<select value={metadata.rol} onChange={e => actualizar('rol', e.target.value as RolMedia)}>{roles.map(r => <option value={r.valor} key={r.valor}>{r.texto}</option>)}</select></label>
     <label>Orden<input type="number" min={0} step={1} value={metadata.orden ?? ''} onChange={e => actualizar('orden', e.target.value === '' ? null : Number(e.target.value))}/></label>
-    <label className="form-full">Nombre del espacio / título
+{mostrarTitulo && <label className="form-full">Nombre del espacio / título *
       <input
         maxLength={200}
         placeholder="Ej. Habitación 1, Sala, Baño, Exterior"
         value={metadata.titulo ?? ''}
         onChange={e => actualizar('titulo', e.target.value)}
       />
-    </label>
+    </label>}
     <label className="form-full">Descripción<textarea rows={3} maxLength={1000} value={metadata.descripcion ?? ''} onChange={e => actualizar('descripcion', e.target.value)}/></label>
     <label className="form-full">Texto alternativo<input maxLength={300} value={metadata.altText ?? ''} onChange={e => actualizar('altText', e.target.value)}/></label>
     <label>Autor<input maxLength={200} value={metadata.autor ?? ''} onChange={e => actualizar('autor', e.target.value)}/></label>
@@ -251,9 +281,43 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
         </IonButton>
         <small>Selecciona una carpeta y cargaremos las imágenes/videos que contenga. Máximo 20 archivos por lote.</small>
       </div>
-      {archivos.length > 0 && <p>{archivos.length} archivo(s) seleccionado(s): {archivos.map(a => a.name).join(', ')}</p>}
-      {formulario(form, actualizarForm)}
-      <div className="form-actions"><IonButton disabled={guardando || !archivos.length} onClick={() => void subir()}>{guardando ? 'Subiendo…' : archivos.length > 1 ? 'Subir archivos' : 'Subir archivo'}</IonButton></div>
+      {archivos.length > 0 && <>
+        <p>{archivos.length} archivo(s) seleccionado(s). Ponle un nombre obligatorio a cada imagen antes de subir.</p>
+        <div className="media-selected-grid">
+          {archivos.map((archivo, indice) => {
+            const esImagen = archivo.type.startsWith('image/');
+            const tituloArchivo = titulosArchivos[indice] ?? '';
+            return <article className={`media-selected-item${esImagen && !tituloArchivo.trim() ? ' media-selected-item-error' : ''}`} key={`${archivo.name}-${archivo.lastModified}-${indice}`}>
+              {esImagen
+                ? <img src={URL.createObjectURL(archivo)} alt="Vista previa del archivo seleccionado"/>
+                : <div className="media-selected-video">VIDEO</div>}
+              <div>
+                <strong>{archivo.name}</strong>
+                <label>
+                  {esImagen ? 'Nombre de la foto *' : 'Título del video'}
+                  <input
+                    maxLength={200}
+                    placeholder={esImagen ? 'Ej. Habitación 1, Sala, Baño, Exterior' : 'Ej. Recorrido del alojamiento'}
+                    value={tituloArchivo}
+                    onChange={e => actualizarTituloArchivo(indice, e.target.value)}
+                    required={esImagen}
+                  />
+                </label>
+                {esImagen && !tituloArchivo.trim() && <small className="media-required-error">Debes asignar un nombre a esta foto.</small>}
+              </div>
+            </article>;
+          })}
+        </div>
+      </>}
+      {formulario(form, actualizarForm, false)}
+      <div className="form-actions">
+        <IonButton
+          disabled={guardando || !archivos.length || imagenesSinTitulo.length > 0}
+          onClick={() => void subir()}
+        >
+          {guardando ? 'Subiendo…' : archivos.length > 1 ? 'Subir archivos' : 'Subir archivo'}
+        </IonButton>
+      </div>
     </div>
 
     {editando && <div className="media-edit-box">

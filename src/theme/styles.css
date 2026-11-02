@@ -356,3 +356,18 @@ button.rating-star:hover{transform:scale(1.08)}
   object-position:center;
   filter:none;
 }
+
+
+/* Experiencias y ofertas: portadas completas y detalle sin imagen editorial duplicada. */
+.marketplace-card-image-contain{
+  object-fit:contain!important;
+  object-position:center;
+  background:#0f2923;
+}
+.marketplace-hero-without-image{
+  display:block;
+  background:#eef2e9;
+}
+.marketplace-hero-without-image .marketplace-hero-copy{
+  padding:30px;
+}

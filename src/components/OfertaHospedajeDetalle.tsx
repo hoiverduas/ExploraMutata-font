@@ -49,6 +49,13 @@ const prioridad = (media: MediaAssetResponse) =>
 const urlMedia = (media: MediaAssetResponse) =>
   media.url || `/api/v1/public/multimedia/${encodeURIComponent(media.id)}/archivo`;
 
+const nombreFoto = (media: MediaAssetResponse, indice: number) => {
+  const titulo = media.titulo?.trim();
+  if (titulo) return titulo;
+  if (media.rol === 'PORTADA') return 'Portada';
+  return `Foto ${indice + 1}`;
+};
+
 function resumenHospedaje(oferta: OfertaNegocioResponse, detalle: OfertaHospedajeResponse | null) {
   const partes: string[] = [];
   if (oferta.capacidadMaxima) partes.push(`${oferta.capacidadMaxima} huésped${oferta.capacidadMaxima === 1 ? '' : 'es'}`);
@@ -143,6 +150,7 @@ export default function OfertaHospedajeDetalle({ oferta }: { oferta: OfertaNegoc
           aria-label={src ? `Abrir fotografía ${indice + 1}` : undefined}
         >
           {src && <img src={src} alt={media?.altText ?? media?.titulo ?? oferta.nombre}/>}
+          {media && <span className="hospedaje-photo-label">{nombreFoto(media, indice)}</span>}
         </button>;
       })}
       {fotosOrdenadas.length > 0 && <button type="button" className="hospedaje-show-all" onClick={() => setGaleriaAbierta(true)}>
@@ -245,12 +253,19 @@ export default function OfertaHospedajeDetalle({ oferta }: { oferta: OfertaNegoc
       <div className="hospedaje-gallery-dialog">
         <div className="hospedaje-gallery-header">
           <div><span className="eyebrow">RECORRIDO FOTOGRÁFICO</span><h2>{oferta.nombre}</h2></div>
-          <button type="button" onClick={() => setGaleriaAbierta(false)} aria-label="Cerrar galería">✕</button>
+          <button type="button" className="hospedaje-gallery-close" onClick={() => setGaleriaAbierta(false)} aria-label="Cerrar galería">
+            <span aria-hidden="true">✕</span> Cerrar
+          </button>
         </div>
         <div className="hospedaje-gallery-all">
           {fotosOrdenadas.map((media, indice) => <figure key={media.id}>
-            <img src={urlMedia(media)} alt={media.altText ?? media.titulo ?? `Fotografía ${indice + 1} del alojamiento`}/>
-            {(media.titulo || media.descripcion) && <figcaption><strong>{media.titulo ?? `Foto ${indice + 1}`}</strong>{media.descripcion && <span>{media.descripcion}</span>}</figcaption>}
+            <div className="hospedaje-gallery-photo-wrap">
+              <img src={urlMedia(media)} alt={media.altText ?? media.titulo ?? `Fotografía ${indice + 1} del alojamiento`}/>
+              <div className="hospedaje-gallery-photo-label">
+                <strong>{nombreFoto(media, indice)}</strong>
+                {media.descripcion && <span>{media.descripcion}</span>}
+              </div>
+            </div>
           </figure>)}
         </div>
       </div>

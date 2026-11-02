@@ -106,7 +106,11 @@ export default function NegocioDetallePage() {
               </section>
             </div>
           </section>
-          <GaleriaMultimediaPublica tipo="NEGOCIO" entidadId={negocio.id}/>
+          <GaleriaMultimediaPublica
+            tipo="NEGOCIO"
+            entidadId={negocio.id}
+            titulo={negocio.categorias.includes('HOSPEDAJE') ? 'Fotos del alojamiento' : 'Galería'}
+          />
           <UbicacionPublica tipo="NEGOCIO" entidadId={negocio.id}/>
           <section className="marketplace-section"><div className="section-heading"><span>ELIGE TU PRÓXIMO PLAN</span><h2>Ofertas de este <em>negocio.</em></h2></div>
             <div className="tourism-filters"><label>Categoría<select value={categoria} onChange={e => setCategoria(categoriasCatalogo.find(item => item.categoria === e.target.value)?.categoria ?? '')}><option value="">Todas las ofertas</option>{categoriasCatalogo.map(item => <option key={item.categoria} value={item.categoria}>{item.nombre}</option>)}</select></label></div>

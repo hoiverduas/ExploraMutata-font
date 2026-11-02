@@ -246,3 +246,22 @@ button.rating-star:hover{transform:scale(1.08)}
   .negocio-hero-contact{grid-template-columns:1fr}
   .negocio-hero-contact .negocio-hero-location{grid-column:auto}
 }
+
+
+/* Galería de hospedaje: etiquetas visibles y cierre destacado. */
+.hospedaje-photo{position:relative}
+.hospedaje-photo-label{position:absolute;left:12px;bottom:12px;z-index:2;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:#182f29d9;color:#fff;font-size:11px;font-weight:800;letter-spacing:.2px;box-shadow:0 4px 16px #0b211b33;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.hospedaje-gallery-header{padding-right:128px}
+.hospedaje-gallery-close{position:fixed!important;top:92px;right:28px;z-index:10001!important;width:auto!important;height:44px!important;display:inline-flex!important;align-items:center;gap:8px;padding:0 16px!important;border:1px solid #ccd8cf!important;background:#fff!important;color:var(--ink)!important;border-radius:999px!important;font:800 12px 'DM Sans','Avenir Next',sans-serif!important;box-shadow:0 8px 28px #15382e24!important;cursor:pointer}
+.hospedaje-gallery-close:hover{background:#eef4ec!important;border-color:#aebfb3!important}
+.hospedaje-gallery-close span{font-size:15px;line-height:1}
+.hospedaje-gallery-photo-wrap{position:relative;overflow:hidden;border-radius:16px;background:#edf1ec}
+.hospedaje-gallery-photo-wrap img{border-radius:0!important}
+.hospedaje-gallery-photo-label{position:absolute;left:14px;right:14px;bottom:14px;display:grid;gap:3px;padding:11px 13px;border-radius:12px;background:linear-gradient(90deg,#142b26e8,#142b26a8);color:#fff;backdrop-filter:blur(5px)}
+.hospedaje-gallery-photo-label strong{font-size:14px;letter-spacing:.1px}
+.hospedaje-gallery-photo-label span{font-size:11px;line-height:1.45;color:#ffffffd9}
+@media(max-width:700px){
+  .hospedaje-gallery-header{padding-right:0}
+  .hospedaje-gallery-close{top:76px;right:14px;height:40px!important;padding:0 13px!important}
+  .hospedaje-photo-label{left:10px;bottom:10px}
+}

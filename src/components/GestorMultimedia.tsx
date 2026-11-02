@@ -44,6 +44,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
   const vivo = useRef(true);
+  const carpetaInputRef = useRef<HTMLInputElement | null>(null);
 
   const cargar = useCallback(async () => {
     setCargando(true); setError('');
@@ -63,6 +64,19 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
 
   const actualizarForm = <K extends keyof MediaUploadRequest>(campo: K, valor: MediaUploadRequest[K]) =>
     setForm(actual => ({ ...actual, [campo]: valor }));
+
+  const seleccionarArchivos = (lista: FileList | null, desdeCarpeta = false) => {
+    const seleccionados = Array.from(lista ?? []).filter(
+      archivo => archivo.type.startsWith('image/') || archivo.type.startsWith('video/')
+    );
+    setError('');
+    setMensaje('');
+    setArchivos(seleccionados);
+
+    if (desdeCarpeta && !seleccionados.length) {
+      setError('La carpeta seleccionada no contiene imágenes o videos compatibles.');
+    }
+  };
   const actualizarEdit = <K extends keyof MediaUploadRequest>(campo: K, valor: MediaUploadRequest[K]) =>
     setEditForm(actual => ({ ...actual, [campo]: valor }));
 
@@ -106,6 +120,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
       setArchivos([]); setForm(vacio()); setMensaje(archivos.length === 1 ? 'Archivo subido correctamente.' : 'Archivos subidos correctamente.');
       const input = document.getElementById(`media-files-${contexto.tipo}-${contexto.entidadId}`) as HTMLInputElement | null;
       if (input) input.value = '';
+      if (carpetaInputRef.current) carpetaInputRef.current.value = '';
       await cargar();
     } catch (err) {
       if (vivo.current) setError(err instanceof Error ? err.message : 'No se pudieron subir los archivos.');
@@ -194,8 +209,41 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
 
     <div className="media-upload-box">
       <label className="form-full">Archivos
-        <input id={`media-files-${contexto.tipo}-${contexto.entidadId}`} type="file" accept="image/*,video/*" multiple disabled={guardando} onChange={e => setArchivos(Array.from(e.target.files ?? []))}/>
+        <input
+          id={`media-files-${contexto.tipo}-${contexto.entidadId}`}
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          disabled={guardando}
+          onChange={e => seleccionarArchivos(e.target.files)}
+        />
       </label>
+      <div className="media-folder-picker">
+        <input
+          ref={input => {
+            carpetaInputRef.current = input;
+            if (input) {
+              input.setAttribute('webkitdirectory', '');
+              input.setAttribute('directory', '');
+            }
+          }}
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          disabled={guardando}
+          className="media-folder-input"
+          onChange={e => seleccionarArchivos(e.target.files, true)}
+        />
+        <IonButton
+          type="button"
+          fill="outline"
+          disabled={guardando}
+          onClick={() => carpetaInputRef.current?.click()}
+        >
+          Seleccionar carpeta
+        </IonButton>
+        <small>Selecciona una carpeta y cargaremos las imágenes/videos que contenga. Máximo 20 archivos por lote.</small>
+      </div>
       {archivos.length > 0 && <p>{archivos.length} archivo(s) seleccionado(s): {archivos.map(a => a.name).join(', ')}</p>}
       {formulario(form, actualizarForm)}
       <div className="form-actions"><IonButton disabled={guardando || !archivos.length} onClick={() => void subir()}>{guardando ? 'Subiendo…' : archivos.length > 1 ? 'Subir archivos' : 'Subir archivo'}</IonButton></div>

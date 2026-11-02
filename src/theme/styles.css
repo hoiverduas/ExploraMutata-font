@@ -234,13 +234,21 @@ button.rating-star:hover{transform:scale(1.08)}
 
 /* Ficha pública del negocio: portada real + contacto integrado. */
 .negocio-public-hero .marketplace-hero-copy{display:flex;flex-direction:column;justify-content:center}
-.negocio-hero-contact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px;margin:18px 0 12px;padding-top:16px;border-top:1px solid #dce4d8}
-.negocio-hero-contact>div{min-width:0}
+.negocio-contact-panel{margin-top:22px;padding-top:18px;border-top:1px solid #dce4d8}
+.negocio-contact-label{display:block;margin-bottom:10px;font-size:9px;letter-spacing:1.8px;font-weight:800;color:#9b806e}
+.negocio-hero-contact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin:0}
+.negocio-contact-item{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;min-width:0;padding:10px 12px;border:1px solid #dbe4dc;border-radius:12px;background:#ffffffa8}
+.negocio-contact-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#edf4ef;color:var(--forest);flex:none}
+.negocio-contact-icon ion-icon{font-size:18px}
 .negocio-hero-contact .negocio-hero-location{grid-column:1 / -1}
-.negocio-hero-contact dt{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;color:#8a7b6c;margin-bottom:4px}
-.negocio-hero-contact dd{margin:0;color:var(--forest);font-size:13px;line-height:1.5;overflow-wrap:anywhere}
-.negocio-hero-contact a{color:var(--forest);font-weight:700;text-decoration:none}
-.negocio-public-hero .social-links{margin-top:4px}
+.negocio-hero-contact dt{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;color:#8a7b6c;margin-bottom:3px}
+.negocio-hero-contact dd{margin:0;color:var(--forest);font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+.negocio-hero-contact a{color:var(--forest);font-weight:800;text-decoration:none}
+.negocio-social-block{margin-top:14px;padding-top:13px;border-top:1px dashed #d8e0d9}
+.negocio-social-block .social-network-links{margin-top:0}
+.negocio-social-block .social-network-link{min-height:38px;padding:7px 11px;font-size:12px}
+.negocio-social-block .social-network-icon{width:22px;height:22px}
+.negocio-social-block .social-network-icon ion-icon{font-size:16px}
 
 @media(max-width:700px){
   .negocio-hero-contact{grid-template-columns:1fr}

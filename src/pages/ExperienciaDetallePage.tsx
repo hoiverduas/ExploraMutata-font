@@ -5,8 +5,8 @@ import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import OfertasPublicas from '../components/OfertasPublicas';
-import TarjetaTuristica from '../components/TarjetaTuristica';
-import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
+import TarjetaDestino from '../components/TarjetaDestino';
+import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
 import BotonFavorito from '../components/BotonFavorito';
 import { nombresDificultad, nombresTipoDestino } from '../data/turismo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
@@ -42,11 +42,11 @@ export default function ExperienciaDetallePage() {
     <EstadoConsulta {...experiencia} sinDatos={!datos} mensajeVacio="No encontramos esta experiencia.">
       {datos && <><span className="eyebrow">EXPERIENCIAS DE MUTATÁ</span><div className="detail-title-actions"><h1>{datos.nombre}</h1><BotonFavorito tipo="EXPERIENCIA" recursoId={datos.id}/></div>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}
-        <GaleriaMultimediaPublica tipo="EXPERIENCIA" entidadId={datos.id}/>
+        <CarruselMultimediaPublico tipo="EXPERIENCIA" entidadId={datos.id} etiqueta={`Fotos y videos de ${datos.nombre}`}/>
         <dl className="tourism-facts"><div><dt>Dificultad</dt><dd>{nombresDificultad[datos.dificultad]}</dd></div>{datos.duracionReferencia && <div><dt>Duración de referencia</dt><dd>{datos.duracionReferencia}</dd></div>}</dl>
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
         <section><h2>{destinoSlug ? 'Tu destino' : 'Dónde vivir esta experiencia'}</h2><EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="No hay destinos disponibles para esta experiencia.">
-          <div className="catalog-grid">{destinos.datos.map(destino => <TarjetaTuristica key={destino.id} nombre={destino.nombre} descripcion={destino.descripcion} etiqueta={nombresTipoDestino[destino.tipo]} ruta={destinoSlug ? `/destinos/${encodeURIComponent(destino.slug)}` : `/destinos/${encodeURIComponent(destino.slug)}/experiencias/${encodeURIComponent(datos.slug)}`} favorito={{ tipo: 'DESTINO', recursoId: destino.id }}/>)}</div>
+          <div className="catalog-grid">{destinos.datos.map(destino => <TarjetaDestino key={destino.id} destino={destino} etiqueta={nombresTipoDestino[destino.tipo]} favorito/>)}</div>
         </EstadoConsulta></section>
         {destinoSlug && slug && !destinos.cargando && !destinos.error && destinos.datos.length > 0 && <OfertasPublicas destinoSlug={destinoSlug} experienciaSlug={slug}/>}
       </>}

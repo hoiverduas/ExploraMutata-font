@@ -279,3 +279,15 @@ button.rating-star:hover{transform:scale(1.08)}
 .media-required-error{display:block;margin-top:6px;color:#a34238;font-size:10px;font-weight:700}
 .media-selected-video{width:120px;height:92px;display:grid;place-items:center;border-radius:10px;background:#eaf0ec;color:var(--forest);font-size:11px;font-weight:800;letter-spacing:1px}
 @media(max-width:760px){.media-selected-grid{grid-template-columns:1fr}.media-selected-item{grid-template-columns:92px minmax(0,1fr)}.media-selected-item>img,.media-selected-video{width:92px;height:78px}}
+
+
+/* Redes sociales públicas con iconos de marca. */
+.social-network-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.social-network-link{display:inline-flex;align-items:center;gap:9px;min-height:42px;padding:9px 14px;border:1px solid #d8e1da;border-radius:999px;background:#fff;color:var(--forest);text-decoration:none;font-size:13px;font-weight:800;box-shadow:0 4px 14px #17382e0d;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.social-network-link:hover{transform:translateY(-1px);box-shadow:0 8px 20px #17382e16;border-color:#b9c9be}
+.social-network-icon{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#eef4ef}
+.social-network-icon ion-icon{font-size:18px}
+.social-network-whatsapp .social-network-icon ion-icon{color:#128c5a}
+.social-network-instagram .social-network-icon ion-icon{color:#b43a8d}
+.social-network-facebook .social-network-icon ion-icon{color:#2f5faa}
+@media(max-width:600px){.social-network-links{gap:8px}.social-network-link{padding:8px 11px;font-size:12px}}

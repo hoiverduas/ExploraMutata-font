@@ -9,10 +9,12 @@ interface Props {
   ruta: string;
   accion?: string;
   favorito?: { tipo: TipoRecursoFavorito; recursoId: string };
+  imagenUrl?: string | null;
 }
-export default function TarjetaTuristica({ nombre, descripcion, etiqueta, ruta, accion = 'Explorar experiencias', favorito }: Props) {
+export default function TarjetaTuristica({ nombre, descripcion, etiqueta, ruta, accion = 'Explorar experiencias', favorito, imagenUrl }: Props) {
+  const portada = imagenUrl || '/images/serrania-abibe.webp';
   return <article className="catalog-card tourism-card">
-    <div className="tourism-card-cover" aria-hidden="true"><img src="/images/serrania-abibe.webp" alt="" loading="lazy"/><span>EXPLORA MUTATÁ</span></div>
+    <div className="tourism-card-cover" aria-hidden="true"><img src={portada} alt="" loading="lazy"/><span>EXPLORA MUTATÁ</span></div>
     <div className="catalog-card-body"><span>{etiqueta}</span><h2>{nombre}</h2>
       {descripcion && <p className="card-description">{descripcion}</p>}
       <div className="marketplace-actions"><Link className="catalog-detail-link" to={ruta}>{accion} <span aria-hidden="true">→</span></Link>{favorito && <BotonFavorito tipo={favorito.tipo} recursoId={favorito.recursoId} compacto/>}</div>

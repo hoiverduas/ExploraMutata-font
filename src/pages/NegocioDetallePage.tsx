@@ -15,9 +15,11 @@ import { categoriasCatalogo, nombresCategoria } from '../data/categoriasCatalogo
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { listarNegociosPublicos } from '../services/catalogoApi';
 import { ofertasApi } from '../services/ofertasApi';
+import { multimediaApi } from '../services/multimediaApi';
 import { ApiError } from '../services/http';
 import type { CategoriaNegocio, NegocioPublico } from '../types/catalogo';
 import type { OfertaNegocioResponse } from '../types/oferta';
+import type { MediaAssetResponse } from '../types/multimedia';
 
 export default function NegocioDetallePage() {
   const { negocioId } = useParams<{ negocioId: string }>();
@@ -35,12 +37,33 @@ export default function NegocioDetallePage() {
   }, [negocioId, categoria]);
   const consulta = useConsultaApi<NegocioPublico | null>(cargarNegocio, null);
   const ofertas = useConsultaApi<OfertaNegocioResponse[]>(cargarOfertas, []);
+
+  const cargarMultimedia = useCallback(
+    (signal: AbortSignal) => negocioId
+      ? multimediaApi.listarPublica('NEGOCIO', negocioId, { signal })
+      : Promise.resolve([]),
+    [negocioId],
+  );
+  const multimedia = useConsultaApi<MediaAssetResponse[]>(cargarMultimedia, []);
+
   const negocio = consulta.datos?.id === negocioId ? consulta.datos : null;
+  const fotosNegocio = multimedia.datos
+    .filter(media => media.tipo === 'IMAGEN')
+    .sort((a, b) => {
+      const prioridadA = a.rol === 'PORTADA' ? -1000 : a.orden ?? 0;
+      const prioridadB = b.rol === 'PORTADA' ? -1000 : b.orden ?? 0;
+      return prioridadA - prioridadB;
+    });
+  const imagenPrincipal = fotosNegocio[0]
+    ? (fotosNegocio[0].url || `/api/v1/public/multimedia/${encodeURIComponent(fotosNegocio[0].id)}/archivo`)
+    : negocio?.categorias.length
+      ? imagenEditorialCategoria[negocio.categorias[0]]
+      : '/images/hero-mutata.webp';
   return <IonPage><BrandHeader title={negocio?.nombreComercial ?? 'Descubre un negocio'}/><IonContent fullscreen>
     <main className="page-width tourism-detail"><NavegacionTuristica/><Link className="resource-inline-link" to="/catalogo">Volver al catálogo</Link>
       <EstadoConsulta {...consulta} sinDatos={!negocio} mensajeVacio="El negocio no está disponible.">
         {negocio && <>
-          <section className="marketplace-hero"><img className="marketplace-hero-image" src={negocio.categorias.length ? imagenEditorialCategoria[negocio.categorias[0]] : '/images/hero-mutata.webp'} alt="Paisajes de Mutatá, imagen editorial"/>
+          <section className="marketplace-hero"><img className="marketplace-hero-image" src={imagenPrincipal} alt={fotosNegocio[0]?.altText ?? fotosNegocio[0]?.titulo ?? `${negocio.nombreComercial}, imagen principal`}/>
             <div className="marketplace-hero-copy"><span className="eyebrow">DESCUBRE MUTATÁ</span><div className="detail-title-actions"><h1>{negocio.nombreComercial}</h1><BotonFavorito tipo="NEGOCIO" recursoId={negocio.id}/></div><div className="marketplace-badges">{negocio.categorias.map(valor => <span key={valor}>{nombresCategoria[valor]}</span>)}</div>{negocio.descripcion && <p>{negocio.descripcion}</p>}</div>
           </section>
           <GaleriaMultimediaPublica tipo="NEGOCIO" entidadId={negocio.id}/>

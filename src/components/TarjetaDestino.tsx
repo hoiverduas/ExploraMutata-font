@@ -12,10 +12,12 @@ export default function TarjetaDestino({
   destino,
   etiqueta,
   favorito = false,
+  ruta,
 }: {
   destino: DestinoPublico;
   etiqueta: string;
   favorito?: boolean;
+  ruta?: string;
 }) {
   const cargar = useCallback(
     (signal: AbortSignal) => multimediaApi.listarPublica('DESTINO', destino.id, { signal }),
@@ -34,7 +36,7 @@ export default function TarjetaDestino({
     nombre={destino.nombre}
     descripcion={destino.descripcion}
     etiqueta={etiqueta}
-    ruta={`/destinos/${encodeURIComponent(destino.slug)}`}
+    ruta={ruta ?? `/destinos/${encodeURIComponent(destino.slug)}`}
     imagenUrl={portada}
     favorito={favorito ? { tipo: 'DESTINO', recursoId: destino.id } : undefined}
   />;

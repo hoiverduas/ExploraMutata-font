@@ -63,17 +63,34 @@ export default function NegocioDetallePage() {
     <main className="page-width tourism-detail"><NavegacionTuristica/><Link className="resource-inline-link" to="/catalogo">Volver al catálogo</Link>
       <EstadoConsulta {...consulta} sinDatos={!negocio} mensajeVacio="El negocio no está disponible.">
         {negocio && <>
-          <section className="marketplace-hero"><img className="marketplace-hero-image" src={imagenPrincipal} alt={fotosNegocio[0]?.altText ?? fotosNegocio[0]?.titulo ?? `${negocio.nombreComercial}, imagen principal`}/>
-            <div className="marketplace-hero-copy"><span className="eyebrow">DESCUBRE MUTATÁ</span><div className="detail-title-actions"><h1>{negocio.nombreComercial}</h1><BotonFavorito tipo="NEGOCIO" recursoId={negocio.id}/></div><div className="marketplace-badges">{negocio.categorias.map(valor => <span key={valor}>{nombresCategoria[valor]}</span>)}</div>{negocio.descripcion && <p>{negocio.descripcion}</p>}</div>
+          <section className="marketplace-hero negocio-public-hero">
+            <img className="marketplace-hero-image" src={imagenPrincipal} alt={fotosNegocio[0]?.altText ?? fotosNegocio[0]?.titulo ?? `${negocio.nombreComercial}, imagen principal`}/>
+            <div className="marketplace-hero-copy">
+              <span className="eyebrow">DESCUBRE MUTATÁ</span>
+              <div className="detail-title-actions">
+                <h1>{negocio.nombreComercial}</h1>
+                <BotonFavorito tipo="NEGOCIO" recursoId={negocio.id}/>
+              </div>
+              <div className="marketplace-badges">{negocio.categorias.map(valor => <span key={valor}>{nombresCategoria[valor]}</span>)}</div>
+              {negocio.descripcion && <p>{negocio.descripcion}</p>}
+              <dl className="negocio-hero-contact">
+                <div>
+                  <dt>Teléfono</dt>
+                  <dd>{negocio.telefonoContacto ? <a href={`tel:${negocio.telefonoContacto.replace(/[^\d+]/g, '')}`}>{negocio.telefonoContacto}</a> : 'No disponible'}</dd>
+                </div>
+                <div>
+                  <dt>Correo</dt>
+                  <dd>{negocio.correoContacto ? <a href={`mailto:${encodeURIComponent(negocio.correoContacto)}`}>{negocio.correoContacto}</a> : 'No disponible'}</dd>
+                </div>
+                {(negocio.direccion || negocio.vereda || negocio.municipio || negocio.ubicacionReferencia) && <div className="negocio-hero-location">
+                  <dt>Ubicación</dt>
+                  <dd>{[negocio.direccion, negocio.vereda, negocio.municipio, negocio.ubicacionReferencia].filter(Boolean).join(' · ')}</dd>
+                </div>}
+              </dl>
+              <RedesContactoPublicas whatsapp={negocio.whatsappContacto} instagramUrl={negocio.instagramUrl} facebookUrl={negocio.facebookUrl}/>
+            </div>
           </section>
           <GaleriaMultimediaPublica tipo="NEGOCIO" entidadId={negocio.id}/>
-          <section className="marketplace-section"><h2>Conecta con el negocio</h2><dl className="catalog-contact">
-            <div><dt>Teléfono</dt><dd>{negocio.telefonoContacto ? <a href={`tel:${negocio.telefonoContacto.replace(/[^\d+]/g, '')}`}>{negocio.telefonoContacto}</a> : 'Teléfono no disponible'}</dd></div>
-            <div><dt>Correo</dt><dd>{negocio.correoContacto ? <a href={`mailto:${encodeURIComponent(negocio.correoContacto)}`}>{negocio.correoContacto}</a> : 'Correo no disponible'}</dd></div>
-            {(negocio.direccion || negocio.vereda || negocio.municipio || negocio.ubicacionReferencia) && <div><dt>Ubicación</dt><dd>{[negocio.direccion, negocio.vereda, negocio.municipio, negocio.ubicacionReferencia].filter(Boolean).join(' · ')}</dd></div>}
-          </dl>
-          <RedesContactoPublicas whatsapp={negocio.whatsappContacto} instagramUrl={negocio.instagramUrl} facebookUrl={negocio.facebookUrl}/>
-          </section>
           <UbicacionPublica tipo="NEGOCIO" entidadId={negocio.id}/>
           <section className="marketplace-section"><div className="section-heading"><span>ELIGE TU PRÓXIMO PLAN</span><h2>Ofertas de este <em>negocio.</em></h2></div>
             <div className="tourism-filters"><label>Categoría<select value={categoria} onChange={e => setCategoria(categoriasCatalogo.find(item => item.categoria === e.target.value)?.categoria ?? '')}><option value="">Todas las ofertas</option>{categoriasCatalogo.map(item => <option key={item.categoria} value={item.categoria}>{item.nombre}</option>)}</select></label></div>

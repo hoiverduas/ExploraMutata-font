@@ -191,7 +191,14 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
   const formulario = (metadata: MediaUploadRequest, actualizar: <K extends keyof MediaUploadRequest>(campo: K, valor: MediaUploadRequest[K]) => void) => <div className="negocio-form">
     <label>Rol<select value={metadata.rol} onChange={e => actualizar('rol', e.target.value as RolMedia)}>{roles.map(r => <option value={r.valor} key={r.valor}>{r.texto}</option>)}</select></label>
     <label>Orden<input type="number" min={0} step={1} value={metadata.orden ?? ''} onChange={e => actualizar('orden', e.target.value === '' ? null : Number(e.target.value))}/></label>
-    <label className="form-full">Título<input maxLength={200} value={metadata.titulo ?? ''} onChange={e => actualizar('titulo', e.target.value)}/></label>
+    <label className="form-full">Nombre del espacio / título
+      <input
+        maxLength={200}
+        placeholder="Ej. Habitación 1, Sala, Baño, Exterior"
+        value={metadata.titulo ?? ''}
+        onChange={e => actualizar('titulo', e.target.value)}
+      />
+    </label>
     <label className="form-full">Descripción<textarea rows={3} maxLength={1000} value={metadata.descripcion ?? ''} onChange={e => actualizar('descripcion', e.target.value)}/></label>
     <label className="form-full">Texto alternativo<input maxLength={300} value={metadata.altText ?? ''} onChange={e => actualizar('altText', e.target.value)}/></label>
     <label>Autor<input maxLength={200} value={metadata.autor ?? ''} onChange={e => actualizar('autor', e.target.value)}/></label>
@@ -203,7 +210,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
 
   return <section className="gestion-form-panel media-manager">
     <div className="gestion-form-heading"><div><span className="eyebrow">CONTENIDO VISUAL</span><h2>{titulo}</h2></div><IonButton fill="outline" disabled={cargando || guardando} onClick={() => void cargar()}>Actualizar</IonButton></div>
-    <p>Sube imágenes o videos reales. La portada y la galería pública se alimentan de estos archivos.</p>
+    <p>Sube imágenes o videos reales. La portada y la galería pública se alimentan de estos archivos. Para hospedajes, asigna a cada foto un nombre como Habitación 1, Habitación 2, Sala, Baño, Cocina o Exterior.</p>
     {mensaje && <div className="notice-success" role="status">{mensaje}</div>}
     {error && <div className="notice-error" role="alert">{error}</div>}
 

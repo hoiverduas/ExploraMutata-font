@@ -69,8 +69,22 @@ export default function OfertaHospedajeDetalle({ oferta }: { oferta: OfertaNegoc
   const detalleConsulta = useConsultaApi<OfertaHospedajeResponse | null>(cargarDetalle, null);
 
   const cargarMedia = useCallback(
-    (signal: AbortSignal) => multimediaApi.listarPublica('OFERTA', String(oferta.id), { signal }),
-    [oferta.id, oferta.version],
+    async (signal: AbortSignal) => {
+      const [mediaOferta, mediaNegocio] = await Promise.all([
+        multimediaApi.listarPublica('OFERTA', String(oferta.id), { signal }),
+        multimediaApi.listarPublica('NEGOCIO', oferta.negocioId, { signal }),
+      ]);
+
+      const imagenesOferta = mediaOferta.filter(media => media.tipo === 'IMAGEN');
+      if (imagenesOferta.length >= 5) return mediaOferta;
+
+      const ids = new Set(mediaOferta.map(media => media.id));
+      return [
+        ...mediaOferta,
+        ...mediaNegocio.filter(media => !ids.has(media.id)),
+      ];
+    },
+    [oferta.id, oferta.negocioId, oferta.version],
   );
   const mediaConsulta = useConsultaApi<MediaAssetResponse[]>(cargarMedia, []);
 

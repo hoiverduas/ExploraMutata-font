@@ -11,7 +11,15 @@ function urlMedia(media: MediaAssetResponse): string {
   return `/api/v1/public/multimedia/${encodeURIComponent(media.id)}/archivo`;
 }
 
-export default function GaleriaMultimediaPublica({ tipo, entidadId }: { tipo: TipoEntidadMedia; entidadId: string }) {
+export default function GaleriaMultimediaPublica({
+  tipo,
+  entidadId,
+  titulo = 'Galería',
+}: {
+  tipo: TipoEntidadMedia;
+  entidadId: string;
+  titulo?: string;
+}) {
   const cargar = useCallback(
     (signal: AbortSignal) => multimediaApi.listarPublica(tipo, entidadId, { signal }),
     [tipo, entidadId],
@@ -21,8 +29,8 @@ export default function GaleriaMultimediaPublica({ tipo, entidadId }: { tipo: Ti
 
   if (consulta.cargando || consulta.error || !medios.length) return null;
 
-  return <section className="marketplace-section" aria-label="Galería multimedia">
-    <h2>Galería</h2>
+  return <section className="marketplace-section" aria-label={titulo}>
+    <h2>{titulo}</h2>
     <div className="catalog-grid">
       {medios.map(media => media.tipo === 'VIDEO'
         ? <article className="catalog-card" key={media.id}>

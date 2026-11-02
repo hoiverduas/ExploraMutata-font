@@ -299,3 +299,11 @@ button.rating-star:hover{transform:scale(1.08)}
 .social-network-instagram .social-network-icon ion-icon{color:#b43a8d}
 .social-network-facebook .social-network-icon ion-icon{color:#2f5faa}
 @media(max-width:600px){.social-network-links{gap:8px}.social-network-link{padding:8px 11px;font-size:12px}}
+
+
+/* Multimedia: quitar archivos seleccionados antes de subir. */
+.media-selected-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.media-selected-heading strong{margin-bottom:0!important;min-width:0;flex:1}
+.media-remove-selected{flex:none;border:0;background:transparent;color:#a34238;font:inherit;font-size:11px;font-weight:800;cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:2px}
+.media-remove-selected:hover{color:#7f2f28}
+.media-remove-selected:disabled{opacity:.45;cursor:not-allowed}

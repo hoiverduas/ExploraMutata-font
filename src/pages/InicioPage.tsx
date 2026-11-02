@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import NegociosPublicos from '../components/NegociosPublicos';
-import TarjetaTuristica from '../components/TarjetaTuristica';
+import TarjetaDestino from '../components/TarjetaDestino';
 import TarjetaPaqueteComercial from '../components/TarjetaPaqueteComercial';
 import EstadoConsulta from '../components/EstadoConsulta';
 import { useCatalogoPublico } from '../hooks/useCatalogoPublico';
@@ -40,7 +40,7 @@ export default function InicioPage() {
     </section>
     <main className="page-width home-content"><NavegacionTuristica/>
       <section className="home-section"><div className="section-heading"><span>AVENTURAS POR DESCUBRIR</span><h2>Tu próximo recuerdo <em>empieza aquí.</em></h2><p>Elige un destino y encuentra las experiencias y ofertas disponibles.</p></div>
-        <EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="Pronto encontrarás nuevos destinos para tu próxima aventura."><div className="catalog-grid">{destinos.datos.slice(0,3).map(destino => <TarjetaTuristica key={destino.id} nombre={destino.nombre} descripcion={destino.descripcion} etiqueta={nombresTipoDestino[destino.tipo]} ruta={`/destinos/${encodeURIComponent(destino.slug)}`}/>)}</div></EstadoConsulta>
+        <EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="Pronto encontrarás nuevos destinos para tu próxima aventura."><div className="catalog-grid">{destinos.datos.slice(0,3).map(destino => <TarjetaDestino key={destino.id} destino={destino} etiqueta={nombresTipoDestino[destino.tipo]}/>)}</div></EstadoConsulta>
         <Link className="catalog-detail-link" to="/aventuras">Todas las aventuras →</Link>
       </section>
       <section className="home-section"><div className="section-heading"><span>VIAJES CON TODO EL SENTIDO</span><h2>Planes para <em>dejarte llevar.</em></h2><p>Explora los paquetes publicados por los negocios del territorio.</p></div>

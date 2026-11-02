@@ -76,9 +76,10 @@ const vacio = (): MediaUploadRequest => ({
 const texto = (valor: string) => valor.trim() || null;
 const urlMedia = (media: MediaAssetResponse) => media.url || `/api/v1/public/multimedia/${encodeURIComponent(media.id)}/archivo`;
 
-export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
+export default function GestorMultimedia({ contexto, titulo = 'Multimedia', modo = 'GENERAL' }: {
   contexto: ContextoMultimedia;
   titulo?: string;
+  modo?: 'GENERAL' | 'HOSPEDAJE' | 'AVENTURA';
 }) {
   const [medios, setMedios] = useState<MediaAssetResponse[]>([]);
   const [archivos, setArchivos] = useState<File[]>([]);
@@ -140,7 +141,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia' }: {
     }));
   };
 
-  const esContenidoAventura = contexto.tipo === 'DESTINO' || contexto.tipo === 'EXPERIENCIA';
+  const esContenidoAventura = modo === 'AVENTURA' || contexto.tipo === 'DESTINO' || contexto.tipo === 'EXPERIENCIA';
   const opcionesNombreFoto = esContenidoAventura ? nombresContenidoAventura : nombresEspacioHospedaje;
   const etiquetaNombreFoto = esContenidoAventura ? 'Lugar / contenido de la foto *' : 'Nombre de la foto *';
   const placeholderNombreFoto = esContenidoAventura ? 'Ej. Río Bedó, Cascada, Sendero' : 'Ej. Habitación 1, Sala, Baño, Exterior';

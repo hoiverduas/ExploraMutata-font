@@ -31,11 +31,21 @@ export default function CarruselMultimediaPublico({
     [consulta.datos],
   );
   const [indice, setIndice] = useState(0);
+  const [sobreCarrusel, setSobreCarrusel] = useState(false);
+  const [videoReproduciendo, setVideoReproduciendo] = useState(false);
 
   useEffect(() => setIndice(0), [tipo, entidadId]);
   useEffect(() => {
     if (indice >= medios.length) setIndice(Math.max(0, medios.length - 1));
   }, [indice, medios.length]);
+
+  useEffect(() => {
+    if (medios.length <= 1 || sobreCarrusel || videoReproduciendo) return;
+    const temporizador = window.setInterval(() => {
+      setIndice(valor => (valor + 1) % medios.length);
+    }, 5000);
+    return () => window.clearInterval(temporizador);
+  }, [medios.length, sobreCarrusel, videoReproduciendo]);
 
   if (consulta.cargando || consulta.error || !medios.length) return null;
 
@@ -43,7 +53,12 @@ export default function CarruselMultimediaPublico({
   const anterior = () => setIndice(valor => (valor - 1 + medios.length) % medios.length);
   const siguiente = () => setIndice(valor => (valor + 1) % medios.length);
 
-  return <section className="destination-media-carousel" aria-label={etiqueta}>
+  return <section
+    className="destination-media-carousel"
+    aria-label={etiqueta}
+    onMouseEnter={() => setSobreCarrusel(true)}
+    onMouseLeave={() => setSobreCarrusel(false)}
+  >
     <div className="destination-media-stage">
       {actual.tipo === 'VIDEO'
         ? <video
@@ -52,6 +67,12 @@ export default function CarruselMultimediaPublico({
             controls
             preload="metadata"
             poster={actual.thumbnailUrl ?? undefined}
+            onPlay={() => setVideoReproduciendo(true)}
+            onPause={() => setVideoReproduciendo(false)}
+            onEnded={() => {
+              setVideoReproduciendo(false);
+              setIndice(valor => (valor + 1) % medios.length);
+            }}
           >
             <source src={urlMedia(actual)} type={actual.mimeType ?? undefined}/>
             Tu navegador no puede reproducir este video.

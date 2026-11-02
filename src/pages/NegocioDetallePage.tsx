@@ -1,4 +1,5 @@
-import { IonContent, IonPage } from '@ionic/react';
+import { IonContent, IonIcon, IonPage } from '@ionic/react';
+import { callOutline, locationOutline, mailOutline } from 'ionicons/icons';
 import { useCallback, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
@@ -73,21 +74,36 @@ export default function NegocioDetallePage() {
               </div>
               <div className="marketplace-badges">{negocio.categorias.map(valor => <span key={valor}>{nombresCategoria[valor]}</span>)}</div>
               {negocio.descripcion && <p>{negocio.descripcion}</p>}
-              <dl className="negocio-hero-contact">
-                <div>
-                  <dt>Teléfono</dt>
-                  <dd>{negocio.telefonoContacto ? <a href={`tel:${negocio.telefonoContacto.replace(/[^\d+]/g, '')}`}>{negocio.telefonoContacto}</a> : 'No disponible'}</dd>
-                </div>
-                <div>
-                  <dt>Correo</dt>
-                  <dd>{negocio.correoContacto ? <a href={`mailto:${encodeURIComponent(negocio.correoContacto)}`}>{negocio.correoContacto}</a> : 'No disponible'}</dd>
-                </div>
-                {(negocio.direccion || negocio.vereda || negocio.municipio || negocio.ubicacionReferencia) && <div className="negocio-hero-location">
-                  <dt>Ubicación</dt>
-                  <dd>{[negocio.direccion, negocio.vereda, negocio.municipio, negocio.ubicacionReferencia].filter(Boolean).join(' · ')}</dd>
+              <section className="negocio-contact-panel" aria-label="Información de contacto">
+                <span className="negocio-contact-label">CONTACTO</span>
+                <dl className="negocio-hero-contact">
+                  <div className="negocio-contact-item">
+                    <span className="negocio-contact-icon" aria-hidden="true"><IonIcon icon={callOutline}/></span>
+                    <div>
+                      <dt>Teléfono</dt>
+                      <dd>{negocio.telefonoContacto ? <a href={`tel:${negocio.telefonoContacto.replace(/[^\d+]/g, '')}`}>{negocio.telefonoContacto}</a> : 'No disponible'}</dd>
+                    </div>
+                  </div>
+                  <div className="negocio-contact-item">
+                    <span className="negocio-contact-icon" aria-hidden="true"><IonIcon icon={mailOutline}/></span>
+                    <div>
+                      <dt>Correo</dt>
+                      <dd>{negocio.correoContacto ? <a href={`mailto:${encodeURIComponent(negocio.correoContacto)}`}>{negocio.correoContacto}</a> : 'No disponible'}</dd>
+                    </div>
+                  </div>
+                  {(negocio.direccion || negocio.vereda || negocio.municipio || negocio.ubicacionReferencia) && <div className="negocio-contact-item negocio-hero-location">
+                    <span className="negocio-contact-icon" aria-hidden="true"><IonIcon icon={locationOutline}/></span>
+                    <div>
+                      <dt>Ubicación</dt>
+                      <dd>{[negocio.direccion, negocio.vereda, negocio.municipio, negocio.ubicacionReferencia].filter(Boolean).join(' · ')}</dd>
+                    </div>
+                  </div>}
+                </dl>
+                {(negocio.whatsappContacto || negocio.instagramUrl || negocio.facebookUrl) && <div className="negocio-social-block">
+                  <span className="negocio-contact-label">REDES SOCIALES</span>
+                  <RedesContactoPublicas whatsapp={negocio.whatsappContacto} instagramUrl={negocio.instagramUrl} facebookUrl={negocio.facebookUrl}/>
                 </div>}
-              </dl>
-              <RedesContactoPublicas whatsapp={negocio.whatsappContacto} instagramUrl={negocio.instagramUrl} facebookUrl={negocio.facebookUrl}/>
+              </section>
             </div>
           </section>
           <GaleriaMultimediaPublica tipo="NEGOCIO" entidadId={negocio.id}/>

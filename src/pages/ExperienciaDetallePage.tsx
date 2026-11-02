@@ -46,7 +46,15 @@ export default function ExperienciaDetallePage() {
         <dl className="tourism-facts"><div><dt>Dificultad</dt><dd>{nombresDificultad[datos.dificultad]}</dd></div>{datos.duracionReferencia && <div><dt>Duración de referencia</dt><dd>{datos.duracionReferencia}</dd></div>}</dl>
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
         <section><h2>{destinoSlug ? 'Tu destino' : 'Dónde vivir esta experiencia'}</h2><EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="No hay destinos disponibles para esta experiencia.">
-          <div className="catalog-grid">{destinos.datos.map(destino => <TarjetaDestino key={destino.id} destino={destino} etiqueta={nombresTipoDestino[destino.tipo]} favorito/>)}</div>
+          <div className="catalog-grid">{destinos.datos.map(destino => <TarjetaDestino
+            key={destino.id}
+            destino={destino}
+            etiqueta={nombresTipoDestino[destino.tipo]}
+            favorito
+            ruta={destinoSlug
+              ? `/destinos/${encodeURIComponent(destino.slug)}`
+              : `/destinos/${encodeURIComponent(destino.slug)}/experiencias/${encodeURIComponent(datos.slug)}`}
+          />)}</div>
         </EstadoConsulta></section>
         {destinoSlug && slug && !destinos.cargando && !destinos.error && destinos.datos.length > 0 && <OfertasPublicas destinoSlug={destinoSlug} experienciaSlug={slug}/>}
       </>}

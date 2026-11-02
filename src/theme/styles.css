@@ -183,6 +183,10 @@ button.rating-star:hover{transform:scale(1.08)}
 .media-admin-body h3{margin:4px 0 8px}
 .media-admin-body small{display:block;color:var(--muted);margin:8px 0 12px}
 .media-manager input[type="file"]{display:block;width:100%;margin-top:8px;padding:10px;border:1px dashed #b9c6b7;border-radius:10px;background:#fff}
+.media-manager input.media-folder-input{display:none}
+.media-folder-picker{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px}
+.media-folder-picker ion-button{margin:0}
+.media-folder-picker small{color:var(--muted);line-height:1.5}
 .media-manager input[type="checkbox"],.gestion-form-panel input[type="checkbox"]{width:auto;min-height:auto;margin-right:8px}
 @media(max-width:800px){.media-admin-grid{grid-template-columns:1fr}}
 

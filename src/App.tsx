@@ -40,6 +40,7 @@ import ContenidoNegocioPage from './pages/ContenidoNegocioPage';
 import ContenidoOfertaPage from './pages/ContenidoOfertaPage';
 import MultimediaPaqueteOperadorPage from './pages/MultimediaPaqueteOperadorPage';
 import MultimediaAdminPage from './pages/MultimediaAdminPage';
+import PortadaInicioAdminPage from './pages/PortadaInicioAdminPage';
 import { ViajeProvider, useViaje } from './context/ViajeContext';
 import { MonedaProvider } from './context/MonedaContext';
 import NegociosPage from './pages/NegociosPage';
@@ -107,6 +108,7 @@ function AppNavigation() {
             <Route path="/operador/comercial" element={<AccesoProtegido ruta="/operador/comercial" roles={['OPERADOR']}><ComercialOperadorPage /></AccesoProtegido>} />
             <Route path="/operador/resenas" element={<AccesoProtegido ruta="/operador/resenas" roles={['OPERADOR']}><ResenasOperadorPage /></AccesoProtegido>} />
             <Route path="/mi-cuenta" element={<AccesoProtegido ruta="/mi-cuenta"><MiCuentaPage /></AccesoProtegido>} />
+            <Route path="/gestion/portada-inicio" element={<AccesoProtegido ruta="/gestion/portada-inicio" roles={['ADMIN','SUPER_ADMIN']}><PortadaInicioAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/destinos" element={<AccesoProtegido ruta="/gestion/destinos" roles={['ADMIN','SUPER_ADMIN']}><DestinosAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/experiencias" element={<AccesoProtegido ruta="/gestion/experiencias" roles={['ADMIN','SUPER_ADMIN']}><ExperienciasAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/destinos/:destinoId/multimedia" element={<AccesoProtegido ruta="/gestion/destinos/:destinoId/multimedia" roles={['ADMIN','SUPER_ADMIN']}><MultimediaAdminPage tipo="DESTINO" /></AccesoProtegido>} />

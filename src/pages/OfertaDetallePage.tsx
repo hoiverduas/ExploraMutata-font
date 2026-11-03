@@ -35,7 +35,12 @@ export default function OfertaDetallePage() {
       {oferta && (oferta.categoria === 'HOSPEDAJE'
         ? <OfertaHospedajeDetalle oferta={oferta}/>
         : <>
-          <CarruselMultimediaPublico tipo="OFERTA" entidadId={String(oferta.id)} etiqueta={`Fotos y videos de ${oferta.nombre}`}/>
+          <CarruselMultimediaPublico
+            tipo="OFERTA"
+            entidadId={String(oferta.id)}
+            etiqueta={`Fotos y videos de ${oferta.nombre}`}
+            respaldo={oferta.experienciaId ? { tipo: 'EXPERIENCIA', entidadId: oferta.experienciaId } : null}
+          />
           <section className="marketplace-hero marketplace-hero-without-image">
             <div className="marketplace-hero-copy"><span className="eyebrow">{nombresCategoria[oferta.categoria]}</span><div className="detail-title-actions"><h1>{oferta.nombre}</h1><BotonFavorito tipo="OFERTA" recursoId={String(oferta.id)}/></div><Link to={`/negocios/${encodeURIComponent(oferta.negocioId)}`}>{oferta.negocioNombreComercial}</Link>{oferta.descripcionOferta && <p>{oferta.descripcionOferta}</p>}<PrecioOferta precioDesde={oferta.precioDesde} moneda={oferta.moneda} preciosConvertidos={oferta.preciosConvertidos}/><small>{nombresModeloPrecio[oferta.modeloPrecio]}</small></div>
           </section>

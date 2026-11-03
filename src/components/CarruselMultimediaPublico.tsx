@@ -72,7 +72,6 @@ export default function CarruselMultimediaPublico({
             className="destination-media-main"
             controls
             autoPlay
-            muted
             playsInline
             preload="auto"
             poster={actual.thumbnailUrl ?? undefined}

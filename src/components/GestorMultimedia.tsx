@@ -43,6 +43,18 @@ const nombresEspacioHospedaje = [
   'Vista principal',
 ];
 
+const nombresContenidoInicio = [
+  'Portada principal',
+  'Mutatá',
+  'Naturaleza',
+  'Aventura',
+  'Paisaje',
+  'Río',
+  'Comunidad',
+  'Cultura',
+  'Gastronomía',
+];
+
 const nombresContenidoAventura = [
   'Río Bedó',
   'Río Puenteadero',
@@ -141,10 +153,23 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia', modo
     }));
   };
 
+  const esPortadaInicio = contexto.tipo === 'INICIO';
   const esContenidoAventura = modo === 'AVENTURA' || contexto.tipo === 'DESTINO' || contexto.tipo === 'EXPERIENCIA';
-  const opcionesNombreFoto = esContenidoAventura ? nombresContenidoAventura : nombresEspacioHospedaje;
-  const etiquetaNombreFoto = esContenidoAventura ? 'Lugar / contenido de la foto *' : 'Nombre de la foto *';
-  const placeholderNombreFoto = esContenidoAventura ? 'Ej. Río Bedó, Cascada, Sendero' : 'Ej. Habitación 1, Sala, Baño, Exterior';
+  const opcionesNombreFoto = esPortadaInicio
+    ? nombresContenidoInicio
+    : esContenidoAventura
+      ? nombresContenidoAventura
+      : nombresEspacioHospedaje;
+  const etiquetaNombreFoto = esPortadaInicio
+    ? 'Nombre de la imagen *'
+    : esContenidoAventura
+      ? 'Lugar / contenido de la foto *'
+      : 'Nombre de la foto *';
+  const placeholderNombreFoto = esPortadaInicio
+    ? 'Ej. Naturaleza de Mutatá'
+    : esContenidoAventura
+      ? 'Ej. Río Bedó, Cascada, Sendero'
+      : 'Ej. Habitación 1, Sala, Baño, Exterior';
 
   const quitarArchivo = (indice: number) => {
     setArchivos(actuales => actuales.filter((_, i) => i !== indice));
@@ -315,9 +340,11 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia', modo
 
   return <section className="gestion-form-panel media-manager">
     <div className="gestion-form-heading"><div><span className="eyebrow">CONTENIDO VISUAL</span><h2>{titulo}</h2></div><IonButton fill="outline" disabled={cargando || guardando} onClick={() => void cargar()}>Actualizar</IonButton></div>
-    <p>{esContenidoAventura
-      ? 'Sube imágenes o videos reales del destino o la experiencia. Asigna a cada foto el lugar o contenido que representa, por ejemplo Río Bedó, Río Puenteadero, Cascada, Sendero o Pozo natural.'
-      : 'Sube imágenes o videos reales. La portada y la galería pública se alimentan de estos archivos. Para hospedajes, asigna a cada foto un nombre como Habitación 1, Habitación 2, Sala, Baño, Cocina o Exterior.'}</p>
+    <p>{esPortadaInicio
+      ? 'Sube imágenes y videos para la portada principal de Inicio. La imagen marcada como Portada aparecerá primero; el resto se reproducirá según el orden configurado.'
+      : esContenidoAventura
+        ? 'Sube imágenes o videos reales del destino o la experiencia. Asigna a cada foto el lugar o contenido que representa, por ejemplo Río Bedó, Río Puenteadero, Cascada, Sendero o Pozo natural.'
+        : 'Sube imágenes o videos reales. La portada y la galería pública se alimentan de estos archivos. Para hospedajes, asigna a cada foto un nombre como Habitación 1, Habitación 2, Sala, Baño, Cocina o Exterior.'}</p>
     {mensaje && <div className="notice-success" role="status">{mensaje}</div>}
     {error && <div className="notice-error" role="alert">{error}</div>}
 
@@ -389,7 +416,7 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia', modo
                       onChange={e => seleccionarNombreEspacio(indice, e.target.value)}
                       required
                     >
-                      <option value="">{esContenidoAventura ? 'Selecciona el lugar o contenido' : 'Selecciona un espacio'}</option>
+                      <option value="">{esPortadaInicio ? 'Selecciona un nombre' : esContenidoAventura ? 'Selecciona el lugar o contenido' : 'Selecciona un espacio'}</option>
                       {opcionesNombreFoto.map(nombre => <option value={nombre} key={nombre}>{nombre}</option>)}
                       <option value="__OTRO__">Otro...</option>
                     </select>

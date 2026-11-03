@@ -11,6 +11,7 @@ function ruta(tipo: TipoEntidadMedia, entidadId: string): string {
     case 'EXPERIENCIA': return `/api/v1/public/experiencias/${id}/multimedia`;
     case 'OFERTA': return `/api/v1/public/ofertas/${id}/multimedia`;
     case 'PAQUETE_COMERCIAL': return `/api/v1/public/paquetes-comerciales/${id}/multimedia`;
+    case 'INICIO': return '/api/v1/public/inicio/multimedia';
   }
 }
 

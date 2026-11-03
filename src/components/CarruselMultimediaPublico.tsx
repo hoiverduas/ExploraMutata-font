@@ -56,13 +56,36 @@ export default function CarruselMultimediaPublico({
     const elemento = carruselRef.current;
     if (!elemento) return;
 
+    const actualizarVisible = () => {
+      const rect = elemento.getBoundingClientRect();
+      setCarruselVisible(
+        rect.bottom > 0
+        && rect.top < window.innerHeight
+        && rect.right > 0
+        && rect.left < window.innerWidth
+      );
+    };
+
+    actualizarVisible();
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setCarruselVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       entradas => setCarruselVisible(Boolean(entradas[0]?.isIntersecting)),
-      { threshold: 0.35 },
+      { threshold: 0.01, rootMargin: '80px 0px 80px 0px' },
     );
+
     observer.observe(elemento);
-    return () => observer.disconnect();
-  }, [medios.length]);
+    window.addEventListener('resize', actualizarVisible);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', actualizarVisible);
+    };
+  }, [medios.length, tipo, entidadId]);
 
   useEffect(() => {
     const actualizarVisibilidad = () => setPaginaVisible(document.visibilityState === 'visible');

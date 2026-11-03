@@ -1,4 +1,4 @@
-export type TipoEntidadMedia = 'NEGOCIO' | 'DESTINO' | 'EXPERIENCIA' | 'OFERTA' | 'PAQUETE_COMERCIAL';
+export type TipoEntidadMedia = 'NEGOCIO' | 'DESTINO' | 'EXPERIENCIA' | 'OFERTA' | 'PAQUETE_COMERCIAL' | 'INICIO';
 export type TipoMedia = 'IMAGEN' | 'VIDEO';
 export type RolMedia = 'PORTADA' | 'GALERIA' | 'VIDEO_PRINCIPAL' | 'REEL' | 'MINIATURA';
 export type ProveedorMedia = 'LOCAL' | 'EXTERNO' | 'S3' | 'CLOUDINARY';

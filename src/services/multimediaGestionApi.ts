@@ -28,6 +28,8 @@ function base(contexto: ContextoMultimedia): string {
       return `/api/v1/destinos/${entidadId}/multimedia`;
     case 'EXPERIENCIA':
       return `/api/v1/experiencias/${entidadId}/multimedia`;
+    case 'INICIO':
+      return '/api/v1/admin/contenido/inicio/multimedia';
   }
 }
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { multimediaApi } from '../services/multimediaApi';
 import type { MediaAssetResponse, TipoEntidadMedia } from '../types/multimedia';
@@ -37,8 +37,10 @@ export default function CarruselMultimediaPublico({
     [consulta.datos],
   );
   const [indice, setIndice] = useState(0);
-  const [sobreCarrusel, setSobreCarrusel] = useState(false);
-  const [videoReproduciendo, setVideoReproduciendo] = useState(false);
+  const [carruselVisible, setCarruselVisible] = useState(false);
+  const [paginaVisible, setPaginaVisible] = useState(() => document.visibilityState === 'visible');
+  const carruselRef = useRef<HTMLElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => setIndice(0), [tipo, entidadId, respaldo?.tipo, respaldo?.entidadId]);
   useEffect(() => {
@@ -46,28 +48,77 @@ export default function CarruselMultimediaPublico({
   }, [indice, medios.length]);
 
   useEffect(() => {
-    if (medios.length <= 1 || sobreCarrusel || videoReproduciendo) return;
-    const temporizador = window.setInterval(() => {
+    const elemento = carruselRef.current;
+    if (!elemento) return;
+
+    const observer = new IntersectionObserver(
+      entradas => setCarruselVisible(Boolean(entradas[0]?.isIntersecting)),
+      { threshold: 0.35 },
+    );
+    observer.observe(elemento);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const actualizarVisibilidad = () => setPaginaVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', actualizarVisibilidad);
+    return () => document.removeEventListener('visibilitychange', actualizarVisibilidad);
+  }, []);
+
+  const actual = medios[indice];
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const activo = carruselVisible && paginaVisible;
+
+    if (!video || actual?.tipo !== 'VIDEO') return;
+
+    if (!activo) {
+      video.pause();
+      video.muted = true;
+      return;
+    }
+
+    video.muted = false;
+    void video.play().catch(() => {
+      // Algunos navegadores bloquean autoplay con sonido hasta la primera interacción.
+    });
+
+    return () => {
+      video.pause();
+      video.muted = true;
+    };
+  }, [actual?.id, actual?.tipo, carruselVisible, paginaVisible]);
+
+  useEffect(() => {
+    if (medios.length <= 1 || !actual || !carruselVisible || !paginaVisible) return;
+
+    const duracion = actual.tipo === 'VIDEO' ? 5000 : 2000;
+    const temporizador = window.setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.muted = true;
+      }
       setIndice(valor => (valor + 1) % medios.length);
-    }, 5000);
-    return () => window.clearInterval(temporizador);
-  }, [medios.length, sobreCarrusel, videoReproduciendo]);
+    }, duracion);
+
+    return () => window.clearTimeout(temporizador);
+  }, [actual?.id, actual?.tipo, medios.length, carruselVisible, paginaVisible]);
 
   if (consulta.cargando || consulta.error || !medios.length) return null;
 
-  const actual = medios[indice];
   const anterior = () => setIndice(valor => (valor - 1 + medios.length) % medios.length);
   const siguiente = () => setIndice(valor => (valor + 1) % medios.length);
 
   return <section
+    ref={carruselRef}
     className="destination-media-carousel"
     aria-label={etiqueta}
-    onMouseEnter={() => setSobreCarrusel(true)}
-    onMouseLeave={() => setSobreCarrusel(false)}
   >
     <div className="destination-media-stage">
       {actual.tipo === 'VIDEO'
         ? <video
+            ref={videoRef}
             key={actual.id}
             className="destination-media-main"
             controls
@@ -75,12 +126,7 @@ export default function CarruselMultimediaPublico({
             playsInline
             preload="auto"
             poster={actual.thumbnailUrl ?? undefined}
-            onPlay={() => setVideoReproduciendo(true)}
-            onPause={() => setVideoReproduciendo(false)}
-            onEnded={() => {
-              setVideoReproduciendo(false);
-              setIndice(valor => (valor + 1) % medios.length);
-            }}
+            onEnded={() => setIndice(valor => (valor + 1) % medios.length)}
           >
             <source src={urlMedia(actual)} type={actual.mimeType ?? undefined}/>
             Tu navegador no puede reproducir este video.

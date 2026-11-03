@@ -109,14 +109,5 @@ export default function HeroInicioMultimedia() {
           alt=""
         />}
     <div className="hero-home-shade"/>
-    {medios.length > 1 && <div className="hero-home-dots">
-      {medios.map((media, posicion) => <button
-        type="button"
-        key={media.id}
-        className={posicion === indice ? 'is-active' : ''}
-        onClick={() => setIndice(posicion)}
-        aria-label={`Mostrar contenido ${posicion + 1}`}
-      />)}
-    </div>}
   </div>;
 }

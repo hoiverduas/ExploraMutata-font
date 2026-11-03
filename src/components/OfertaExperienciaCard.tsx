@@ -11,8 +11,13 @@ const urlMedia = (media: MediaAssetResponse): string =>
 
 export default function OfertaExperienciaCard({ oferta }: { oferta: OfertaExperienciaMonedaResponse }) {
   const cargar = useCallback(
-    (signal: AbortSignal) => multimediaApi.listarPublica('OFERTA', String(oferta.id), { signal }),
-    [oferta.id],
+    async (signal: AbortSignal) => {
+      const mediaOferta = await multimediaApi.listarPublica('OFERTA', String(oferta.id), { signal });
+      const imagenesOferta = mediaOferta.filter(media => media.tipo === 'IMAGEN');
+      if (imagenesOferta.length) return mediaOferta;
+      return multimediaApi.listarPublica('EXPERIENCIA', oferta.experienciaId, { signal });
+    },
+    [oferta.id, oferta.experienciaId],
   );
   const multimedia = useConsultaApi<MediaAssetResponse[]>(cargar, []);
   const portada = useMemo(() => {

@@ -3,6 +3,7 @@ import { arrowForwardOutline, micOutline } from 'ionicons/icons';
 import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
+import HeroInicioMultimedia from '../components/HeroInicioMultimedia';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import NegociosPublicos from '../components/NegociosPublicos';
 import TarjetaDestino from '../components/TarjetaDestino';
@@ -30,7 +31,7 @@ export default function InicioPage() {
   const paquetes = useConsultaApi(cargarPaquetes, []);
   return <IonPage><BrandHeader/><IonContent fullscreen>
     <section className="hero-home">
-      <div className="hero-home-bg"/>
+      <HeroInicioMultimedia/>
       <div className="hero-home-copy page-width"><span className="eyebrow">EL CORAZÓN NATURAL DE URABÁ</span>
         <h1>Descubre Mutatá.<br/><em>Vive tu propia aventura.</em></h1>
         <p>Naturaleza, sabores y experiencias auténticas. Encuentra tu lugar, conoce a quienes lo hacen especial y construye un viaje a tu medida.</p>

@@ -68,7 +68,7 @@ const selectorSalida = (salida: SalidaProgramadaResponse) =>
   salida.id ? `S:${salida.id}` : salida.franjaHorariaId ? `F:${salida.franjaHorariaId}` : '';
 
 export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioResponse }) {
-  const { usuario, tieneRol } = useAuth();
+  const { usuario } = useAuth();
   const { agregarOferta, guardando: guardandoViaje } = useViaje();
   const location = useLocation();
   const navigate = useNavigate();
@@ -244,7 +244,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   };
 
   const continuar = async (accion: 'agregar' | 'reservar') => {
-    if (mutando.current || guardandoViaje || !cotizada || cotizada.revision !== revision.current || !usuario || !tieneRol('TURISTA') || !oferta.reservaRequerida) return;
+    if (mutando.current || guardandoViaje || !cotizada || cotizada.revision !== revision.current || !usuario || !oferta.reservaRequerida) return;
     if (observaciones.length > 1000) return setError('Las observaciones admiten hasta 1000 caracteres.');
     if (accion === 'reservar' && !cotizada.respuesta.cotizacionDisponible) return;
     if (accion === 'reservar' && !window.confirm('¿Solicitar esta reserva con los datos cotizados? El negocio revisará tu solicitud.')) return;
@@ -362,7 +362,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
 
     {cotizada && cotizada.revision === revision.current && <><ResumenCotizacion cotizacion={cotizada.respuesta}/>
       {oferta.reservaRequerida && <><label className="cambio-label">Observaciones (opcional)<textarea rows={3} maxLength={1000} disabled={guardando} value={observaciones} onChange={e => setObservaciones(e.target.value)}/></label>
-        {!usuario ? <Link className="marketplace-primary-link" to={`/ingresar?continuar=${encodeURIComponent(location.pathname)}`}>Inicia sesión para agregar o reservar</Link> : !tieneRol('TURISTA') ? <p>Necesitas una cuenta de turista para agregar servicios o solicitar reservas.</p> : <div className="marketplace-actions"><IonButton disabled={guardando || guardandoViaje} onClick={() => void continuar('agregar')}>{guardando ? 'Guardando…' : 'Agregar a mi viaje'}</IonButton><IonButton fill="outline" disabled={guardando || guardandoViaje || !cotizada.respuesta.cotizacionDisponible} onClick={() => void continuar('reservar')}>Reservar esta oferta</IonButton></div>}
+        {!usuario ? <Link className="marketplace-primary-link" to={`/ingresar?continuar=${encodeURIComponent(location.pathname)}`}>Inicia sesión para agregar o reservar</Link> : <div className="marketplace-actions"><IonButton disabled={guardando || guardandoViaje} onClick={() => void continuar('agregar')}>{guardando ? 'Guardando…' : 'Agregar a mi viaje'}</IonButton><IonButton fill="outline" disabled={guardando || guardandoViaje || !cotizada.respuesta.cotizacionDisponible} onClick={() => void continuar('reservar')}>Reservar esta oferta</IonButton></div>}
       </>}
       {!oferta.reservaRequerida && <p>Esta oferta no requiere reserva. Consulta con el negocio para coordinar el servicio.</p>}
     </>}

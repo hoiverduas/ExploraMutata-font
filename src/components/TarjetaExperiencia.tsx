@@ -13,11 +13,13 @@ export default function TarjetaExperiencia({
   etiqueta,
   ruta,
   favorito = false,
+  accion = 'Ver experiencia',
 }: {
   experiencia: ExperienciaPublica;
   etiqueta: string;
   ruta: string;
   favorito?: boolean;
+  accion?: string;
 }) {
   const cargar = useCallback(
     (signal: AbortSignal) => multimediaApi.listarPublica('EXPERIENCIA', experiencia.id, { signal }),
@@ -37,7 +39,7 @@ export default function TarjetaExperiencia({
     descripcion={experiencia.descripcion}
     etiqueta={etiqueta}
     ruta={ruta}
-    accion="Ver experiencia"
+    accion={accion}
     imagenUrl={portada}
     favorito={favorito ? { tipo: 'EXPERIENCIA', recursoId: experiencia.id } : undefined}
   />;

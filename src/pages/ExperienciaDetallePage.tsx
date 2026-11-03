@@ -5,10 +5,9 @@ import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import OfertasPublicas from '../components/OfertasPublicas';
-import TarjetaDestino from '../components/TarjetaDestino';
 import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
 import BotonFavorito from '../components/BotonFavorito';
-import { nombresDificultad, nombresTipoDestino } from '../data/turismo';
+import { nombresDificultad } from '../data/turismo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { destinoExperienciasApi } from '../services/destinoExperienciasApi';
 import { destinosApi } from '../services/destinosApi';
@@ -45,17 +44,6 @@ export default function ExperienciaDetallePage() {
         <CarruselMultimediaPublico tipo="EXPERIENCIA" entidadId={datos.id} etiqueta={`Fotos y videos de ${datos.nombre}`}/>
         <dl className="tourism-facts"><div><dt>Dificultad</dt><dd>{nombresDificultad[datos.dificultad]}</dd></div>{datos.duracionReferencia && <div><dt>Duración de referencia</dt><dd>{datos.duracionReferencia}</dd></div>}</dl>
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
-        <section><h2>{destinoSlug ? 'Tu destino' : 'Dónde vivir esta experiencia'}</h2><EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="No hay destinos disponibles para esta experiencia.">
-          <div className="catalog-grid">{destinos.datos.map(destino => <TarjetaDestino
-            key={destino.id}
-            destino={destino}
-            etiqueta={nombresTipoDestino[destino.tipo]}
-            favorito
-            ruta={destinoSlug
-              ? `/destinos/${encodeURIComponent(destino.slug)}`
-              : `/destinos/${encodeURIComponent(destino.slug)}/experiencias/${encodeURIComponent(datos.slug)}`}
-          />)}</div>
-        </EstadoConsulta></section>
         {destinoSlug && slug && !destinos.cargando && !destinos.error && destinos.datos.length > 0 && <OfertasPublicas destinoSlug={destinoSlug} experienciaSlug={slug}/>}
       </>}
     </EstadoConsulta>

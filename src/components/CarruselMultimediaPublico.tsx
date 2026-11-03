@@ -122,11 +122,10 @@ export default function CarruselMultimediaPublico({
             key={actual.id}
             className="destination-media-main"
             controls
-            autoPlay
+            muted={!carruselVisible || !paginaVisible}
             playsInline
             preload="auto"
             poster={actual.thumbnailUrl ?? undefined}
-            onEnded={() => setIndice(valor => (valor + 1) % medios.length)}
           >
             <source src={urlMedia(actual)} type={actual.mimeType ?? undefined}/>
             Tu navegador no puede reproducir este video.

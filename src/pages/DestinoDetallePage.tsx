@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
-import TarjetaTuristica from '../components/TarjetaTuristica';
+import TarjetaExperiencia from '../components/TarjetaExperiencia';
 import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
 import UbicacionPublica from '../components/UbicacionPublica';
 import BotonFavorito from '../components/BotonFavorito';
@@ -41,7 +41,14 @@ export default function DestinoDetallePage() {
         <UbicacionPublica tipo="DESTINO" entidadId={datos.id}/>
         {datos.recomendaciones && <section><h2>Recomendaciones</h2><p>{datos.recomendaciones}</p></section>}
         <section><h2>Experiencias en este destino</h2><EstadoConsulta {...experiencias} sinDatos={!experiencias.datos.length} mensajeVacio="No hay experiencias disponibles en este destino.">
-          <div className="catalog-grid">{experiencias.datos.map(experiencia => <TarjetaTuristica key={experiencia.id} nombre={experiencia.nombre} descripcion={experiencia.descripcion} etiqueta={`Dificultad: ${nombresDificultad[experiencia.dificultad]}`} accion="Ver ofertas" ruta={`/destinos/${encodeURIComponent(datos.slug)}/experiencias/${encodeURIComponent(experiencia.slug)}`} favorito={{ tipo: 'EXPERIENCIA', recursoId: experiencia.id }}/>)}</div>
+          <div className="catalog-grid">{experiencias.datos.map(experiencia => <TarjetaExperiencia
+            key={experiencia.id}
+            experiencia={experiencia}
+            etiqueta={`Dificultad: ${nombresDificultad[experiencia.dificultad]}`}
+            accion="Ver ofertas"
+            ruta={`/destinos/${encodeURIComponent(datos.slug)}/experiencias/${encodeURIComponent(experiencia.slug)}`}
+            favorito
+          />)}</div>
         </EstadoConsulta></section>
       </>}
     </EstadoConsulta>

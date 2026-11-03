@@ -19,7 +19,7 @@ const ViajeContext = createContext<ViajeContextValue | undefined>(undefined);
 
 export function ViajeProvider({ children }: { children: ReactNode }) {
   const { usuario } = useAuth();
-  const turistaId = usuario?.roles.includes('TURISTA') ? usuario.id : null;
+  const turistaId = usuario?.id ?? null;
   const sesionActual = useRef(turistaId);
   sesionActual.current = turistaId;
   const seleccionado = useRef<PaqueteTuristico | null>(null);
@@ -75,7 +75,7 @@ export function ViajeProvider({ children }: { children: ReactNode }) {
   }, [turistaId, refrescarViaje]);
 
   const asegurarBorrador = useCallback((nombre = 'Mi viaje a Mutatá'): Promise<PaqueteTuristico> => {
-    if (!turistaId || sesionActual.current !== turistaId) return Promise.reject(new Error('Inicia sesión con tu cuenta de turista para armar tu viaje.'));
+    if (!turistaId || sesionActual.current !== turistaId) return Promise.reject(new Error('Inicia sesión para armar tu viaje.'));
     if (pendiente.current?.usuarioId === turistaId) return pendiente.current.promesa;
     const promesa = (async () => {
       const viajes = await paquetesTuristicosApi.listar();

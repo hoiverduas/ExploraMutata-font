@@ -16,14 +16,20 @@ export default function CarruselMultimediaPublico({
   tipo,
   entidadId,
   etiqueta = 'Multimedia',
+  respaldo,
 }: {
   tipo: TipoEntidadMedia;
   entidadId: string;
   etiqueta?: string;
+  respaldo?: { tipo: TipoEntidadMedia; entidadId: string } | null;
 }) {
   const cargar = useCallback(
-    (signal: AbortSignal) => multimediaApi.listarPublica(tipo, entidadId, { signal }),
-    [tipo, entidadId],
+    async (signal: AbortSignal) => {
+      const principales = await multimediaApi.listarPublica(tipo, entidadId, { signal });
+      if (principales.length || !respaldo?.entidadId) return principales;
+      return multimediaApi.listarPublica(respaldo.tipo, respaldo.entidadId, { signal });
+    },
+    [tipo, entidadId, respaldo?.tipo, respaldo?.entidadId],
   );
   const consulta = useConsultaApi<MediaAssetResponse[]>(cargar, []);
   const medios = useMemo(
@@ -34,7 +40,7 @@ export default function CarruselMultimediaPublico({
   const [sobreCarrusel, setSobreCarrusel] = useState(false);
   const [videoReproduciendo, setVideoReproduciendo] = useState(false);
 
-  useEffect(() => setIndice(0), [tipo, entidadId]);
+  useEffect(() => setIndice(0), [tipo, entidadId, respaldo?.tipo, respaldo?.entidadId]);
   useEffect(() => {
     if (indice >= medios.length) setIndice(Math.max(0, medios.length - 1));
   }, [indice, medios.length]);

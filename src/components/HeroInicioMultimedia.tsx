@@ -75,11 +75,10 @@ export default function HeroInicioMultimedia() {
   }, [actual?.id, actual?.tipo, visible]);
 
   useEffect(() => {
-    if (!actual || medios.length <= 1 || !visible) return;
-    const duracion = actual.tipo === 'VIDEO' ? 5000 : 2000;
+    if (!actual || actual.tipo === 'VIDEO' || medios.length <= 1 || !visible) return;
     const temporizador = window.setTimeout(
       () => setIndice(valor => (valor + 1) % medios.length),
-      duracion,
+      2000,
     );
     return () => window.clearTimeout(temporizador);
   }, [actual?.id, actual?.tipo, medios.length, visible]);
@@ -96,9 +95,19 @@ export default function HeroInicioMultimedia() {
           className="hero-home-media-item"
           playsInline
           preload="auto"
-          loop
           muted={!visible}
           poster={actual.thumbnailUrl ?? undefined}
+          onEnded={() => {
+            if (medios.length > 1) {
+              setIndice(valor => (valor + 1) % medios.length);
+              return;
+            }
+            const video = videoRef.current;
+            if (video) {
+              video.currentTime = 0;
+              void video.play().catch(() => undefined);
+            }
+          }}
         >
           <source src={urlMedia(actual)} type={actual.mimeType ?? undefined}/>
         </video>

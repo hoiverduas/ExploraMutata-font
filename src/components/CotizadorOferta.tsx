@@ -77,6 +77,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   });
   const [variantes, setVariantes] = useState<OfertaVarianteResponse[]>([]);
   const [salidas, setSalidas] = useState<SalidaProgramadaResponse[]>([]);
+  const [salidasProximas, setSalidasProximas] = useState<SalidaProgramadaResponse[]>([]);
   const [disponibilidadDia, setDisponibilidadDia] = useState<DisponibilidadDiaResponse | null>(null);
   const [disponibilidadHospedaje, setDisponibilidadHospedaje] = useState<DisponibilidadHospedajeResponse | null>(null);
   const [consultandoAgenda, setConsultandoAgenda] = useState(false);
@@ -104,7 +105,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     consulta.current?.abort();
     setCotizada(null); setCotizando(false); setError(''); setErrorAgenda('');
     setFormulario({ cantidadPersonas: '1', fechaInicio: '', fechaFin: '', cantidadTrayectos: '', varianteId: '', horario: '', codigoPromocion: '' });
-    setSalidas([]); setDisponibilidadDia(null); setDisponibilidadHospedaje(null);
+    setSalidas([]); setSalidasProximas([]); setDisponibilidadDia(null); setDisponibilidadHospedaje(null);
     return () => { contexto.current = null; revision.current++; consulta.current?.abort(); };
   }, [location.pathname, location.key, oferta.id, oferta.version, usuario?.id]);
 
@@ -121,7 +122,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     const fecha = formulario.fechaInicio;
     const personas = Number(formulario.cantidadPersonas);
     const fechaFin = formulario.fechaFin;
-    setSalidas([]); setDisponibilidadDia(null); setDisponibilidadHospedaje(null); setErrorAgenda('');
+    setSalidas([]); setSalidasProximas([]); setDisponibilidadDia(null); setDisponibilidadHospedaje(null); setErrorAgenda('');
     if (!esFechaReservaValida(fecha) || fecha < fechaActualReservas() || !Number.isSafeInteger(personas) || personas < 1) return;
 
     const controller = new AbortController();
@@ -129,9 +130,18 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     const tareas: Promise<void>[] = [];
 
     if (requiereHorarioEfectivo) {
-      tareas.push(horariosApi.listarPublicos(oferta.id, fecha, fecha, { signal: controller.signal })
+      const fechaBase = new Date(`${fecha}T12:00:00`);
+      const fechaLimite = new Date(fechaBase);
+      fechaLimite.setDate(fechaLimite.getDate() + 7);
+      const hastaHorarios = fechaLimite.toISOString().slice(0, 10);
+      tareas.push(horariosApi.listarPublicos(oferta.id, fecha, hastaHorarios, { signal: controller.signal })
         .then(resultado => {
-          if (!controller.signal.aborted) setSalidas(resultado.salidas.filter(s => s.estado === 'ABIERTA' && s.cupoDisponible > 0));
+          if (controller.signal.aborted) return;
+          const abiertas = resultado.salidas
+            .filter(s => s.estado === 'ABIERTA' && s.cupoDisponible > 0)
+            .sort((a, b) => `${a.fecha} ${a.horaInicio}`.localeCompare(`${b.fecha} ${b.horaInicio}`));
+          setSalidas(abiertas.filter(s => s.fecha === fecha));
+          setSalidasProximas(abiertas.filter(s => s.fecha > fecha).slice(0, 6));
         }));
     }
 
@@ -164,6 +174,22 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       if (campo === 'fechaInicio') siguiente.horario = '';
       return siguiente;
     });
+  };
+
+  const seleccionarSalida = (salida: SalidaProgramadaResponse) => {
+    if (mutando.current) return;
+    const valor = selectorSalida(salida);
+    if (!valor) return;
+    revision.current++;
+    consulta.current?.abort();
+    setCotizada(null);
+    setCotizando(false);
+    setError('');
+    setFormulario(actual => ({
+      ...actual,
+      fechaInicio: salida.fecha,
+      horario: valor,
+    }));
   };
 
   const cotizar = async (event: FormEvent<HTMLFormElement>) => {
@@ -279,15 +305,58 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       {mostrarFin && <label>Fecha de fin{usaNoches && duracionUnidadEfectiva === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
       {mostrarTrayectos && <label>Trayectos (opcional)<input type="number" min={1} step={1} disabled={guardando} value={formulario.cantidadTrayectos} onChange={e => cambiar('cantidadTrayectos', e.target.value)} placeholder="Según la oferta"/></label>}
       <label>Código promocional (opcional)<input maxLength={50} disabled={guardando} value={formulario.codigoPromocion} onChange={e => cambiar('codigoPromocion', e.target.value.toUpperCase())} placeholder="Ej. AVENTURA20"/></label>
-      {requiereHorarioEfectivo && <label className="form-full">Horario *<select required disabled={guardando || consultandoAgenda || !formulario.fechaInicio} value={formulario.horario} onChange={e => cambiar('horario', e.target.value)}><option value="">{consultandoAgenda ? 'Consultando horarios…' : 'Selecciona un horario'}</option>{salidas.map(salida => {
-        const valor = selectorSalida(salida);
-        return valor ? <option key={`${valor}-${salida.fecha}-${salida.horaInicio}`} value={valor}>{salida.horaInicio}{salida.horaFin ? ` – ${salida.horaFin}` : ''}{salida.nombre ? ` · ${salida.nombre}` : ''} · {salida.cupoDisponible} cupo(s)</option> : null;
-      })}</select></label>}
-      <div className="form-actions"><IonButton type="submit" disabled={cotizando || guardando || consultandoAgenda}>{cotizando ? 'Cotizando…' : cotizada ? 'Volver a cotizar' : 'Cotizar oferta'}</IonButton></div>
+      {requiereHorarioEfectivo && <div className="form-full schedule-picker">
+        <div className="schedule-picker-heading">
+          <strong>Horarios disponibles *</strong>
+          {consultandoAgenda && <span>Consultando horarios…</span>}
+        </div>
+        {!consultandoAgenda && formulario.fechaInicio && salidas.length > 0 && <div className="schedule-slot-grid">
+          {salidas.map(salida => {
+            const valor = selectorSalida(salida);
+            if (!valor) return null;
+            const activa = formulario.horario === valor;
+            return <button
+              type="button"
+              key={`${valor}-${salida.fecha}-${salida.horaInicio}`}
+              className={`schedule-slot${activa ? ' is-selected' : ''}`}
+              disabled={guardando}
+              onClick={() => cambiar('horario', valor)}
+            >
+              <strong>{salida.horaInicio}{salida.horaFin ? ` – ${salida.horaFin}` : ''}</strong>
+              {salida.nombre && <span>{salida.nombre}</span>}
+              <small>{salida.cupoDisponible} cupo(s) disponibles</small>
+              {salida.puntoEncuentro && <em>{salida.puntoEncuentro}</em>}
+            </button>;
+          })}
+        </div>}
+        {!consultandoAgenda && formulario.fechaInicio && salidas.length === 0 && <div className="schedule-empty">
+          <p>No hay horarios abiertos con cupos para {formatearFechaReserva(formulario.fechaInicio)}.</p>
+          {salidasProximas.length > 0 && <>
+            <strong>Próximas salidas disponibles</strong>
+            <div className="schedule-slot-grid schedule-slot-grid-upcoming">
+              {salidasProximas.map(salida => {
+                const valor = selectorSalida(salida);
+                if (!valor) return null;
+                return <button
+                  type="button"
+                  key={`proxima-${valor}-${salida.fecha}-${salida.horaInicio}`}
+                  className="schedule-slot schedule-slot-upcoming"
+                  disabled={guardando}
+                  onClick={() => seleccionarSalida(salida)}
+                >
+                  <span>{formatearFechaReserva(salida.fecha)}</span>
+                  <strong>{salida.horaInicio}{salida.horaFin ? ` – ${salida.horaFin}` : ''}</strong>
+                  <small>{salida.cupoDisponible} cupo(s) disponibles</small>
+                </button>;
+              })}
+            </div>
+          </>}
+        </div>}
+      </div>}
+      <div className="form-actions"><IonButton type="submit" disabled={cotizando || guardando || consultandoAgenda || (requiereHorarioEfectivo && !formulario.horario)}>{cotizando ? 'Cotizando…' : cotizada ? 'Volver a cotizar' : 'Cotizar oferta'}</IonButton></div>
     </form>
 
     {errorAgenda && <div className="notice-error" role="alert">{errorAgenda}</div>}
-    {requiereHorarioEfectivo && formulario.fechaInicio && !consultandoAgenda && !errorAgenda && salidas.length === 0 && <p>No hay horarios abiertos con cupos para la fecha seleccionada.</p>}
     {disponibilidadDia && <p className={disponibilidadDia.estado === 'ABIERTA' && disponibilidadDia.cupoDisponible > 0 ? 'notice-success' : 'notice-error'}>Disponibilidad del {formatearFechaReserva(disponibilidadDia.fecha)}: {disponibilidadDia.estado === 'ABIERTA' ? `${disponibilidadDia.cupoDisponible} cupo(s) disponibles` : 'cerrada'}.</p>}
     {disponibilidadHospedaje && <div className={disponibilidadHospedaje.disponible ? 'notice-success' : 'notice-error'}><strong>{disponibilidadHospedaje.disponible ? 'Hospedaje disponible' : 'Sin disponibilidad'}</strong><p>{disponibilidadHospedaje.detalle}</p>{disponibilidadHospedaje.disponible && <p>{disponibilidadHospedaje.noches} noche(s) · {disponibilidadHospedaje.unidadesNecesarias} unidad(es) necesarias{disponibilidadHospedaje.horaCheckIn ? ` · Check-in ${disponibilidadHospedaje.horaCheckIn}` : ''}{disponibilidadHospedaje.horaCheckOut ? ` · Check-out ${disponibilidadHospedaje.horaCheckOut}` : ''}</p>}</div>}
 

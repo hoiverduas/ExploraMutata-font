@@ -24,6 +24,7 @@ export default function HeroInicioMultimedia() {
   );
   const [indice, setIndice] = useState(0);
   const [visible, setVisible] = useState(true);
+  const [sonidoActivo, setSonidoActivo] = useState(false);
   const contenedorRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -63,16 +64,13 @@ export default function HeroInicioMultimedia() {
       return;
     }
     video.currentTime = 0;
-    video.muted = false;
-    void video.play().catch(() => {
-      video.muted = true;
-      void video.play().catch(() => undefined);
-    });
+    video.muted = !sonidoActivo;
+    void video.play().catch(() => undefined);
     return () => {
       video.pause();
       video.muted = true;
     };
-  }, [actual?.id, actual?.tipo, visible]);
+  }, [actual?.id, actual?.tipo, visible, sonidoActivo]);
 
   useEffect(() => {
     if (!actual || actual.tipo === 'VIDEO' || medios.length <= 1 || !visible) return;
@@ -87,7 +85,7 @@ export default function HeroInicioMultimedia() {
     return <div className="hero-home-bg" aria-hidden="true"/>;
   }
 
-  return <div ref={contenedorRef} className="hero-home-media" aria-hidden="true">
+  return <div ref={contenedorRef} className="hero-home-media">
     {actual.tipo === 'VIDEO'
       ? <video
           ref={videoRef}
@@ -95,7 +93,7 @@ export default function HeroInicioMultimedia() {
           className="hero-home-media-item"
           playsInline
           preload="auto"
-          muted={!visible}
+          muted={!visible || !sonidoActivo}
           poster={actual.thumbnailUrl ?? undefined}
           onEnded={() => {
             if (medios.length > 1) {
@@ -117,6 +115,16 @@ export default function HeroInicioMultimedia() {
           src={urlMedia(actual)}
           alt=""
         />}
-    <div className="hero-home-shade"/>
+    <div className="hero-home-shade" aria-hidden="true"/>
+    {actual.tipo === 'VIDEO' && <button
+      type="button"
+      className="hero-home-sound"
+      onClick={() => setSonidoActivo(valor => !valor)}
+      aria-label={sonidoActivo ? 'Silenciar video' : 'Activar sonido del video'}
+      title={sonidoActivo ? 'Silenciar' : 'Activar sonido'}
+    >
+      <span aria-hidden="true">{sonidoActivo ? '🔊' : '🔇'}</span>
+      <span>{sonidoActivo ? 'Sonido activado' : 'Activar sonido'}</span>
+    </button>}
   </div>;
 }

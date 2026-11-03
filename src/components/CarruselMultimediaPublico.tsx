@@ -48,6 +48,11 @@ export default function CarruselMultimediaPublico({
   }, [indice, medios.length]);
 
   useEffect(() => {
+    if (!medios.length) {
+      setCarruselVisible(false);
+      return;
+    }
+
     const elemento = carruselRef.current;
     if (!elemento) return;
 
@@ -57,7 +62,7 @@ export default function CarruselMultimediaPublico({
     );
     observer.observe(elemento);
     return () => observer.disconnect();
-  }, []);
+  }, [medios.length]);
 
   useEffect(() => {
     const actualizarVisibilidad = () => setPaginaVisible(document.visibilityState === 'visible');
@@ -79,10 +84,8 @@ export default function CarruselMultimediaPublico({
       return;
     }
 
-    video.muted = false;
-    void video.play().catch(() => {
-      // Algunos navegadores bloquean autoplay con sonido hasta la primera interacción.
-    });
+    video.muted = true;
+    void video.play().catch(() => undefined);
 
     return () => {
       video.pause();
@@ -91,16 +94,18 @@ export default function CarruselMultimediaPublico({
   }, [actual?.id, actual?.tipo, carruselVisible, paginaVisible]);
 
   useEffect(() => {
-    if (medios.length <= 1 || !actual || !carruselVisible || !paginaVisible) return;
+    if (
+      medios.length <= 1
+      || !actual
+      || actual.tipo === 'VIDEO'
+      || !carruselVisible
+      || !paginaVisible
+    ) return;
 
-    const duracion = actual.tipo === 'VIDEO' ? 5000 : 2000;
-    const temporizador = window.setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.muted = true;
-      }
-      setIndice(valor => (valor + 1) % medios.length);
-    }, duracion);
+    const temporizador = window.setTimeout(
+      () => setIndice(valor => (valor + 1) % medios.length),
+      2000,
+    );
 
     return () => window.clearTimeout(temporizador);
   }, [actual?.id, actual?.tipo, medios.length, carruselVisible, paginaVisible]);
@@ -122,10 +127,21 @@ export default function CarruselMultimediaPublico({
             key={actual.id}
             className="destination-media-main"
             controls
-            muted={!carruselVisible || !paginaVisible}
+            muted
             playsInline
             preload="auto"
             poster={actual.thumbnailUrl ?? undefined}
+            onEnded={() => {
+              if (medios.length > 1) {
+                setIndice(valor => (valor + 1) % medios.length);
+                return;
+              }
+              const video = videoRef.current;
+              if (video) {
+                video.currentTime = 0;
+                void video.play().catch(() => undefined);
+              }
+            }}
           >
             <source src={urlMedia(actual)} type={actual.mimeType ?? undefined}/>
             Tu navegador no puede reproducir este video.

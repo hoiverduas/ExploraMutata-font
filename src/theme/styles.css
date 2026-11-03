@@ -404,3 +404,32 @@ button.rating-star:hover{transform:scale(1.08)}
 .hero-home-shade{position:absolute;inset:0;background:linear-gradient(90deg,#102f2af2 0%,#112c279a 55%,#1a2b2333)}
 .hero-home-copy{z-index:2}
 
+
+
+/* Control de sonido de videos en la portada de Inicio */
+.hero-home-sound{
+  position:absolute;
+  right:24px;
+  bottom:22px;
+  z-index:4;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid #ffffff66;
+  border-radius:999px;
+  padding:10px 14px;
+  background:#0d2b25cc;
+  color:#fff;
+  font:inherit;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  box-shadow:0 8px 24px #0003;
+}
+.hero-home-sound:hover{background:#0d2b25f2;border-color:#ffffffaa}
+.hero-home-sound span:first-child{font-size:17px;line-height:1}
+@media(max-width:600px){
+  .hero-home-sound{right:14px;bottom:14px;padding:9px 12px}
+  .hero-home-sound span:last-child{display:none}
+}

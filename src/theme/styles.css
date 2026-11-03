@@ -371,3 +371,28 @@ button.rating-star:hover{transform:scale(1.08)}
 .marketplace-hero-without-image .marketplace-hero-copy{
   padding:30px;
 }
+
+
+/* Cotizador: franjas horarias visibles y próximas salidas. */
+.schedule-picker{display:grid;gap:12px}
+.schedule-picker-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--ink)}
+.schedule-picker-heading>strong{font-size:13px}
+.schedule-picker-heading>span{font-size:12px;color:var(--muted)}
+.schedule-slot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.schedule-slot{display:grid;gap:5px;text-align:left;padding:14px 15px;border:1px solid #d7e2d5;border-radius:14px;background:#fff;color:var(--ink);cursor:pointer;font:inherit;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}
+.schedule-slot:hover{border-color:var(--forest);transform:translateY(-1px);box-shadow:0 8px 22px #183c2f12}
+.schedule-slot.is-selected{border:2px solid var(--forest);background:#edf5ea;box-shadow:0 0 0 3px #286d5530}
+.schedule-slot>strong{font-size:15px;color:var(--pine)}
+.schedule-slot>span{font-size:12px;font-weight:700}
+.schedule-slot>small{font-size:11px;color:var(--muted)}
+.schedule-slot>em{font-size:10px;color:var(--forest);font-style:normal}
+.schedule-slot:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.schedule-empty{border:1px dashed #cad8c8;border-radius:14px;background:#f7f9f4;padding:15px}
+.schedule-empty>p{margin:0 0 12px;color:var(--muted)}
+.schedule-empty>strong{display:block;margin-bottom:10px;font-size:12px;color:var(--forest)}
+.schedule-slot-grid-upcoming{grid-template-columns:repeat(2,minmax(0,1fr))}
+.schedule-slot-upcoming{background:#fbfcf9}
+@media(max-width:600px){
+  .schedule-slot-grid,.schedule-slot-grid-upcoming{grid-template-columns:1fr}
+  .schedule-picker-heading{align-items:flex-start;flex-direction:column}
+}

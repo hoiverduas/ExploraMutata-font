@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonPage } from '@ionic/react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -7,7 +7,7 @@ import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import PrecioOferta from '../components/PrecioOferta';
-import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
+import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
 import BotonFavorito from '../components/BotonFavorito';
 import TotalesViaje from '../components/viaje/TotalesViaje';
 import { useViaje } from '../context/ViajeContext';
@@ -17,10 +17,16 @@ import { esFechaReservaValida, fechaActualReservas, formatearFechaReserva } from
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { ApiError } from '../services/http';
 import { paquetesComercialesApi } from '../services/paquetesComercialesApi';
+import { multimediaApi } from '../services/multimediaApi';
+import type { MediaAssetResponse } from '../types/multimedia';
 import type { CotizacionPaqueteComercialResponse, PaqueteComercialResponse } from '../types/paqueteComercial';
 import { nombresModeloPaquete } from '../types/paqueteComercial';
 
 const duraciones = { UNICO: 'servicio', DIA: 'día(s)', NOCHE: 'noche(s)', SEMANA: 'semana(s)', MES: 'mes(es)' } as const;
+
+const urlMedia = (media: MediaAssetResponse): string =>
+  media.url || `/api/v1/public/multimedia/${encodeURIComponent(media.id)}/archivo`;
+
 export default function PaqueteDetallePage() {
   const { paqueteId } = useParams<{ paqueteId: string }>();
   const cargar = useCallback((signal: AbortSignal) => {
@@ -29,6 +35,21 @@ export default function PaqueteDetallePage() {
   }, [paqueteId]);
   const consulta = useConsultaApi<PaqueteComercialResponse | null>(cargar, null);
   const paquete = consulta.datos?.id === paqueteId ? consulta.datos : null;
+  const cargarMedia = useCallback(
+    (signal: AbortSignal) => paqueteId
+      ? multimediaApi.listarPublica('PAQUETE_COMERCIAL', paqueteId, { signal })
+      : Promise.resolve([]),
+    [paqueteId, paquete?.version],
+  );
+  const multimedia = useConsultaApi<MediaAssetResponse[]>(cargarMedia, []);
+  const portada = useMemo(() => {
+    const imagenes = multimedia.datos.filter(media => media.tipo === 'IMAGEN');
+    return imagenes.find(media => media.rol === 'PORTADA')
+      ?? imagenes.find(media => media.rol === 'MINIATURA')
+      ?? [...imagenes].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))[0]
+      ?? null;
+  }, [multimedia.datos]);
+  const imagenPortada = portada ? urlMedia(portada) : '/images/naturaleza-comunidad.webp';
   const { usuario, tieneRol } = useAuth();
   const { seleccionarViaje } = useViaje();
   const navigate = useNavigate();
@@ -91,8 +112,8 @@ export default function PaqueteDetallePage() {
   return <IonPage><BrandHeader title={paquete?.nombre ?? 'Paquete turístico'}/><IonContent fullscreen><main className="page-width tourism-detail package-detail">
     <NavegacionTuristica/><Link className="resource-inline-link" to="/paquetes">Volver a paquetes</Link>
     <EstadoConsulta {...consulta} sinDatos={!paquete} mensajeVacio="Este paquete no está disponible.">
-      {paquete && <><div className="package-detail-heading"><div><span className="eyebrow">UN PLAN DE <Link to={`/negocios/${encodeURIComponent(paquete.negocioId)}`}>{paquete.negocioNombre}</Link></span><div className="detail-title-actions"><h1>{paquete.nombre}</h1><BotonFavorito tipo="PAQUETE" recursoId={paquete.id}/></div><p>{paquete.descripcion}</p></div><img src="/images/naturaleza-comunidad.webp" alt=""/></div>
-        <GaleriaMultimediaPublica tipo="PAQUETE_COMERCIAL" entidadId={paquete.id}/>
+      {paquete && <><div className="package-detail-heading"><div><span className="eyebrow">UN PLAN DE <Link to={`/negocios/${encodeURIComponent(paquete.negocioId)}`}>{paquete.negocioNombre}</Link></span><div className="detail-title-actions"><h1>{paquete.nombre}</h1><BotonFavorito tipo="PAQUETE" recursoId={paquete.id}/></div><p>{paquete.descripcion}</p></div><img src={imagenPortada} alt={portada?.altText ?? portada?.titulo ?? `Portada de ${paquete.nombre}`}/></div>
+        <CarruselMultimediaPublico tipo="PAQUETE_COMERCIAL" entidadId={paquete.id} etiqueta={`Fotos y videos de ${paquete.nombre}`}/>
         <dl className="tourism-facts"><div><dt>Duración</dt><dd>{paquete.duracionCantidad} {duraciones[paquete.duracionUnidad]}</dd></div><div><dt>Personas</dt><dd>Mínimo {paquete.minimoPersonas}{paquete.maximoPersonas !== null ? ` · Máximo ${paquete.maximoPersonas}` : ''}</dd></div><div><dt>Precio</dt><dd>{nombresModeloPaquete[paquete.modeloPrecio]}{paquete.capacidadGrupo !== null ? ` · Hasta ${paquete.capacidadGrupo} personas por grupo` : ''}</dd></div></dl>
         {paquete.precio !== null && paquete.moneda && <PrecioOferta precioDesde={paquete.precio} moneda={paquete.moneda}/>}
         <div className="package-inclusions">{paquete.incluye && <section><h2>Qué incluye</h2><p>{paquete.incluye}</p></section>}{paquete.noIncluye && <section><h2>No incluye</h2><p>{paquete.noIncluye}</p></section>}</div>

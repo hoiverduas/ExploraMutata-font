@@ -1,6 +1,6 @@
 import { IonContent, IonPage } from '@ionic/react';
 import { useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
@@ -22,6 +22,8 @@ import type { OfertaNegocioResponse } from '../types/oferta';
 
 export default function OfertaDetallePage() {
   const { negocioId, ofertaId } = useParams<{ negocioId: string; ofertaId: string }>();
+  const [searchParams] = useSearchParams();
+  const paqueteOrigen = searchParams.get('paquete')?.trim() || null;
   const cargar = useCallback((signal: AbortSignal) => {
     const id = Number(ofertaId);
     if (!negocioId || !Number.isSafeInteger(id) || id <= 0) return Promise.reject(new ApiError(404, 'La oferta no está disponible.'));
@@ -30,7 +32,9 @@ export default function OfertaDetallePage() {
   const consulta = useConsultaApi<OfertaNegocioResponse | null>(cargar, null);
   const oferta = consulta.datos?.id === Number(ofertaId) && consulta.datos.negocioId === negocioId ? consulta.datos : null;
   return <IonPage><BrandHeader title={oferta?.nombre ?? 'Descubre una oferta'}/><IonContent fullscreen><main className="page-width tourism-detail">
-    <NavegacionTuristica/>{negocioId && <Link className="resource-inline-link" to={`/negocios/${encodeURIComponent(negocioId)}`}>Volver al negocio</Link>}
+    <NavegacionTuristica/>{paqueteOrigen
+      ? <Link className="resource-inline-link package-return-link" to={`/paquetes/${encodeURIComponent(paqueteOrigen)}`}>← Volver al paquete</Link>
+      : negocioId && <Link className="resource-inline-link" to={`/negocios/${encodeURIComponent(negocioId)}`}>Volver al negocio</Link>}
     <EstadoConsulta {...consulta} sinDatos={!oferta} mensajeVacio="La oferta no está disponible.">
       {oferta && (oferta.categoria === 'HOSPEDAJE'
         ? <OfertaHospedajeDetalle oferta={oferta}/>

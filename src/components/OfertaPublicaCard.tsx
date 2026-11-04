@@ -18,8 +18,11 @@ export const imagenEditorialCategoria: Record<CategoriaNegocio, string> = {
 };
 const duraciones = { UNICO: 'servicio', DIA: 'día(s)', NOCHE: 'noche(s)', SEMANA: 'semana(s)', MES: 'mes(es)' };
 
-const prioridad = (media: MediaAssetResponse) =>
-  media.rol === 'PORTADA' ? -1000 : media.orden ?? 0;
+const prioridad = (media: MediaAssetResponse) => {
+  if (media.rol === 'PORTADA') return -2000;
+  if (media.rol === 'MINIATURA') return -1000;
+  return media.orden ?? 0;
+};
 
 const urlMedia = (media: MediaAssetResponse) =>
   media.url || `/api/v1/public/multimedia/${encodeURIComponent(media.id)}/archivo`;

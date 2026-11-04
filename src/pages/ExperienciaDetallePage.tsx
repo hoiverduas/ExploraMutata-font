@@ -1,6 +1,6 @@
 import { IonContent, IonPage } from '@ionic/react';
 import { useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
@@ -20,6 +20,8 @@ export default function ExperienciaDetallePage() {
   const params = useParams<{ slug: string; destinoSlug: string; experienciaSlug: string }>();
   const slug = params.experienciaSlug ?? params.slug;
   const destinoSlug = params.destinoSlug;
+  const [searchParams] = useSearchParams();
+  const paqueteOrigen = searchParams.get('paquete')?.trim() || null;
   const cargarExperiencia = useCallback(async (signal: AbortSignal) => {
     if (!slug) throw new ApiError(404, 'No encontramos esta experiencia.');
     if (!destinoSlug) return experienciasApi.buscarPublica(slug, { signal });
@@ -37,7 +39,7 @@ export default function ExperienciaDetallePage() {
   const destinos = useConsultaApi<DestinoPublico[]>(cargarDestinos, []);
   const datos = experiencia.datos;
   return <IonPage><BrandHeader title={datos?.nombre ?? 'Experiencia'}/><IonContent fullscreen><main className="page-width tourism-detail">
-    <NavegacionTuristica/><div className="adventure-path" aria-label="Tu ruta de aventura"><span>Aventuras</span><span aria-hidden="true">→</span><span>{destinos.datos[0]?.nombre || "Destino"}</span><span aria-hidden="true">→</span><strong>{datos?.nombre || "Experiencia"}</strong><span aria-hidden="true">→</span><span>Ofertas</span></div>
+    <NavegacionTuristica/>{paqueteOrigen && <Link className="resource-inline-link package-return-link" to={`/paquetes/${encodeURIComponent(paqueteOrigen)}`}>← Volver al paquete</Link>}<div className="adventure-path" aria-label="Tu ruta de aventura"><span>Aventuras</span><span aria-hidden="true">→</span><span>{destinos.datos[0]?.nombre || "Destino"}</span><span aria-hidden="true">→</span><strong>{datos?.nombre || "Experiencia"}</strong><span aria-hidden="true">→</span><span>Ofertas</span></div>
     <EstadoConsulta {...experiencia} sinDatos={!datos} mensajeVacio="No encontramos esta experiencia.">
       {datos && <><span className="eyebrow">EXPERIENCIAS DE MUTATÁ</span><div className="detail-title-actions"><h1>{datos.nombre}</h1><BotonFavorito tipo="EXPERIENCIA" recursoId={datos.id}/></div>
         {datos.descripcion && <p className="tourism-description">{datos.descripcion}</p>}

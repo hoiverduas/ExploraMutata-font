@@ -18,8 +18,12 @@ import { useConsultaApi } from '../hooks/useConsultaApi';
 import { ApiError } from '../services/http';
 import { paquetesComercialesApi } from '../services/paquetesComercialesApi';
 import { multimediaApi } from '../services/multimediaApi';
+import { ofertasApi } from '../services/ofertasApi';
+import { experienciasApi } from '../services/experienciasApi';
 import type { MediaAssetResponse } from '../types/multimedia';
-import type { CotizacionPaqueteComercialResponse, PaqueteComercialResponse } from '../types/paqueteComercial';
+import type { OfertaNegocioResponse } from '../types/oferta';
+import type { ExperienciaPublica } from '../types/experiencia';
+import type { CotizacionPaqueteComercialResponse, PaqueteComercialItemResponse, PaqueteComercialResponse } from '../types/paqueteComercial';
 import { nombresModeloPaquete } from '../types/paqueteComercial';
 
 const duraciones = { UNICO: 'servicio', DIA: 'día(s)', NOCHE: 'noche(s)', SEMANA: 'semana(s)', MES: 'mes(es)' } as const;
@@ -50,6 +54,42 @@ export default function PaqueteDetallePage() {
       ?? null;
   }, [multimedia.datos]);
   const imagenPortada = portada ? urlMedia(portada) : '/images/naturaleza-comunidad.webp';
+
+  const cargarOfertasPaquete = useCallback(
+    (signal: AbortSignal) => paquete?.negocioId
+      ? ofertasApi.listarPublicas(paquete.negocioId, undefined, { signal })
+      : Promise.resolve([]),
+    [paquete?.negocioId, paquete?.version],
+  );
+  const ofertasPaquete = useConsultaApi<OfertaNegocioResponse[]>(cargarOfertasPaquete, []);
+  const cargarExperiencias = useCallback(
+    (signal: AbortSignal) => experienciasApi.listarPublicas(undefined, { signal }),
+    [],
+  );
+  const experiencias = useConsultaApi<ExperienciaPublica[]>(cargarExperiencias, []);
+  const ofertaPorId = useMemo(
+    () => new Map(ofertasPaquete.datos.map(oferta => [oferta.id, oferta])),
+    [ofertasPaquete.datos],
+  );
+  const experienciaPorId = useMemo(
+    () => new Map(experiencias.datos.map(experiencia => [experiencia.id, experiencia])),
+    [experiencias.datos],
+  );
+
+  const rutaItemPaquete = (item: PaqueteComercialItemResponse): string => {
+    const ofertaRelacionada = ofertaPorId.get(item.ofertaId);
+    const experienciaRelacionada = ofertaRelacionada?.experienciaId
+      ? experienciaPorId.get(ofertaRelacionada.experienciaId)
+      : null;
+    const origen = `?paquete=${encodeURIComponent(paquete?.id ?? '')}`;
+
+    if (experienciaRelacionada?.slug) {
+      return `/catalogo/experiencias/${encodeURIComponent(experienciaRelacionada.slug)}${origen}`;
+    }
+
+    return `/negocios/${encodeURIComponent(paquete?.negocioId ?? '')}/ofertas/${item.ofertaId}${origen}`;
+  };
+
   const { usuario, tieneRol } = useAuth();
   const { seleccionarViaje } = useViaje();
   const navigate = useNavigate();
@@ -117,7 +157,7 @@ export default function PaqueteDetallePage() {
         <dl className="tourism-facts"><div><dt>Duración</dt><dd>{paquete.duracionCantidad} {duraciones[paquete.duracionUnidad]}</dd></div><div><dt>Personas</dt><dd>Mínimo {paquete.minimoPersonas}{paquete.maximoPersonas !== null ? ` · Máximo ${paquete.maximoPersonas}` : ''}</dd></div><div><dt>Precio</dt><dd>{nombresModeloPaquete[paquete.modeloPrecio]}{paquete.capacidadGrupo !== null ? ` · Hasta ${paquete.capacidadGrupo} personas por grupo` : ''}</dd></div></dl>
         {paquete.precio !== null && paquete.moneda && <PrecioOferta precioDesde={paquete.precio} moneda={paquete.moneda}/>}
         <div className="package-inclusions">{paquete.incluye && <section><h2>Qué incluye</h2><p>{paquete.incluye}</p></section>}{paquete.noIncluye && <section><h2>No incluye</h2><p>{paquete.noIncluye}</p></section>}</div>
-        <section><h2>Tu itinerario</h2><div className="package-itinerary">{[...paquete.items].sort((a,b) => (a.orden ?? 0) - (b.orden ?? 0)).map(item => <article className="historial-item" key={item.id}><span className="eyebrow">DÍA {item.diaInicio}{item.diaFin !== null && item.diaFin !== item.diaInicio ? ` – ${item.diaFin}` : ''}</span><h3>{item.ofertaNombre}{item.varianteNombre ? ` · ${item.varianteNombre}` : ''}</h3><p>{nombresCategoria[item.categoria]}{item.cantidadTrayectos !== null ? ` · ${item.cantidadTrayectos} trayecto(s)` : ''}</p>{item.observaciones && <p>{item.observaciones}</p>}</article>)}</div></section>
+        <section><h2>Tu itinerario</h2><p className="package-itinerary-intro">Explora cada experiencia del paquete para ver sus fotos, videos y detalles antes de reservar.</p><div className="package-itinerary">{[...paquete.items].sort((a,b) => (a.orden ?? 0) - (b.orden ?? 0)).map(item => <Link className="package-itinerary-link" to={rutaItemPaquete(item)} key={item.id}><article className="historial-item package-itinerary-item"><div><span className="eyebrow">DÍA {item.diaInicio}{item.diaFin !== null && item.diaFin !== item.diaInicio ? ` – ${item.diaFin}` : ''}</span><h3>{item.ofertaNombre}{item.varianteNombre ? ` · ${item.varianteNombre}` : ''}</h3><p>{nombresCategoria[item.categoria]}{item.cantidadTrayectos !== null ? ` · ${item.cantidadTrayectos} trayecto(s)` : ''}</p>{item.observaciones && <p>{item.observaciones}</p>}</div><span className="package-itinerary-action">Ver experiencia <span aria-hidden="true">→</span></span></article></Link>)}</div></section>
         {paquete.condiciones && <section><h2>Condiciones</h2><p>{paquete.condiciones}</p></section>}{paquete.politicaCancelacion && <section><h2>Política de cancelación</h2><p>{paquete.politicaCancelacion}</p></section>}
         {(paquete.vigenciaDesde || paquete.vigenciaHasta) && <p>Vigencia: {paquete.vigenciaDesde ? formatearFechaReserva(paquete.vigenciaDesde) : 'Desde su publicación'}{paquete.vigenciaHasta ? ` hasta ${formatearFechaReserva(paquete.vigenciaHasta)}` : ', sin fecha final informada'}.</p>}
         <section className="gestion-form-panel package-booking"><span className="eyebrow">PREPARA TU VIAJE</span><h2>Cotiza este paquete</h2><p>El precio final y las fechas de cada servicio se calculan con el negocio.</p>

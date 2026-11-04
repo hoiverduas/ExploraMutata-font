@@ -15,9 +15,14 @@ export default function OfertaExperienciaCard({ oferta }: { oferta: OfertaExperi
       const mediaOferta = await multimediaApi.listarPublica('OFERTA', String(oferta.id), { signal });
       const imagenesOferta = mediaOferta.filter(media => media.tipo === 'IMAGEN');
       if (imagenesOferta.length) return mediaOferta;
-      return multimediaApi.listarPublica('EXPERIENCIA', oferta.experienciaId, { signal });
+
+      const mediaExperiencia = await multimediaApi.listarPublica('EXPERIENCIA', oferta.experienciaId, { signal });
+      const imagenesExperiencia = mediaExperiencia.filter(media => media.tipo === 'IMAGEN');
+      if (imagenesExperiencia.length) return mediaExperiencia;
+
+      return multimediaApi.listarPublica('NEGOCIO', oferta.negocioId, { signal });
     },
-    [oferta.id, oferta.experienciaId],
+    [oferta.id, oferta.experienciaId, oferta.negocioId],
   );
   const multimedia = useConsultaApi<MediaAssetResponse[]>(cargar, []);
   const portada = useMemo(() => {
@@ -28,12 +33,12 @@ export default function OfertaExperienciaCard({ oferta }: { oferta: OfertaExperi
   }, [multimedia.datos]);
 
   return <article className="catalog-card marketplace-card">
-    {portada && <img
-      className="marketplace-card-image"
-      src={urlMedia(portada)}
-      alt={portada.altText ?? portada.titulo ?? `Portada de ${oferta.experienciaNombre}`}
+    <img
+      className="marketplace-card-image marketplace-card-image-show-full"
+      src={portada ? urlMedia(portada) : '/images/rio-bedo.webp'}
+      alt={portada?.altText ?? portada?.titulo ?? `Portada de ${oferta.experienciaNombre}`}
       loading="lazy"
-    />}
+    />
     <div className="catalog-card-body marketplace-card-body">
       <span>{oferta.experienciaNombre} · {oferta.destinoNombre}</span>
       <h2>{oferta.negocioNombreComercial}</h2>

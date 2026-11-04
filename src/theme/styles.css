@@ -433,3 +433,15 @@ button.rating-star:hover{transform:scale(1.08)}
   .hero-home-sound{right:14px;bottom:14px;padding:9px 12px}
   .hero-home-sound span:last-child{display:none}
 }
+
+/* Tarjetas públicas de ofertas: mostrar la foto completa sin recortarla. */
+.catalog-card.marketplace-card > .marketplace-card-image.marketplace-card-image-show-full{
+  width:100%;
+  height:auto!important;
+  aspect-ratio:16/9;
+  display:block;
+  object-fit:contain!important;
+  object-position:center;
+  background:#eef2e9;
+}
+

@@ -23,12 +23,13 @@ export default function OfertaExperienciaCard({ oferta }: { oferta: OfertaExperi
   const portada = useMemo(() => {
     const imagenes = multimedia.datos.filter(media => media.tipo === 'IMAGEN');
     return imagenes.find(media => media.rol === 'PORTADA')
+      ?? imagenes.find(media => media.rol === 'MINIATURA')
       ?? [...imagenes].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))[0];
   }, [multimedia.datos]);
 
   return <article className="catalog-card marketplace-card">
     {portada && <img
-      className="marketplace-card-image marketplace-card-image-contain"
+      className="marketplace-card-image"
       src={urlMedia(portada)}
       alt={portada.altText ?? portada.titulo ?? `Portada de ${oferta.experienciaNombre}`}
       loading="lazy"

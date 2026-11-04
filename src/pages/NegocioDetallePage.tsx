@@ -5,9 +5,9 @@ import { Link, useParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
-import OfertaPublicaCard, { imagenEditorialCategoria } from '../components/OfertaPublicaCard';
+import OfertaPublicaCard from '../components/OfertaPublicaCard';
 import PaquetesComercialesNegocio from '../components/PaquetesComercialesNegocio';
-import GaleriaMultimediaPublica from '../components/GaleriaMultimediaPublica';
+import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
 import RedesContactoPublicas from '../components/RedesContactoPublicas';
 import UbicacionPublica from '../components/UbicacionPublica';
 import BotonFavorito from '../components/BotonFavorito';
@@ -16,11 +16,9 @@ import { categoriasCatalogo, nombresCategoria } from '../data/categoriasCatalogo
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { listarNegociosPublicos } from '../services/catalogoApi';
 import { ofertasApi } from '../services/ofertasApi';
-import { multimediaApi } from '../services/multimediaApi';
 import { ApiError } from '../services/http';
 import type { CategoriaNegocio, NegocioPublico } from '../types/catalogo';
 import type { OfertaNegocioResponse } from '../types/oferta';
-import type { MediaAssetResponse } from '../types/multimedia';
 
 export default function NegocioDetallePage() {
   const { negocioId } = useParams<{ negocioId: string }>();
@@ -39,33 +37,17 @@ export default function NegocioDetallePage() {
   const consulta = useConsultaApi<NegocioPublico | null>(cargarNegocio, null);
   const ofertas = useConsultaApi<OfertaNegocioResponse[]>(cargarOfertas, []);
 
-  const cargarMultimedia = useCallback(
-    (signal: AbortSignal) => negocioId
-      ? multimediaApi.listarPublica('NEGOCIO', negocioId, { signal })
-      : Promise.resolve([]),
-    [negocioId],
-  );
-  const multimedia = useConsultaApi<MediaAssetResponse[]>(cargarMultimedia, []);
-
   const negocio = consulta.datos?.id === negocioId ? consulta.datos : null;
-  const fotosNegocio = multimedia.datos
-    .filter(media => media.tipo === 'IMAGEN')
-    .sort((a, b) => {
-      const prioridadA = a.rol === 'PORTADA' ? -1000 : a.orden ?? 0;
-      const prioridadB = b.rol === 'PORTADA' ? -1000 : b.orden ?? 0;
-      return prioridadA - prioridadB;
-    });
-  const imagenPrincipal = fotosNegocio[0]
-    ? (fotosNegocio[0].url || `/api/v1/public/multimedia/${encodeURIComponent(fotosNegocio[0].id)}/archivo`)
-    : negocio?.categorias.length
-      ? imagenEditorialCategoria[negocio.categorias[0]]
-      : '/images/hero-mutata.webp';
   return <IonPage><BrandHeader title={negocio?.nombreComercial ?? 'Descubre un negocio'}/><IonContent fullscreen>
     <main className="page-width tourism-detail"><NavegacionTuristica/><Link className="resource-inline-link" to="/catalogo">Volver al catálogo</Link>
       <EstadoConsulta {...consulta} sinDatos={!negocio} mensajeVacio="El negocio no está disponible.">
         {negocio && <>
-          <section className="marketplace-hero negocio-public-hero">
-            <img className="marketplace-hero-image" src={imagenPrincipal} alt={fotosNegocio[0]?.altText ?? fotosNegocio[0]?.titulo ?? `${negocio.nombreComercial}, imagen principal`}/>
+          <CarruselMultimediaPublico
+            tipo="NEGOCIO"
+            entidadId={negocio.id}
+            etiqueta={`Fotos y videos de ${negocio.nombreComercial}`}
+          />
+          <section className="marketplace-hero marketplace-hero-without-image negocio-public-hero">
             <div className="marketplace-hero-copy">
               <span className="eyebrow">DESCUBRE MUTATÁ</span>
               <div className="detail-title-actions">
@@ -106,11 +88,6 @@ export default function NegocioDetallePage() {
               </section>
             </div>
           </section>
-          <GaleriaMultimediaPublica
-            tipo="NEGOCIO"
-            entidadId={negocio.id}
-            titulo={negocio.categorias.includes('HOSPEDAJE') ? 'Fotos del alojamiento' : 'Galería'}
-          />
           <UbicacionPublica tipo="NEGOCIO" entidadId={negocio.id}/>
           <section className="marketplace-section"><div className="section-heading"><span>ELIGE TU PRÓXIMO PLAN</span><h2>Ofertas de este <em>negocio.</em></h2></div>
             <div className="tourism-filters"><label>Categoría<select value={categoria} onChange={e => setCategoria(categoriasCatalogo.find(item => item.categoria === e.target.value)?.categoria ?? '')}><option value="">Todas las ofertas</option>{categoriasCatalogo.map(item => <option key={item.categoria} value={item.categoria}>{item.nombre}</option>)}</select></label></div>

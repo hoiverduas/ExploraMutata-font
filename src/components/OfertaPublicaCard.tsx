@@ -27,14 +27,20 @@ const urlMedia = (media: MediaAssetResponse) =>
 export default function OfertaPublicaCard({ oferta }: { oferta: OfertaNegocioResponse }) {
   const cargarMedia = useCallback(
     async (signal: AbortSignal) => {
-      const [mediaOferta, mediaNegocio] = await Promise.all([
-        multimediaApi.listarPublica('OFERTA', String(oferta.id), { signal }),
-        multimediaApi.listarPublica('NEGOCIO', oferta.negocioId, { signal }),
-      ]);
+      const mediaOferta = await multimediaApi.listarPublica('OFERTA', String(oferta.id), { signal });
       const fotosOferta = mediaOferta.filter(media => media.tipo === 'IMAGEN');
-      return fotosOferta.length ? fotosOferta : mediaNegocio.filter(media => media.tipo === 'IMAGEN');
+      if (fotosOferta.length) return fotosOferta;
+
+      if (oferta.experienciaId) {
+        const mediaExperiencia = await multimediaApi.listarPublica('EXPERIENCIA', oferta.experienciaId, { signal });
+        const fotosExperiencia = mediaExperiencia.filter(media => media.tipo === 'IMAGEN');
+        if (fotosExperiencia.length) return fotosExperiencia;
+      }
+
+      const mediaNegocio = await multimediaApi.listarPublica('NEGOCIO', oferta.negocioId, { signal });
+      return mediaNegocio.filter(media => media.tipo === 'IMAGEN');
     },
-    [oferta.id, oferta.negocioId, oferta.version],
+    [oferta.id, oferta.experienciaId, oferta.negocioId, oferta.version],
   );
   const multimedia = useConsultaApi<MediaAssetResponse[]>(cargarMedia, []);
   const portada = [...multimedia.datos].sort((a, b) => prioridad(a) - prioridad(b))[0];

@@ -445,3 +445,18 @@ button.rating-star:hover{transform:scale(1.08)}
   background:#eef2e9;
 }
 
+/* Paquetes: respetar la portada cargada y evitar recortes agresivos en la tarjeta. */
+.package-card-image>.package-card-cover-image{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  background:#eef2e9;
+}
+.package-detail-heading>img{
+  object-fit:contain;
+  object-position:center;
+  background:#eef2e9;
+}
+

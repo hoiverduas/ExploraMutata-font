@@ -460,3 +460,50 @@ button.rating-star:hover{transform:scale(1.08)}
   background:#eef2e9;
 }
 
+/* Itinerario público del paquete: cada actividad abre su experiencia. */
+.package-itinerary-intro{
+  margin-top:-4px;
+  max-width:760px;
+}
+.package-itinerary-link{
+  display:block;
+  color:inherit;
+  text-decoration:none;
+}
+.package-itinerary-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.package-itinerary-link:hover .package-itinerary-item,
+.package-itinerary-link:focus-visible .package-itinerary-item{
+  transform:translateY(-2px);
+  border-color:#9dbdac;
+  box-shadow:0 12px 30px #17382e12;
+}
+.package-itinerary-action{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:var(--forest);
+  font-size:13px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.package-return-link{
+  margin:2px 0 6px;
+}
+@media(max-width:600px){
+  .package-itinerary-item{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+  }
+  .package-itinerary-action{
+    white-space:normal;
+  }
+}
+

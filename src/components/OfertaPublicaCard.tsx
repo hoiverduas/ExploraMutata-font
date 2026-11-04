@@ -51,7 +51,7 @@ export default function OfertaPublicaCard({ oferta }: { oferta: OfertaNegocioRes
 
   return <article className="catalog-card marketplace-card">
     <img
-      className="marketplace-card-image"
+      className="marketplace-card-image marketplace-card-image-show-full"
       src={imagen}
       alt={portada?.altText ?? portada?.titulo ?? `${oferta.nombre}, imagen principal`}
       loading="lazy"

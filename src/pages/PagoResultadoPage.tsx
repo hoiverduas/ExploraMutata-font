@@ -101,7 +101,7 @@ export default function PagoResultadoPage() {
     <span className="eyebrow">WOMPI · EXPLORA MUTATÁ</span><h1>Estado de tu <em>pago.</em></h1>
     {!sesion ? <section className="gestion-form-panel"><h2>No encontramos la orden en esta sesión</h2><p>Vuelve a Mis reservas y abre la reserva que estabas pagando. Desde allí puedes consultar el estado o iniciar nuevamente el pago.</p><Link className="resource-inline-link" to="/reservas">Ir a Mis reservas →</Link></section> : <>
       {cargando && <div className="loading-state"><IonSpinner/> Esperando la confirmación del backend…</div>}
-      {error && <div className="notice-error" role="alert">{error}</div>}
+      {error && !aprobado && <div className="notice-error" role="alert">{error}</div>}
       {orden && <section className="gestion-form-panel">
         <div className="gestion-form-heading"><h2>Orden {orden.referencia}</h2><PagoEstadoBadge estado={orden.estado}/></div>
         <dl className="reserva-info">
@@ -116,7 +116,7 @@ export default function PagoResultadoPage() {
             ? <div className="notice-error">El intento no fue aprobado. Puedes volver a la reserva e intentar pagar nuevamente.</div>
             : <div className="notice-success">Wompi devolvió al navegador, pero Explora Mutatá aún espera o procesa el webhook. Usa “Actualizar estado” antes de repetir el pago.</div>}
         {!coincideTransaccion && <div className="notice-error">El identificador retornado por Wompi no coincide con el último intento registrado. No se tomará esta URL como comprobante de pago.</div>}
-        <div className="form-actions"><IonButton fill="outline" disabled={cargando} onClick={() => void (wompiId ? sincronizarAhora() : consultar())}>{cargando ? 'Consultando…' : wompiId ? 'Sincronizar con Wompi' : 'Actualizar estado'}</IonButton><IonButton routerLink={`/reservas/${encodeURIComponent(sesion.reservaId)}`}>Volver a la reserva</IonButton></div>
+        <div className="form-actions">{!aprobado && <IonButton fill="outline" disabled={cargando} onClick={() => void (wompiId ? sincronizarAhora() : consultar())}>{cargando ? 'Consultando…' : wompiId ? 'Sincronizar con Wompi' : 'Actualizar estado'}</IonButton>}<IonButton routerLink={`/reservas/${encodeURIComponent(sesion.reservaId)}`}>Volver a la reserva</IonButton></div>
       </section>}
     </>}
   </main></IonContent></IonPage>;

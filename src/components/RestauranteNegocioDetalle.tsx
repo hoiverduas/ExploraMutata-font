@@ -72,8 +72,12 @@ function RestauranteOfertaCard({ detalle }: { detalle: OfertaRestauranteResponse
         {detalle.items.length > 4 && <small>+{detalle.items.length - 4} elementos más</small>}
       </div>}
       <PrecioOferta precioDesde={oferta.precioDesde} moneda={oferta.moneda} preciosConvertidos={oferta.preciosConvertidos}/>
-      <Link className="restaurante-menu-action" to={`/negocios/${encodeURIComponent(oferta.negocioId)}/ofertas/${oferta.id}`}>
-        {oferta.reservaRequerida ? 'Ver y reservar' : 'Ver detalle'} <span aria-hidden="true">→</span>
+      <Link
+        className={`restaurante-menu-action ${oferta.reservaRequerida ? 'restaurante-menu-action-primary' : 'restaurante-menu-action-secondary'}`}
+        to={`/negocios/${encodeURIComponent(oferta.negocioId)}/ofertas/${oferta.id}`}
+      >
+        <span>{oferta.reservaRequerida ? 'Ver y reservar' : 'Ver detalle'}</span>
+        <span className="restaurante-menu-action-arrow" aria-hidden="true">→</span>
       </Link>
     </div>
   </article>;

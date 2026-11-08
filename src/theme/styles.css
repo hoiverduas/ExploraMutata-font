@@ -531,3 +531,12 @@ button.rating-star:hover{transform:scale(1.08)}
 #ubicacion .marketplace-section{margin:0;padding:0;border:0;background:transparent}#ubicacion .marketplace-section>h2{display:none}
 @media(max-width:920px){.restaurante-hero,.restaurante-layout{grid-template-columns:1fr}.restaurante-side-column{position:static}.restaurante-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.restaurante-hero{padding:20px;border-radius:18px}.restaurante-title-row h1{font-size:36px}.restaurante-menu-grid{grid-template-columns:1fr}.restaurante-subnav{margin-inline:-4px}.restaurante-subnav a{padding:10px 12px}.restaurante-section-heading{align-items:flex-start;flex-direction:column}.restaurante-menu-card img{aspect-ratio:4/3}}
+
+
+/* Estado vacío de reseñas: neutral, informativo y sin mostrar 0.00 como calificación. */
+.reviews-empty-state{display:flex;align-items:center;gap:18px;margin-top:4px;padding:28px 30px;border:1px solid #dfe8dc;border-radius:20px;background:linear-gradient(135deg,#f7faf4 0%,#f1f6ee 100%);color:var(--ink)}
+.reviews-empty-icon{flex:none;display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:#e3f0e2;color:var(--forest)}
+.reviews-empty-icon ion-icon{font-size:28px}
+.reviews-empty-state strong{display:block;margin-bottom:6px;font:600 19px/1.2 'Playfair Display',Georgia,serif;color:var(--ink)}
+.reviews-empty-state p{margin:0;max-width:680px;color:var(--muted);font-size:13px;line-height:1.65}
+@media(max-width:600px){.reviews-empty-state{align-items:flex-start;padding:20px;gap:14px}.reviews-empty-icon{width:46px;height:46px;border-radius:14px}.reviews-empty-state strong{font-size:17px}}

@@ -1,4 +1,5 @@
-import { IonButton, IonSpinner } from '@ionic/react';
+import { IonButton, IonIcon, IonSpinner } from '@ionic/react';
+import { chatbubbleEllipsesOutline } from 'ionicons/icons';
 import { useCallback } from 'react';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { resenasApi } from '../services/resenasApi';
@@ -27,16 +28,24 @@ export default function ResenasNegocioPublicas({ negocioId }: { negocioId: strin
   const { resumen, resenas } = consulta.datos;
   return <section className="marketplace-section reviews-section">
     <div className="section-heading"><span>OPINIONES DE VIAJEROS</span><h2>Reseñas del <em>negocio.</em></h2></div>
-    <div className="reviews-summary">
-      <strong>{resumen.promedio.toFixed(2)}</strong>
-      <EstrellasCalificacion valor={Math.round(resumen.promedio)}/>
-      <span>{resumen.cantidad} {resumen.cantidad === 1 ? 'reseña' : 'reseñas'}</span>
-    </div>
-    {resenas.length ? <div className="reviews-list">{resenas.map(resena => <article className="review-card" key={resena.id}>
-      <EstrellasCalificacion valor={resena.calificacion}/>
-      {resena.comentario && <p>{resena.comentario}</p>}
-      <small>{new Date(resena.fechaCreacion).toLocaleDateString('es-CO')}</small>
-      {resena.respuestaOperador && <div className="review-response"><strong>Respuesta del negocio</strong><p>{resena.respuestaOperador}</p>{resena.fechaRespuesta && <small>{new Date(resena.fechaRespuesta).toLocaleDateString('es-CO')}</small>}</div>}
-    </article>)}</div> : <p className="empty-state">Este negocio todavía no tiene reseñas publicadas.</p>}
+    {resenas.length > 0 ? <>
+      <div className="reviews-summary">
+        <strong>{resumen.promedio.toFixed(2)}</strong>
+        <EstrellasCalificacion valor={Math.round(resumen.promedio)}/>
+        <span>{resumen.cantidad} {resumen.cantidad === 1 ? 'reseña' : 'reseñas'}</span>
+      </div>
+      <div className="reviews-list">{resenas.map(resena => <article className="review-card" key={resena.id}>
+        <EstrellasCalificacion valor={resena.calificacion}/>
+        {resena.comentario && <p>{resena.comentario}</p>}
+        <small>{new Date(resena.fechaCreacion).toLocaleDateString('es-CO')}</small>
+        {resena.respuestaOperador && <div className="review-response"><strong>Respuesta del negocio</strong><p>{resena.respuestaOperador}</p>{resena.fechaRespuesta && <small>{new Date(resena.fechaRespuesta).toLocaleDateString('es-CO')}</small>}</div>}
+      </article>)}</div>
+    </> : <div className="reviews-empty-state">
+      <span className="reviews-empty-icon" aria-hidden="true"><IonIcon icon={chatbubbleEllipsesOutline}/></span>
+      <div>
+        <strong>Aún no hay reseñas de viajeros</strong>
+        <p>Las opiniones aparecerán aquí cuando personas con reservas completadas compartan su experiencia.</p>
+      </div>
+    </div>}
   </section>;
 }

@@ -12,6 +12,7 @@ import RedesContactoPublicas from '../components/RedesContactoPublicas';
 import UbicacionPublica from '../components/UbicacionPublica';
 import BotonFavorito from '../components/BotonFavorito';
 import ResenasNegocioPublicas from '../components/ResenasNegocioPublicas';
+import RestauranteNegocioDetalle from '../components/RestauranteNegocioDetalle';
 import { categoriasCatalogo, nombresCategoria } from '../data/categoriasCatalogo';
 import { useConsultaApi } from '../hooks/useConsultaApi';
 import { listarNegociosPublicos } from '../services/catalogoApi';
@@ -41,7 +42,9 @@ export default function NegocioDetallePage() {
   return <IonPage><BrandHeader title={negocio?.nombreComercial ?? 'Descubre un negocio'}/><IonContent fullscreen>
     <main className="page-width tourism-detail"><NavegacionTuristica/><Link className="resource-inline-link" to="/catalogo">Volver al catálogo</Link>
       <EstadoConsulta {...consulta} sinDatos={!negocio} mensajeVacio="El negocio no está disponible.">
-        {negocio && <>
+        {negocio && (negocio.categorias.includes('RESTAURANTE')
+          ? <RestauranteNegocioDetalle negocio={negocio}/>
+          : <>
           <CarruselMultimediaPublico
             tipo="NEGOCIO"
             entidadId={negocio.id}
@@ -94,7 +97,7 @@ export default function NegocioDetallePage() {
             <EstadoConsulta {...ofertas} sinDatos={!ofertas.datos.length} mensajeVacio="Este negocio todavía no tiene ofertas publicadas para esta categoría."><div className="catalog-grid">{ofertas.datos.map(oferta => <OfertaPublicaCard oferta={oferta} key={oferta.id}/>)}</div></EstadoConsulta>
           </section>
           <ResenasNegocioPublicas negocioId={negocio.id}/><PaquetesComercialesNegocio negocioId={negocio.id}/>
-        </>}
+        </>)}
       </EstadoConsulta>
     </main>
   </IonContent></IonPage>;

@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import BotonFavorito from './BotonFavorito';
 import CotizadorOferta from './CotizadorOferta';
 import PrecioOferta from './PrecioOferta';
-import RedesContactoPublicas from './RedesContactoPublicas';
 import UbicacionPublica from './UbicacionPublica';
 import ConfiguracionComercialOfertaPublica from './ConfiguracionComercialOfertaPublica';
 import { useConsultaApi } from '../hooks/useConsultaApi';
@@ -217,15 +216,6 @@ export default function OfertaHospedajeDetalle({ oferta }: { oferta: OfertaNegoc
         <section className="hospedaje-section">
           <h2>Ubicación</h2>
           <UbicacionPublica tipo="OFERTA" entidadId={String(oferta.id)}/>
-        </section>
-
-        <section className="hospedaje-section">
-          <h2>Contacto del alojamiento</h2>
-          <RedesContactoPublicas
-            whatsapp={oferta.negocioWhatsapp}
-            instagramUrl={oferta.negocioInstagramUrl}
-            facebookUrl={oferta.negocioFacebookUrl}
-          />
         </section>
 
         <section className="hospedaje-section hospedaje-policies">

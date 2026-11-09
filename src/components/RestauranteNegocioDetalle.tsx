@@ -7,7 +7,6 @@ import CarruselMultimediaPublico from './CarruselMultimediaPublico';
 import OfertaPublicaCard, { imagenEditorialCategoria } from './OfertaPublicaCard';
 import PaquetesComercialesNegocio from './PaquetesComercialesNegocio';
 import PrecioOferta from './PrecioOferta';
-import RedesContactoPublicas from './RedesContactoPublicas';
 import ResenasNegocioPublicas from './ResenasNegocioPublicas';
 import UbicacionPublica from './UbicacionPublica';
 import { useConsultaApi } from '../hooks/useConsultaApi';
@@ -98,8 +97,6 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
   const otrasOfertas = todas.datos.filter(oferta => oferta.categoria !== 'RESTAURANTE');
   const reservable = cartaOrdenada.find(item => item.oferta.reservaRequerida)?.oferta ?? null;
   const ubicacion = [negocio.direccion, negocio.vereda, negocio.municipio].filter(Boolean).join(' · ');
-  const whatsappNumero = negocio.whatsappContacto?.replace(/\D/g, '') ?? '';
-  const whatsappHref = whatsappNumero ? `https://wa.me/${whatsappNumero}` : null;
 
   return <>
     <CarruselMultimediaPublico
@@ -120,11 +117,6 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
           {ubicacion && <span><IonIcon icon={locationOutline}/>{ubicacion}</span>}
         </div>
         {negocio.descripcion && <p className="restaurante-description">{negocio.descripcion}</p>}
-        <RedesContactoPublicas
-          whatsapp={negocio.whatsappContacto}
-          instagramUrl={negocio.instagramUrl}
-          facebookUrl={negocio.facebookUrl}
-        />
       </div>
 
       <aside className="restaurante-contact-card" aria-label="Contacto del restaurante">
@@ -134,9 +126,6 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
         </a>}
         {negocio.correoContacto && <a href={`mailto:${encodeURIComponent(negocio.correoContacto)}`}>
           <IonIcon icon={mailOutline}/><span><small>Correo</small><strong>{negocio.correoContacto}</strong></span>
-        </a>}
-        {whatsappHref && <a className="restaurante-whatsapp-cta" href={whatsappHref} target="_blank" rel="noreferrer">
-          Consultar por WhatsApp
         </a>}
       </aside>
     </section>
@@ -166,8 +155,7 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
                 : <div className="restaurante-empty-menu">
                     <IonIcon icon={restaurantOutline}/>
                     <strong>La carta digital está en preparación.</strong>
-                    <p>Puedes consultar directamente con el restaurante por sus platos disponibles.</p>
-                    {whatsappHref && <a href={whatsappHref} target="_blank" rel="noreferrer">Preguntar por WhatsApp</a>}
+                    <p>Los platos aparecerán aquí cuando el restaurante publique su carta digital.</p>
                   </div>}
         </section>
 
@@ -190,13 +178,9 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
             ? 'Elige la opción disponible y continúa con fecha, personas y disponibilidad real.'
             : 'Este restaurante todavía no tiene una opción de reserva en línea publicada.'}</p>
 
-          {reservable
-            ? <Link className="restaurante-booking-primary" to={`/negocios/${encodeURIComponent(negocio.id)}/ofertas/${reservable.id}`}>
-                Elegir fecha y reservar
-              </Link>
-            : whatsappHref && <a className="restaurante-booking-primary" href={whatsappHref} target="_blank" rel="noreferrer">
-                Consultar disponibilidad
-              </a>}
+          {reservable && <Link className="restaurante-booking-primary" to={`/negocios/${encodeURIComponent(negocio.id)}/ofertas/${reservable.id}`}>
+            Elegir fecha y reservar
+          </Link>}
 
           <div className="restaurante-booking-note">
             <strong>Confirmación desde Explora Mutatá</strong>

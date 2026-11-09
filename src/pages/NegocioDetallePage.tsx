@@ -8,7 +8,6 @@ import NavegacionTuristica from '../components/NavegacionTuristica';
 import OfertaPublicaCard from '../components/OfertaPublicaCard';
 import PaquetesComercialesNegocio from '../components/PaquetesComercialesNegocio';
 import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
-import RedesContactoPublicas from '../components/RedesContactoPublicas';
 import UbicacionPublica from '../components/UbicacionPublica';
 import BotonFavorito from '../components/BotonFavorito';
 import ResenasNegocioPublicas from '../components/ResenasNegocioPublicas';
@@ -91,10 +90,6 @@ export default function NegocioDetallePage() {
                     </div>
                   </div>}
                 </dl>
-                {(negocio.whatsappContacto || negocio.instagramUrl || negocio.facebookUrl) && <div className="negocio-social-block">
-                  <span className="negocio-contact-label">REDES SOCIALES</span>
-                  <RedesContactoPublicas whatsapp={negocio.whatsappContacto} instagramUrl={negocio.instagramUrl} facebookUrl={negocio.facebookUrl}/>
-                </div>}
               </section>
             </div>
           </section>

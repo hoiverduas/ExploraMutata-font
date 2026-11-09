@@ -8,7 +8,6 @@ import DatosOferta from '../components/DatosOferta';
 import CotizadorOferta from '../components/CotizadorOferta';
 import PrecioOferta from '../components/PrecioOferta';
 import CarruselMultimediaPublico from '../components/CarruselMultimediaPublico';
-import RedesContactoPublicas from '../components/RedesContactoPublicas';
 import UbicacionPublica from '../components/UbicacionPublica';
 import ConfiguracionComercialOfertaPublica from '../components/ConfiguracionComercialOfertaPublica';
 import BotonFavorito from '../components/BotonFavorito';
@@ -47,9 +46,6 @@ export default function OfertaDetallePage() {
           />
           <section className="marketplace-hero marketplace-hero-without-image">
             <div className="marketplace-hero-copy"><span className="eyebrow">{nombresCategoria[oferta.categoria]}</span><div className="detail-title-actions"><h1>{oferta.nombre}</h1><BotonFavorito tipo="OFERTA" recursoId={String(oferta.id)}/></div><Link to={`/negocios/${encodeURIComponent(oferta.negocioId)}`}>{oferta.negocioNombreComercial}</Link>{oferta.descripcionOferta && <p>{oferta.descripcionOferta}</p>}<PrecioOferta precioDesde={oferta.precioDesde} moneda={oferta.moneda} preciosConvertidos={oferta.preciosConvertidos}/><small>{nombresModeloPrecio[oferta.modeloPrecio]}</small></div>
-          </section>
-          <section className="marketplace-section"><h2>Contacto del negocio</h2>
-            <RedesContactoPublicas whatsapp={oferta.negocioWhatsapp} instagramUrl={oferta.negocioInstagramUrl} facebookUrl={oferta.negocioFacebookUrl}/>
           </section>
           <UbicacionPublica tipo="OFERTA" entidadId={String(oferta.id)}/>
           <ConfiguracionComercialOfertaPublica ofertaId={oferta.id} moneda={oferta.moneda}/>

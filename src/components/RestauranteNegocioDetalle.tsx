@@ -94,8 +94,9 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
   );
   const carta = useConsultaApi<OfertaRestauranteResponse[]>(cargarCarta, []);
   const todas = useConsultaApi<OfertaNegocioResponse[]>(cargarTodas, []);
+  const cartaOrdenada = [...carta.datos].sort((a, b) => Number(b.oferta.reservaRequerida) - Number(a.oferta.reservaRequerida));
   const otrasOfertas = todas.datos.filter(oferta => oferta.categoria !== 'RESTAURANTE');
-  const reservable = carta.datos.find(item => item.oferta.reservaRequerida)?.oferta ?? null;
+  const reservable = cartaOrdenada.find(item => item.oferta.reservaRequerida)?.oferta ?? null;
   const ubicacion = [negocio.direccion, negocio.vereda, negocio.municipio].filter(Boolean).join(' · ');
   const whatsappNumero = negocio.whatsappContacto?.replace(/\D/g, '') ?? '';
   const whatsappHref = whatsappNumero ? `https://wa.me/${whatsappNumero}` : null;
@@ -153,15 +154,15 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
         <section className="restaurante-section" id="carta">
           <div className="restaurante-section-heading">
             <div><span>PRUEBA LOS SABORES LOCALES</span><h2>Menú y <em>platos destacados.</em></h2></div>
-            <span className="restaurante-section-count">{carta.datos.length} {carta.datos.length === 1 ? 'opción' : 'opciones'}</span>
+            <span className="restaurante-section-count">{cartaOrdenada.length} {cartaOrdenada.length === 1 ? 'opción' : 'opciones'}</span>
           </div>
 
           {carta.cargando
             ? <div className="loading-state"><IonSpinner/> Cargando la carta…</div>
             : carta.error
               ? <div><div className="notice-error">{carta.error}</div><IonButton fill="clear" onClick={() => void carta.actualizar()}>Reintentar</IonButton></div>
-              : carta.datos.length
-                ? <div className="restaurante-menu-grid">{carta.datos.map(detalle => <RestauranteOfertaCard key={detalle.oferta.id} detalle={detalle}/>)}</div>
+              : cartaOrdenada.length
+                ? <div className="restaurante-menu-grid">{cartaOrdenada.map(detalle => <RestauranteOfertaCard key={detalle.oferta.id} detalle={detalle}/>)}</div>
                 : <div className="restaurante-empty-menu">
                     <IonIcon icon={restaurantOutline}/>
                     <strong>La carta digital está en preparación.</strong>

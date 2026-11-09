@@ -39,6 +39,13 @@ export default function NegocioDetallePage() {
   const ofertas = useConsultaApi<OfertaNegocioResponse[]>(cargarOfertas, []);
 
   const negocio = consulta.datos?.id === negocioId ? consulta.datos : null;
+  const reservaDirecta = Boolean(negocio && (negocio.categorias.includes('HOSPEDAJE') || negocio.categorias.includes('TRANSPORTE')));
+  const ofertasOrdenadas = [...ofertas.datos].sort((a, b) => Number(b.reservaRequerida) - Number(a.reservaRequerida));
+  const tituloOfertas = negocio?.categorias.includes('HOSPEDAJE')
+    ? 'Habitaciones y alojamientos disponibles.'
+    : negocio?.categorias.includes('TRANSPORTE')
+      ? 'Rutas y traslados disponibles.'
+      : 'Ofertas de este negocio.';
   return <IonPage><BrandHeader title={negocio?.nombreComercial ?? 'Descubre un negocio'}/><IonContent fullscreen>
     <main className="page-width tourism-detail"><NavegacionTuristica/><Link className="resource-inline-link" to="/catalogo">Volver al catálogo</Link>
       <EstadoConsulta {...consulta} sinDatos={!negocio} mensajeVacio="El negocio no está disponible.">
@@ -91,11 +98,17 @@ export default function NegocioDetallePage() {
               </section>
             </div>
           </section>
+          {reservaDirecta && <section className="marketplace-section priority-booking-section">
+            <div className="section-heading"><span>RESERVA DESDE AQUÍ</span><h2>{tituloOfertas}</h2></div>
+            <EstadoConsulta {...ofertas} sinDatos={!ofertasOrdenadas.length} mensajeVacio="Este negocio todavía no tiene opciones reservables publicadas.">
+              <div className="catalog-grid">{ofertasOrdenadas.map(oferta => <OfertaPublicaCard oferta={oferta} key={oferta.id}/>)}</div>
+            </EstadoConsulta>
+          </section>}
           <UbicacionPublica tipo="NEGOCIO" entidadId={negocio.id}/>
-          <section className="marketplace-section"><div className="section-heading"><span>ELIGE TU PRÓXIMO PLAN</span><h2>Ofertas de este <em>negocio.</em></h2></div>
+          {!reservaDirecta && <section className="marketplace-section"><div className="section-heading"><span>ELIGE TU PRÓXIMO PLAN</span><h2>Ofertas de este <em>negocio.</em></h2></div>
             <div className="tourism-filters"><label>Categoría<select value={categoria} onChange={e => setCategoria(categoriasCatalogo.find(item => item.categoria === e.target.value)?.categoria ?? '')}><option value="">Todas las ofertas</option>{categoriasCatalogo.map(item => <option key={item.categoria} value={item.categoria}>{item.nombre}</option>)}</select></label></div>
-            <EstadoConsulta {...ofertas} sinDatos={!ofertas.datos.length} mensajeVacio="Este negocio todavía no tiene ofertas publicadas para esta categoría."><div className="catalog-grid">{ofertas.datos.map(oferta => <OfertaPublicaCard oferta={oferta} key={oferta.id}/>)}</div></EstadoConsulta>
-          </section>
+            <EstadoConsulta {...ofertas} sinDatos={!ofertas.datos.length} mensajeVacio="Este negocio todavía no tiene ofertas publicadas para esta categoría."><div className="catalog-grid">{ofertasOrdenadas.map(oferta => <OfertaPublicaCard oferta={oferta} key={oferta.id}/>)}</div></EstadoConsulta>
+          </section>}
           <ResenasNegocioPublicas negocioId={negocio.id}/><PaquetesComercialesNegocio negocioId={negocio.id}/>
         </>)}
       </EstadoConsulta>

@@ -68,7 +68,7 @@ export default function OfertaPublicaCard({ oferta }: { oferta: OfertaNegocioRes
       <PrecioOferta precioDesde={oferta.precioDesde} moneda={oferta.moneda} preciosConvertidos={oferta.preciosConvertidos}/>
       <small>{nombresModeloPrecio[oferta.modeloPrecio]}</small>
       <div className="marketplace-actions">
-        <Link className="marketplace-primary-link" to={`/negocios/${encodeURIComponent(oferta.negocioId)}/ofertas/${oferta.id}`}>Ver oferta <span aria-hidden="true">↗</span></Link>
+        <Link className={`marketplace-primary-link${oferta.reservaRequerida ? ' marketplace-primary-link-booking' : ''}`} to={`/negocios/${encodeURIComponent(oferta.negocioId)}/ofertas/${oferta.id}`}>{oferta.reservaRequerida ? 'Ver y reservar' : 'Ver oferta'} <span aria-hidden="true">↗</span></Link>
         <BotonFavorito tipo="OFERTA" recursoId={String(oferta.id)} compacto/>
       </div>
     </div>

@@ -540,3 +540,11 @@ button.rating-star:hover{transform:scale(1.08)}
 .reviews-empty-state strong{display:block;margin-bottom:6px;font:600 19px/1.2 'Playfair Display',Georgia,serif;color:var(--ink)}
 .reviews-empty-state p{margin:0;max-width:680px;color:var(--muted);font-size:13px;line-height:1.65}
 @media(max-width:600px){.reviews-empty-state{align-items:flex-start;padding:20px;gap:14px}.reviews-empty-icon{width:46px;height:46px;border-radius:14px}.reviews-empty-state strong{font-size:17px}}
+
+
+/* Reserva prioritaria en hospedaje y transporte. */
+.priority-booking-section{margin-top:24px;padding:26px;border:1px solid #dce7dd;border-radius:22px;background:linear-gradient(135deg,#f5f9f2 0%,#fff 72%);box-shadow:0 12px 34px #17382e0c}
+.priority-booking-section .section-heading{margin-top:0}
+.marketplace-primary-link-booking{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 15px;border-radius:11px;background:var(--forest);color:#fff!important;text-decoration:none;font-weight:800;box-shadow:0 8px 20px #246b5820}
+.marketplace-primary-link-booking:hover{background:var(--pine);color:#fff!important;transform:translateY(-1px)}
+@media(max-width:600px){.priority-booking-section{padding:18px;border-radius:18px}}

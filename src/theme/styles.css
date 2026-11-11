@@ -1506,3 +1506,116 @@ button.rating-star:hover{transform:scale(1.08)}
     font-size:26px;
   }
 }
+
+
+/* Rango de fechas en agenda pública */
+.availability-selection-summary{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.availability-selection-summary>div{
+  padding:10px 12px;
+  border:1px solid #dde6dc;
+  border-radius:12px;
+  background:#fff;
+}
+.availability-selection-summary small{
+  display:block;
+  margin-bottom:3px;
+  color:var(--muted);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+}
+.availability-selection-summary strong{
+  display:block;
+  color:var(--forest);
+  font-size:12px;
+  line-height:1.35;
+}
+
+.public-agenda-range-summary{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  margin:12px 0 4px;
+}
+.public-agenda-range-summary>div{
+  min-width:0;
+  padding:11px 12px;
+  border:1px solid #e0e6de;
+  border-radius:12px;
+  background:#fff;
+}
+.public-agenda-range-summary>div.is-filled{
+  border-color:#bfd5c5;
+  background:#f3f8f3;
+}
+.public-agenda-range-summary small{
+  display:block;
+  margin-bottom:3px;
+  color:var(--muted);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+}
+.public-agenda-range-summary strong{
+  display:block;
+  overflow:hidden;
+  color:var(--forest);
+  font-size:11px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.public-agenda-range-summary>span{
+  color:#91a199;
+  font-weight:800;
+}
+.public-agenda-dot.is-range{background:#b8d6c2}
+
+.public-agenda-day.is-in-range{
+  background:#edf6ef;
+  color:#37684b;
+}
+.public-agenda-day.is-in-range span{
+  background:#dcecdf;
+}
+.public-agenda-day.is-selected{
+  position:relative;
+  z-index:1;
+}
+
+.public-agenda-actions{
+  display:grid;
+  gap:8px;
+  margin-top:14px;
+}
+.public-agenda-actions>small{
+  color:var(--muted);
+  font-size:10px;
+  text-align:center;
+}
+.public-agenda-actions ion-button{
+  margin:0;
+  min-height:48px;
+  --border-radius:13px;
+  text-transform:none;
+  font-weight:800;
+}
+
+@media(max-width:600px){
+  .availability-selection-summary{
+    grid-template-columns:1fr;
+  }
+  .public-agenda-range-summary{
+    gap:6px;
+  }
+  .public-agenda-range-summary>div{
+    padding:9px;
+  }
+  .public-agenda-range-summary strong{
+    font-size:10px;
+  }
+}

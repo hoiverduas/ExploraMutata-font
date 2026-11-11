@@ -173,18 +173,18 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
       <aside className="restaurante-side-column" id="reservas">
         <div className="restaurante-booking-card">
           <span className="restaurante-contact-kicker">RESERVAS</span>
-          <h2>Reserva tu experiencia gastronómica</h2>
+          <h2>Reserva tu mesa</h2>
           <p>{reservable
-            ? 'Elige la opción disponible y continúa con fecha, personas y disponibilidad real.'
-            : 'Este restaurante todavía no tiene una opción de reserva en línea publicada.'}</p>
+            ? 'Selecciona fecha, horario y número de personas según la disponibilidad real del restaurante.'
+            : 'Este restaurante todavía no tiene habilitada la reserva de mesa en línea.'}</p>
 
           {reservable && <Link className="restaurante-booking-primary" to={`/negocios/${encodeURIComponent(negocio.id)}/ofertas/${reservable.id}`}>
-            Elegir fecha y reservar
+            Reservar mesa
           </Link>}
 
           <div className="restaurante-booking-note">
-            <strong>Confirmación desde Explora Mutatá</strong>
-            <span>Cuando el operador confirme, recibirás la actualización de tu reserva.</span>
+            <strong>Disponibilidad sincronizada</strong>
+            <span>Las reservas hechas en Explora Mutatá y los bloqueos registrados por el operador descuentan cupos del mismo horario.</span>
           </div>
         </div>
 

@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { IonButton, IonContent, IonPage, IonSpinner } from '@ionic/react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import { useAuth } from '../auth/AuthContext';
+import type { UsuarioResponse } from '../types/usuario';
+
+function destinoPorPerfil(perfil: UsuarioResponse): string {
+  if (perfil.roles.includes('SUPER_ADMIN') || perfil.roles.includes('ADMIN')) return '/gestion/negocios';
+  if (perfil.roles.includes('OPERADOR')) return '/operador';
+  return '/mi-cuenta';
+}
 
 export default function LoginPage() {
-  const { iniciarSesion, usuario } = useAuth();
+  const { iniciarSesion, usuario, cargandoSesion } = useAuth();
   const navigate = useNavigate();
   const [search] = useSearchParams();
   const [correo, setCorreo] = useState('');
@@ -15,19 +22,37 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const registrado = search.get('registrado') === '1';
   const continuar = search.get('continuar');
-  const continuarLocal = continuar?.startsWith('/') && !continuar.startsWith('//') ? continuar : null;
+  const continuarLocal = continuar?.startsWith('/')
+    && !continuar.startsWith('//')
+    && continuar !== '/ingresar'
+    ? continuar
+    : null;
   const rutaRegistro = continuarLocal ? `/registro?continuar=${encodeURIComponent(continuarLocal)}` : '/registro';
 
   async function ingresar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); setError(''); setGuardando(true);
     try {
       const perfil = await iniciarSesion(correo, contrasena);
-      const destino = continuarLocal ?? (perfil.roles.includes('SUPER_ADMIN') || perfil.roles.includes('ADMIN')
-          ? '/gestion/negocios' : '/mi-cuenta');
+      const destino = continuarLocal ?? destinoPorPerfil(perfil);
       navigate(destino, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No fue posible iniciar sesión.');
     } finally { setGuardando(false); }
+  }
+
+  if (cargandoSesion) {
+    return <IonPage><BrandHeader mostrarGestion={false}/><IonContent fullscreen>
+      <main className="auth-layout page-width">
+        <section className="auth-card auth-loading" role="status">
+          <IonSpinner />
+          <span>Abriendo tu cuenta…</span>
+        </section>
+      </main>
+    </IonContent></IonPage>;
+  }
+
+  if (usuario) {
+    return <Navigate replace to={continuarLocal ?? destinoPorPerfil(usuario)} />;
   }
 
   return <IonPage><BrandHeader mostrarGestion={false}/><IonContent fullscreen>
@@ -35,7 +60,6 @@ export default function LoginPage() {
       <section className="auth-illustration"><span className="eyebrow">BIENVENIDO A MUTATÁ</span><h1>Tu próxima historia <em>comienza aquí.</em></h1><p>Ingresa para acceder a tu perfil, tus experiencias y las herramientas de administración si tienes permisos.</p></section>
       <section className="auth-card"><span className="eyebrow">TU CUENTA</span><h2>Iniciar sesión</h2>
         {registrado && <div className="notice-success" role="status">Tu cuenta de turista fue creada. Ahora puedes ingresar.</div>}
-        {usuario && <div className="notice-success">Ya tienes una sesión iniciada. <Link to="/mi-cuenta">Ir a mi cuenta</Link>.</div>}
         <form onSubmit={ingresar} className="auth-form">
           <label>Correo electrónico<input type="email" required maxLength={254} autoComplete="username" value={correo} onChange={e=>setCorreo(e.target.value)} placeholder="correo@ejemplo.com" /></label>
           <label>Contraseña<input type="password" required autoComplete="current-password" value={contrasena} onChange={e=>setContrasena(e.target.value)} /></label>

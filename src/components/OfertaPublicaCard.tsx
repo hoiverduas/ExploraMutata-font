@@ -34,6 +34,10 @@ export default function OfertaPublicaCard({ oferta }: { oferta: OfertaNegocioRes
       const fotosOferta = mediaOferta.filter(media => media.tipo === 'IMAGEN');
       if (fotosOferta.length) return fotosOferta;
 
+      // En hospedaje la habitación/oferta debe mostrar únicamente sus propias fotos.
+      // Si no tiene multimedia, usamos el fallback editorial en vez de repetir fotos del hotel.
+      if (oferta.categoria === 'HOSPEDAJE') return [];
+
       if (oferta.experienciaId) {
         const mediaExperiencia = await multimediaApi.listarPublica('EXPERIENCIA', oferta.experienciaId, { signal });
         const fotosExperiencia = mediaExperiencia.filter(media => media.tipo === 'IMAGEN');

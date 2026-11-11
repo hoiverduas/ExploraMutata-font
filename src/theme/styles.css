@@ -1152,3 +1152,67 @@ button.rating-star:hover{transform:scale(1.08)}
     gap:4px;
   }
 }
+
+
+/* Agenda del operador */
+.agenda-page{padding-bottom:90px}
+.agenda-filtros{margin:22px 0 18px}
+.agenda-resumen{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.agenda-resumen span{padding:7px 10px;border-radius:999px;background:#eef4ef;color:var(--forest);font-size:11px}
+.agenda-calendar{padding:20px}
+.agenda-calendar-toolbar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;margin-bottom:10px}
+.agenda-calendar-toolbar>div{text-align:center}
+.agenda-calendar-toolbar h2{margin:4px 0 0;font:600 clamp(24px,3vw,34px)/1.1 'Playfair Display',Georgia,serif}
+.agenda-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:14px 0 18px;color:var(--muted);font-size:11px}
+.agenda-legend span{display:inline-flex;align-items:center;gap:6px}
+.agenda-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.agenda-dot-disponible{background:#4a9b6d}
+.agenda-dot-reserva{background:#4f72c8}
+.agenda-dot-completo{background:#b85b50}
+.agenda-weekdays,.agenda-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.agenda-weekdays{border:1px solid #e2e7df;border-bottom:0;border-radius:14px 14px 0 0;overflow:hidden}
+.agenda-weekdays strong{padding:10px;text-align:center;background:#f4f6f1;color:#63736a;font-size:11px}
+.agenda-grid{border-left:1px solid #e2e7df;border-top:1px solid #e2e7df}
+.agenda-day{
+  min-height:132px;padding:9px;border:0;border-right:1px solid #e2e7df;border-bottom:1px solid #e2e7df;
+  background:#fff;color:var(--ink);text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:5px;
+}
+.agenda-day:hover{background:#f8faf6}
+.agenda-day:disabled{cursor:default}
+.agenda-day-outside{background:#fafaf7;color:#a3aaa4}
+.agenda-day-today{box-shadow:inset 0 0 0 2px #cf8864}
+.agenda-day-number{font-weight:800;font-size:12px;margin-bottom:2px}
+.agenda-event{display:flex;align-items:center;gap:5px;border-radius:7px;padding:5px 6px;font-size:9px;line-height:1.25}
+.agenda-event ion-icon{font-size:12px;flex:none}
+.agenda-event-reserva{background:#e8eefc;color:#3459a5}
+.agenda-event-disponible,.agenda-event-slot{background:#e8f3ea;color:#2a6a49}
+.agenda-event-completo{background:#f8e6e3;color:#98473f}
+.agenda-event-more{font-size:9px;color:var(--muted)}
+.agenda-capacity{margin-top:auto;padding-top:4px;color:#377154;font-size:9px;font-weight:800}
+.agenda-capacity.is-full{color:#a64f45}
+.agenda-day-modal h2{font:600 30px/1.1 'Playfair Display',Georgia,serif;margin:7px 0 12px}
+.agenda-day-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.agenda-day-stats span{padding:14px;border:1px solid #dfe7dd;border-radius:12px;background:#f8faf6;color:var(--muted);font-size:11px}
+.agenda-day-stats strong{display:block;font-size:24px;color:var(--forest);margin-bottom:3px}
+.agenda-slots-list{display:grid;gap:10px;margin:18px 0}
+.agenda-slots-list article{display:grid;grid-template-columns:1.2fr 1fr auto;align-items:center;gap:12px;padding:14px;border:1px solid #dfe5dc;border-radius:13px;background:#fff}
+.agenda-slots-list article>div{display:grid;gap:3px}
+.agenda-slots-list article span{font-size:11px;color:var(--muted)}
+@media(max-width:780px){
+  .agenda-calendar{padding:12px}
+  .agenda-weekdays strong{padding:8px 2px;font-size:9px}
+  .agenda-day{min-height:104px;padding:6px;gap:3px}
+  .agenda-event{padding:4px;font-size:8px}
+  .agenda-event ion-icon{display:none}
+  .agenda-capacity{font-size:8px}
+  .agenda-slots-list article{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .agenda-calendar{margin-inline:-8px;border-radius:14px}
+  .agenda-legend{justify-content:flex-start}
+  .agenda-day{min-height:86px}
+  .agenda-day-number{font-size:11px}
+  .agenda-event-reserva{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .agenda-event-slot{display:none}
+  .agenda-capacity{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}

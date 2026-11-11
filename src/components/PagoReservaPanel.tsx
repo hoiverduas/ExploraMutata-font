@@ -376,7 +376,7 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
 
     {error && <div className="notice-error" role="alert">{error}</div>}
     <small>
-      El pago solo se habilita después de la confirmación del negocio. En paquetes, todos los negocios deben haber confirmado.
+      El pago se habilita cuando la reserva tiene disponibilidad confirmada. En paquetes, todas las reservas deben estar confirmadas.
       La confirmación final del pago puede tardar unos segundos en reflejarse.
     </small>
   </section>;

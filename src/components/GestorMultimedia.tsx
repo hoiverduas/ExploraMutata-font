@@ -153,6 +153,11 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia', modo
     }));
   };
 
+  const esContenidoOperador = ['NEGOCIO', 'OFERTA', 'PAQUETE_COMERCIAL'].includes(contexto.tipo);
+  const mediosActivos = medios.filter(media => media.estado === 'ACTIVO').length;
+  const minimoContenidoOperador = 5;
+  const cumpleMinimoContenido = mediosActivos >= minimoContenidoOperador;
+
   const esPortadaInicio = contexto.tipo === 'INICIO';
   const esContenidoAventura = modo === 'AVENTURA' || contexto.tipo === 'DESTINO' || contexto.tipo === 'EXPERIENCIA';
   const opcionesNombreFoto = esPortadaInicio
@@ -345,6 +350,10 @@ export default function GestorMultimedia({ contexto, titulo = 'Multimedia', modo
       : esContenidoAventura
         ? 'Sube imágenes o videos reales del destino o la experiencia. Asigna a cada foto el lugar o contenido que representa, por ejemplo Río Bedó, Río Puenteadero, Cascada, Sendero o Pozo natural.'
         : 'Sube imágenes o videos reales. La portada y la galería pública se alimentan de estos archivos. Para hospedajes, asigna a cada foto un nombre como Habitación 1, Habitación 2, Sala, Baño, Cocina o Exterior.'}</p>
+    {esContenidoOperador && <div className={cumpleMinimoContenido ? 'media-minimum media-minimum-ok' : 'media-minimum'}>
+      <strong>{cumpleMinimoContenido ? 'Contenido listo' : 'Completa tu galería'}</strong>
+      <span>{mediosActivos} de {minimoContenidoOperador} contenidos activos. Las fotos y los videos cuentan para completar el mínimo recomendado.</span>
+    </div>}
     {mensaje && <div className="notice-success" role="status">{mensaje}</div>}
     {error && <div className="notice-error" role="alert">{error}</div>}
 

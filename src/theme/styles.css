@@ -1230,3 +1230,41 @@ button.rating-star:hover{transform:scale(1.08)}
   .agenda-external-list article{align-items:flex-start;flex-direction:column}
   .agenda-external-list ion-button{width:100%;margin:0}
 }
+
+
+/* Agenda admin solo lectura */
+.agenda-admin-detail{
+  display:grid;
+  gap:8px;
+  margin:18px 0;
+}
+.agenda-admin-detail h3{
+  margin:0 0 4px;
+  font-size:14px;
+  color:var(--forest);
+}
+.agenda-admin-detail article{
+  display:grid;
+  grid-template-columns:90px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:10px 12px;
+  border:1px solid #e1e7df;
+  border-radius:10px;
+  background:#fff;
+}
+.agenda-admin-detail span,
+.agenda-admin-detail small{
+  font-size:10px;
+  color:var(--muted);
+}
+.agenda-admin-detail strong{
+  font-size:12px;
+  color:var(--ink);
+}
+@media(max-width:600px){
+  .agenda-admin-detail article{
+    grid-template-columns:1fr;
+    gap:4px;
+  }
+}

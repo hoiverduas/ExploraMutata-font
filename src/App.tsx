@@ -1,7 +1,7 @@
-import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact } from '@ionic/react';
+import { IonApp, IonIcon, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { homeOutline, compassOutline, bedOutline, bagHandleOutline, mapOutline } from 'ionicons/icons';
-import { Navigate, Route } from 'react-router-dom';
+import { Navigate, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import AccesoProtegido from './auth/AccesoProtegido';
 import InicioPage from './pages/InicioPage';
@@ -58,13 +58,43 @@ import NotFoundPage from './pages/NotFoundPage';
 
 setupIonicReact({ mode: 'md' });
 
-function AppNavigation() {
+function NavegacionInferior() {
   const { usuario, cargandoSesion } = useAuth();
   const { cantidadItems } = useViaje();
-  return (
-      <IonReactRouter>
-        <IonTabs>
-          <IonRouterOutlet>
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  if (cargandoSesion || !usuario) return null;
+
+  const items = [
+    { ruta: '/inicio', etiqueta: 'Inicio', icono: homeOutline },
+    { ruta: '/aventuras', etiqueta: 'Aventuras', icono: compassOutline },
+    { ruta: '/alojamientos', etiqueta: 'Hospedajes', icono: bedOutline },
+    { ruta: '/paquetes', etiqueta: 'Paquetes', icono: bagHandleOutline },
+    { ruta: '/mi-viaje', etiqueta: `Mi viaje${cantidadItems > 0 ? ` (${cantidadItems})` : ''}`, icono: mapOutline },
+  ];
+
+  return <nav className="explora-bottom-nav" aria-label="Navegación principal">
+    {items.map(item => {
+      const activa = location.pathname === item.ruta
+        || (item.ruta !== '/inicio' && location.pathname.startsWith(`${item.ruta}/`));
+      return <button
+        key={item.ruta}
+        type="button"
+        className={activa ? 'is-active' : ''}
+        aria-current={activa ? 'page' : undefined}
+        onClick={() => navigate(item.ruta)}
+      >
+        <IonIcon icon={item.icono}/>
+        <span>{item.etiqueta}</span>
+      </button>;
+    })}
+  </nav>;
+}
+
+function RutasApp() {
+  return <>
+    <IonRouterOutlet>
             <Route path="/aventuras" element={<DestinosPage />} />
             <Route path="/negocios/:negocioId" element={<NegocioDetallePage />} />
             <Route path="/negocios/:negocioId/ofertas/:ofertaId" element={<OfertaDetallePage />} />
@@ -123,17 +153,13 @@ function AppNavigation() {
             <Route path="/gestion/administradores/invitar" element={<AccesoProtegido ruta="/gestion/administradores/invitar" roles={['SUPER_ADMIN']}><InvitarAdministradorPage /></AccesoProtegido>} />
             <Route path="/" element={<Navigate to="/inicio" replace />} />
             <Route path="*" element={<NotFoundPage />} />
-          </IonRouterOutlet>
-          <IonTabBar slot="bottom" className="explora-tabs" hidden={cargandoSesion || !usuario}>
-            <IonTabButton tab="inicio" href="/inicio"><IonIcon icon={homeOutline} /><IonLabel>Inicio</IonLabel></IonTabButton>
-            <IonTabButton tab="aventuras" href="/aventuras"><IonIcon icon={compassOutline} /><IonLabel>Aventuras</IonLabel></IonTabButton>
-            <IonTabButton tab="alojamientos" href="/alojamientos"><IonIcon icon={bedOutline} /><IonLabel>Hospedajes</IonLabel></IonTabButton>
-            <IonTabButton tab="paquetes" href="/paquetes"><IonIcon icon={bagHandleOutline} /><IonLabel>Paquetes</IonLabel></IonTabButton>
-            <IonTabButton tab="mi-viaje" href="/mi-viaje"><IonIcon icon={mapOutline} /><IonLabel>Mi viaje{cantidadItems > 0 ? ` (${cantidadItems})` : ''}</IonLabel></IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
-  );
+    </IonRouterOutlet>
+    <NavegacionInferior/>
+  </>;
+}
+
+function AppNavigation() {
+  return <IonReactRouter><RutasApp/></IonReactRouter>;
 }
 
 const App = () => (

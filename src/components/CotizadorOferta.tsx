@@ -1,4 +1,4 @@
-import { IonButton } from '@ionic/react';
+import { IonButton, useIonAlert } from '@ionic/react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -72,6 +72,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const { agregarOferta, guardando: guardandoViaje } = useViaje();
   const location = useLocation();
   const navigate = useNavigate();
+  const [presentarAlerta] = useIonAlert();
   const [formulario, setFormulario] = useState<FormularioCotizacion>({
     cantidadPersonas: '1', fechaInicio: '', fechaFin: '', cantidadTrayectos: '', varianteId: '', horario: '', codigoPromocion: '',
   });
@@ -247,7 +248,29 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     if (mutando.current || guardandoViaje || !cotizada || cotizada.revision !== revision.current || !usuario || !oferta.reservaRequerida) return;
     if (observaciones.length > 1000) return setError('Las observaciones admiten hasta 1000 caracteres.');
     if (accion === 'reservar' && !cotizada.respuesta.cotizacionDisponible) return;
-    if (accion === 'reservar' && !window.confirm('¿Solicitar esta reserva con los datos cotizados? El negocio revisará tu solicitud.')) return;
+    if (accion === 'reservar') {
+      const confirmado = await new Promise<boolean>(resolve => {
+        void presentarAlerta({
+          cssClass: 'explora-confirm-alert',
+          header: 'Confirmar reserva',
+          message: 'Revisa los datos cotizados antes de enviar la solicitud. El negocio deberá confirmarla.',
+          backdropDismiss: false,
+          buttons: [
+            {
+              text: 'Cancelar',
+              role: 'cancel',
+              handler: () => resolve(false),
+            },
+            {
+              text: 'Solicitar reserva',
+              role: 'confirm',
+              handler: () => resolve(true),
+            },
+          ],
+        });
+      });
+      if (!confirmado) return;
+    }
     const origen = contexto.current; if (!origen) return;
     const datos = cotizada.respuesta;
     const parametros = cotizada.parametros;

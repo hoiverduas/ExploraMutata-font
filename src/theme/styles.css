@@ -888,3 +888,63 @@ button.rating-star:hover{transform:scale(1.08)}
 .not-found-page h1{font:600 clamp(32px,5vw,54px)/1.05 'Playfair Display',Georgia,serif;margin:0 0 14px}
 .not-found-page p{max-width:620px;font-size:15px;line-height:1.75;color:var(--muted)}
 @media(max-width:600px){.not-found-page{min-height:calc(100vh - 120px);padding-block:34px}.not-found-page .marketplace-actions{grid-template-columns:1fr;width:100%}.not-found-page ion-button{width:100%;min-height:48px}}
+
+
+/* Confirmaciones propias de Explora Mutatá: evita diálogos nativos del navegador. */
+.explora-confirm-alert{
+  --backdrop-opacity:.48;
+}
+.explora-confirm-alert .alert-wrapper{
+  width:min(420px,calc(100% - 28px));
+  max-width:420px;
+  border-radius:22px;
+  background:#fcfaf7;
+  box-shadow:0 24px 70px #102d2540;
+}
+.explora-confirm-alert .alert-head{
+  padding:24px 24px 8px;
+}
+.explora-confirm-alert .alert-title{
+  font:600 26px/1.15 'Playfair Display',Georgia,serif;
+  color:var(--ink);
+  letter-spacing:-.03em;
+}
+.explora-confirm-alert .alert-message{
+  padding:8px 24px 20px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.65;
+}
+.explora-confirm-alert .alert-button-group{
+  gap:8px;
+  padding:0 16px 16px;
+}
+.explora-confirm-alert .alert-button{
+  min-height:46px;
+  margin:0;
+  border-radius:12px;
+  padding-inline:16px;
+  font-size:13px;
+  font-weight:800;
+  text-transform:none;
+}
+.explora-confirm-alert .alert-button[role="cancel"]{
+  color:var(--forest);
+  background:#eef4ef;
+}
+.explora-confirm-alert .alert-button[role="confirm"]{
+  color:#fff;
+  background:var(--forest);
+}
+@media(max-width:430px){
+  .explora-confirm-alert .alert-wrapper{
+    width:calc(100% - 24px);
+  }
+  .explora-confirm-alert .alert-button-group{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .explora-confirm-alert .alert-button{
+    width:100%;
+  }
+}

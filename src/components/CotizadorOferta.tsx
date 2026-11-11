@@ -183,6 +183,22 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     });
   };
 
+  const seleccionarFechasAgenda = (fechaInicio: string, fechaFin: string) => {
+    if (mutando.current) return;
+    revision.current++;
+    consulta.current?.abort();
+    setCotizada(null);
+    setCotizando(false);
+    setError('');
+    setFormulario(actual => ({
+      ...actual,
+      fechaInicio,
+      fechaFin: mostrarFin ? fechaFin : '',
+      horario: '',
+    }));
+    setAgendaAbierta(false);
+  };
+
   const seleccionarSalida = (salida: SalidaProgramadaResponse) => {
     if (mutando.current) return;
     const valor = selectorSalida(salida);
@@ -339,14 +355,26 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
           onClick={() => setAgendaAbierta(true)}
         >
           <IonIcon icon={calendarOutline} slot="start"/>
-          {formulario.fechaInicio
-            ? `Cambiar fecha · ${formatearFechaReserva(formulario.fechaInicio)}`
-            : 'Ver disponibilidad'}
+          {!formulario.fechaInicio
+            ? 'Ver disponibilidad'
+            : mostrarFin
+              ? formulario.fechaFin
+                ? `Cambiar fechas · ${formatearFechaReserva(formulario.fechaInicio)} → ${formatearFechaReserva(formulario.fechaFin)}`
+                : `Completar fechas · ${formatearFechaReserva(formulario.fechaInicio)}`
+              : `Cambiar fecha · ${formatearFechaReserva(formulario.fechaInicio)}`}
         </IonButton>
-        {formulario.fechaInicio && <small>Fecha seleccionada: <strong>{formatearFechaReserva(formulario.fechaInicio)}</strong></small>}
+
+        {formulario.fechaInicio && <div className="availability-selection-summary">
+          <div>
+            <small>{oferta.categoria === 'HOSPEDAJE' ? 'Entrada' : 'Inicio'}</small>
+            <strong>{formatearFechaReserva(formulario.fechaInicio)}</strong>
+          </div>
+          {mostrarFin && <div>
+            <small>{oferta.categoria === 'HOSPEDAJE' ? 'Salida' : 'Fin'}</small>
+            <strong>{formulario.fechaFin ? formatearFechaReserva(formulario.fechaFin) : 'Por seleccionar'}</strong>
+          </div>}
+        </div>}
       </div>}
-      <label>Fecha de inicio<input type="date" required min={fechaActualReservas()} disabled={guardando} value={formulario.fechaInicio} onChange={e => cambiar('fechaInicio', e.target.value)}/></label>
-      {mostrarFin && <label>Fecha de fin{usaNoches && duracionUnidadEfectiva === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
       {mostrarTrayectos && <label>Trayectos (opcional)<input type="number" min={1} step={1} disabled={guardando} value={formulario.cantidadTrayectos} onChange={e => cambiar('cantidadTrayectos', e.target.value)} placeholder="Según la oferta"/></label>}
       <label>Código promocional (opcional)<input maxLength={50} disabled={guardando} value={formulario.codigoPromocion} onChange={e => cambiar('codigoPromocion', e.target.value.toUpperCase())} placeholder="Ej. AVENTURA20"/></label>
       {requiereHorarioEfectivo && <div className="form-full schedule-picker">
@@ -423,8 +451,12 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
           <div className="public-agenda-modal-top">
             <div>
               <span className="eyebrow">DISPONIBILIDAD</span>
-              <h2>Selecciona una fecha</h2>
-              <p>Las fechas completas o cerradas no se pueden seleccionar.</p>
+              <h2>{mostrarFin ? 'Selecciona tus fechas' : 'Selecciona una fecha'}</h2>
+              <p>{mostrarFin
+                ? oferta.categoria === 'HOSPEDAJE'
+                  ? 'Escoge la fecha de entrada y después la fecha de salida.'
+                  : 'Escoge la fecha de inicio y después la fecha final.'
+                : 'Las fechas completas o cerradas no se pueden seleccionar.'}</p>
             </div>
             <IonButton fill="clear" onClick={() => setAgendaAbierta(false)}>Cerrar</IonButton>
           </div>
@@ -432,11 +464,10 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
           <AgendaPublicaOferta
             oferta={oferta}
             personas={Number(formulario.cantidadPersonas)}
-            fechaSeleccionada={formulario.fechaInicio}
-            onSeleccionarFecha={fecha => {
-              cambiar('fechaInicio', fecha);
-              setAgendaAbierta(false);
-            }}
+            fechaInicioSeleccionada={formulario.fechaInicio}
+            fechaFinSeleccionada={formulario.fechaFin}
+            seleccionarRango={mostrarFin}
+            onConfirmar={seleccionarFechasAgenda}
           />
         </div>
       </IonContent>

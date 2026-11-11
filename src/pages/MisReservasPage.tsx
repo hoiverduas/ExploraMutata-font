@@ -20,9 +20,9 @@ const prioridadEstado: Record<EstadoReserva, number> = {
 function mensajeEstado(reserva: ReservaResponse): string {
   switch (reserva.estado) {
     case 'PENDIENTE':
-      return 'Esperando confirmación del negocio. El pago se habilitará cuando el negocio confirme la reserva.';
+      return 'Esta reserva pertenece al flujo anterior y requiere revisión antes de continuar.';
     case 'CONFIRMADA':
-      return 'El negocio confirmó tu reserva. Ya puedes entrar al detalle y elegir cuánto pagar entre 50 % y 100 %.';
+      return 'La disponibilidad quedó confirmada. Ya puedes entrar al detalle y elegir cuánto pagar entre 50 % y 100 %.';
     case 'RECHAZADA':
       return reserva.motivoRechazo
         ? `El negocio rechazó la solicitud: ${reserva.motivoRechazo}`
@@ -57,7 +57,7 @@ export default function MisReservasPage() {
       <div className="gestion-heading"><div>
         <span className="eyebrow">MI ESPACIO DE VIAJERO</span>
         <h1>Mis <em>reservas.</em></h1>
-        <p>Aquí quedan guardadas todas tus solicitudes para que puedas volver y consultar su estado en cualquier momento.</p>
+        <p>Aquí encuentras tus reservas, pagos y experiencias completadas.</p>
       </div>
         <IonButton fill="outline" disabled={consulta.cargando} onClick={() => void consulta.actualizar()}>
           {consulta.cargando ? 'Actualizando…' : 'Actualizar reservas'}
@@ -65,11 +65,11 @@ export default function MisReservasPage() {
       </div>
 
       {consulta.datos.length > 0 && <div className="quote-summary" role="status">
-        <h3>Estado de tus solicitudes</h3>
+        <h3>Estado de tus reservas</h3>
         <p>
-          {pendientes > 0 ? `${pendientes} pendiente${pendientes === 1 ? '' : 's'} de confirmación. ` : ''}
-          {confirmadas > 0 ? `${confirmadas} confirmada${confirmadas === 1 ? '' : 's'} lista${confirmadas === 1 ? '' : 's'} para pago.` : ''}
-          {pendientes === 0 && confirmadas === 0 ? 'No tienes reservas esperando confirmación o pago.' : ''}
+          {confirmadas > 0 ? `${confirmadas} reserva${confirmadas === 1 ? '' : 's'} lista${confirmadas === 1 ? '' : 's'} para pago. ` : ''}
+          {pendientes > 0 ? `${pendientes} reserva${pendientes === 1 ? '' : 's'} del flujo anterior requiere${pendientes === 1 ? '' : 'n'} revisión. ` : ''}
+          {pendientes === 0 && confirmadas === 0 ? 'No tienes reservas pendientes de pago.' : ''}
         </p>
       </div>}
 
@@ -82,7 +82,7 @@ export default function MisReservasPage() {
             </div>
 
             <div className={reserva.estado === 'PENDIENTE' ? 'quote-summary' : reserva.estado === 'CONFIRMADA' ? 'notice-success' : ''}>
-              <strong>{reserva.estado === 'PENDIENTE' ? 'Solicitud enviada' : reserva.estado === 'CONFIRMADA' ? 'Reserva confirmada' : 'Estado de la reserva'}</strong>
+              <strong>{reserva.estado === 'PENDIENTE' ? 'Revisión requerida' : reserva.estado === 'CONFIRMADA' ? 'Reserva confirmada' : 'Estado de la reserva'}</strong>
               <p>{mensajeEstado(reserva)}</p>
             </div>
 

@@ -56,7 +56,7 @@ export default function OfertaDetallePage() {
                   <span className="eyebrow">MENÚ DEL RESTAURANTE</span>
                   <h2>Este plato no requiere reserva individual</h2>
                   <p>Consulta el precio y los detalles del plato aquí. Si deseas reservar una mesa, hazlo desde la ficha del restaurante.</p>
-                  <Link className="marketplace-primary-link" to={`/negocios/${encodeURIComponent(oferta.negocioId)}#reservas`}>Reservar mesa en el restaurante</Link>
+                  <Link className="marketplace-primary-link" to={`/negocios/${encodeURIComponent(oferta.negocioId)}?seccion=reservas`}>Reservar mesa en el restaurante</Link>
                 </section>
               </div>
             : <div className="offer-layout"><DatosOferta key={`datos-${oferta.negocioId}-${oferta.id}`} oferta={oferta}/><CotizadorOferta key={`cotizador-${oferta.negocioId}-${oferta.id}`} oferta={oferta}/></div>}

@@ -1,5 +1,5 @@
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonModal, IonPage, IonSpinner, IonTitle, IonToolbar } from '@ionic/react';
-import { addOutline, refreshOutline, createOutline, arrowBackOutline, checkmarkCircleOutline, banOutline, repeatOutline, closeCircleOutline, powerOutline, listOutline } from 'ionicons/icons';
+import { addOutline, refreshOutline, createOutline, arrowBackOutline, checkmarkCircleOutline, banOutline, repeatOutline, closeCircleOutline, powerOutline, listOutline, calendarOutline } from 'ionicons/icons';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import BrandHeader from '../components/BrandHeader';
 import HistorialNegocioModal from '../components/HistorialNegocioModal';
@@ -159,7 +159,7 @@ export default function NegociosPage() {
     <main className="page-width gestion-page">
 <>
         <div className="notice-success">Panel de administración: acceso protegido con JWT y roles ADMIN / SUPER_ADMIN.</div>
-        <div className="gestion-heading"><div><span className="eyebrow">ADMINISTRACIÓN · NEGOCIOS</span><h1>Gestión de <em>negocios.</em></h1><p>Registro, edición y gestión de estados conectados con Spring WebFlux y PostgreSQL.</p></div><div className="form-actions"><IonButton fill="outline" routerLink="/gestion/portada-inicio">Portada de inicio</IonButton><IonButton className="btn-explora" onClick={nuevo}><IonIcon slot="start" icon={addOutline}/> Nuevo negocio</IonButton></div></div>
+        <div className="gestion-heading"><div><span className="eyebrow">ADMINISTRACIÓN · NEGOCIOS</span><h1>Gestión de <em>negocios.</em></h1><p>Registro, edición y gestión de estados conectados con Spring WebFlux y PostgreSQL.</p></div><div className="form-actions"><IonButton fill="outline" routerLink="/gestion/agenda"><IonIcon slot="start" icon={calendarOutline}/> Agenda</IonButton><IonButton fill="outline" routerLink="/gestion/portada-inicio">Portada de inicio</IonButton><IonButton className="btn-explora" onClick={nuevo}><IonIcon slot="start" icon={addOutline}/> Nuevo negocio</IonButton></div></div>
         <div className="gestion-stats"><div><small>REGISTROS EN BASE DE DATOS</small><strong>{total}</strong></div><div><small>RESULTADOS DE ESTA PÁGINA</small><strong>{negocios.length}</strong></div></div>
         {mensaje && <div role="status" className="notice-success">{mensaje}</div>}
         {error && <div role="alert" className="notice-error">{error}</div>}

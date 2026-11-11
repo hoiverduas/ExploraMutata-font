@@ -1168,6 +1168,7 @@ button.rating-star:hover{transform:scale(1.08)}
 .agenda-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .agenda-dot-disponible{background:#4a9b6d}
 .agenda-dot-reserva{background:#4f72c8}
+.agenda-dot-external{background:#d98a3d}
 .agenda-dot-completo{background:#b85b50}
 .agenda-weekdays,.agenda-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
 .agenda-weekdays{border:1px solid #e2e7df;border-bottom:0;border-radius:14px 14px 0 0;overflow:hidden}

@@ -29,6 +29,7 @@ import MisViajesPage from './pages/MisViajesPage';
 import ViajeDetallePage from './pages/ViajeDetallePage';
 import OperadorResumenPage from './pages/OperadorResumenPage';
 import AgendaOperadorPage from './pages/AgendaOperadorPage';
+import AgendaAdminPage from './pages/AgendaAdminPage';
 import FinanzasOperadorPage from './pages/FinanzasOperadorPage';
 import FinanzasAdminPage from './pages/FinanzasAdminPage';
 import ComercialOperadorPage from './pages/ComercialOperadorPage';
@@ -121,6 +122,7 @@ function AppNavigation() {
             <Route path="/gestion/destinos/:destinoId/experiencias" element={<AccesoProtegido ruta="/gestion/destinos/:destinoId/experiencias" roles={['ADMIN','SUPER_ADMIN']}><DestinoExperienciasAdminPage /></AccesoProtegido>} />
             <Route path="/operador/negocios/:negocioId/ofertas" element={<AccesoProtegido ruta="/operador/negocios/:negocioId/ofertas" roles={['OPERADOR']}><OfertasNegocioPage /></AccesoProtegido>} />
             <Route path="/gestion/negocios" element={<AccesoProtegido ruta="/gestion/negocios" roles={['ADMIN','SUPER_ADMIN']}><NegociosPage /></AccesoProtegido>} />
+            <Route path="/gestion/agenda" element={<AccesoProtegido ruta="/gestion/agenda" roles={['ADMIN','SUPER_ADMIN']}><AgendaAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/finanzas" element={<AccesoProtegido ruta="/gestion/finanzas" roles={['ADMIN','SUPER_ADMIN']}><FinanzasAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/comercial" element={<AccesoProtegido ruta="/gestion/comercial" roles={['ADMIN','SUPER_ADMIN']}><ComercialAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/resenas" element={<AccesoProtegido ruta="/gestion/resenas" roles={['ADMIN','SUPER_ADMIN']}><ModeracionResenasAdminPage /></AccesoProtegido>} />

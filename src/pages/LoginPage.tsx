@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { IonButton, IonContent, IonPage, IonSpinner } from '@ionic/react';
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import { useAuth } from '../auth/AuthContext';
 import type { UsuarioResponse } from '../types/usuario';
@@ -15,6 +15,7 @@ function destinoPorPerfil(perfil: UsuarioResponse): string {
 export default function LoginPage() {
   const { iniciarSesion, usuario, cargandoSesion } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [search] = useSearchParams();
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
@@ -28,6 +29,12 @@ export default function LoginPage() {
     ? continuar
     : null;
   const rutaRegistro = continuarLocal ? `/registro?continuar=${encodeURIComponent(continuarLocal)}` : '/registro';
+  const rutaActiva = location.pathname === '/ingresar';
+
+  useEffect(() => {
+    if (!rutaActiva || cargandoSesion || !usuario) return;
+    navigate(continuarLocal ?? destinoPorPerfil(usuario), { replace: true });
+  }, [rutaActiva, cargandoSesion, usuario, continuarLocal, navigate]);
 
   async function ingresar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); setError(''); setGuardando(true);
@@ -40,7 +47,7 @@ export default function LoginPage() {
     } finally { setGuardando(false); }
   }
 
-  if (cargandoSesion) {
+  if (cargandoSesion || (rutaActiva && usuario)) {
     return <IonPage><BrandHeader mostrarGestion={false}/><IonContent fullscreen>
       <main className="auth-layout page-width">
         <section className="auth-card auth-loading" role="status">
@@ -49,10 +56,6 @@ export default function LoginPage() {
         </section>
       </main>
     </IonContent></IonPage>;
-  }
-
-  if (usuario) {
-    return <Navigate replace to={continuarLocal ?? destinoPorPerfil(usuario)} />;
   }
 
   return <IonPage><BrandHeader mostrarGestion={false}/><IonContent fullscreen>

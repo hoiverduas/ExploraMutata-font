@@ -1,6 +1,5 @@
-import { IonButton, IonButtons, IonContent, IonHeader, IonModal, IonPage, IonSpinner, IonTitle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonButtons, IonContent, IonHeader, IonModal, IonPage, IonSpinner, IonTitle, IonToolbar, useIonAlert, useIonViewWillEnter } from '@ionic/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
 import BrandHeader from '../components/BrandHeader';
 import EstadoReservaBadge from '../components/EstadoReservaBadge';
 import ReservaDatos from '../components/ReservaDatos';
@@ -14,7 +13,6 @@ import { estadosReserva } from '../types/reserva';
 import type { NegocioResponse } from '../types/negocio';
 import type { EstadoReserva, ReservaOperadorFiltros, ReservaResponse } from '../types/reserva';
 
-type AccionReserva = 'confirmar' | 'rechazar' | 'completar';
 const mensajeReserva = (error: unknown, alternativo: string) =>
   error instanceof ApiError && error.status === 404
     ? 'La reserva no existe o no pertenece a tus negocios.'
@@ -34,9 +32,7 @@ export default function ReservasOperadorPage() {
   const [detalle, setDetalle] = useState<ReservaResponse | null>(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
   const [errorDetalle, setErrorDetalle] = useState('');
-  const [rechazando, setRechazando] = useState<ReservaResponse | null>(null);
-  const [motivo, setMotivo] = useState('');
-  const [errorRechazo, setErrorRechazo] = useState('');
+  const [presentarAlerta] = useIonAlert();
   const busy = useRef(false);
   const peticionDetalle = useRef<AbortController | null>(null);
   const detalleActivo = useRef<string | null>(null);
@@ -100,42 +96,47 @@ export default function ReservasOperadorPage() {
     peticionDetalle.current?.abort(); detalleActivo.current = null;
     setDetalleId(null); setDetalle(null); setErrorDetalle('');
   };
-  const abrirRechazo = (reserva: ReservaResponse) => {
+  const completar = async (reserva: ReservaResponse) => {
     if (busy.current) return;
-    setRechazando(reserva); setMotivo(''); setErrorRechazo(''); setErrorAccion(''); setMensaje('');
-  };
-  const actuar = async (reserva: ReservaResponse, accion: AccionReserva) => {
-    if (busy.current) return;
-    if (accion === 'rechazar' && (!motivo.trim() || motivo.trim().length > 1000)) {
-      setErrorRechazo('Escribe un motivo de hasta 1000 caracteres.'); return;
-    }
-    if (accion !== 'rechazar' && !window.confirm(`¿${accion === 'confirmar' ? 'Confirmar' : 'Marcar como completada'} la reserva de ${reserva.turistaNombres} ${reserva.turistaApellidos}?`)) return;
-    busy.current = true; setGuardando(true); setErrorAccion(''); setErrorRechazo(''); setMensaje('');
+    const confirmado = await new Promise<boolean>(resolve => {
+      void presentarAlerta({
+        cssClass: 'explora-confirm-alert',
+        header: 'Completar reserva',
+        message: `¿Confirmas que la experiencia de ${reserva.turistaNombres} ${reserva.turistaApellidos} ya fue atendida?`,
+        backdropDismiss: false,
+        buttons: [
+          { text: 'Volver', role: 'cancel', handler: () => resolve(false) },
+          { text: 'Marcar completada', role: 'confirm', handler: () => resolve(true) },
+        ],
+      });
+    });
+    if (!confirmado) return;
+
+    busy.current = true;
+    setGuardando(true);
+    setErrorAccion('');
+    setMensaje('');
     try {
-      if (accion === 'confirmar') await reservasApi.confirmarReserva(reserva.id);
-      else if (accion === 'rechazar') await reservasApi.rechazarReserva(reserva.id, { motivo: motivo.trim() });
-      else await reservasApi.completarReserva(reserva.id);
-      setRechazando(null); setMotivo('');
-      setMensaje(accion === 'confirmar' ? 'Reserva confirmada.' : accion === 'rechazar' ? 'Reserva rechazada.' : 'Reserva completada.');
+      await reservasApi.completarReserva(reserva.id);
+      setMensaje('Reserva completada.');
       await Promise.all([actualizar(), detalleActivo.current === reserva.id ? cargarDetalle(reserva.id) : Promise.resolve()]);
     } catch (err) {
-      const texto = mensajeReserva(err, 'No se pudo actualizar la reserva.');
+      const texto = mensajeReserva(err, 'No se pudo completar la reserva.');
+      setErrorAccion(texto);
       if (err instanceof ApiError && err.status === 409) {
-        setRechazando(null); setErrorAccion(texto);
         await Promise.all([actualizar(), detalleActivo.current === reserva.id ? cargarDetalle(reserva.id) : Promise.resolve()]);
-      } else if (accion === 'rechazar') setErrorRechazo(texto); else setErrorAccion(texto);
-    } finally { busy.current = false; setGuardando(false); }
+      }
+    } finally {
+      busy.current = false;
+      setGuardando(false);
+    }
   };
   const acciones = (reserva: ReservaResponse) => <>
-    {reserva.estado === 'PENDIENTE' && <><IonButton size="small" disabled={guardando} onClick={() => void actuar(reserva, 'confirmar')}>Confirmar</IonButton><IonButton size="small" fill="outline" disabled={guardando} onClick={() => abrirRechazo(reserva)}>Rechazar</IonButton></>}
-    {reserva.estado === 'CONFIRMADA' && <IonButton size="small" disabled={guardando} onClick={() => void actuar(reserva, 'completar')}>Completar</IonButton>}
+    {reserva.estado === 'CONFIRMADA' && <IonButton size="small" disabled={guardando} onClick={() => void completar(reserva)}>Completar</IonButton>}
   </>;
-  const enviarRechazo = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); if (rechazando) void actuar(rechazando, 'rechazar');
-  };
 
   return <IonPage><BrandHeader title="Reservas de mis negocios"/><IonContent fullscreen><main className="page-width gestion-page">
-    <div className="gestion-heading"><div><span className="eyebrow">MI ESPACIO DE OPERADOR</span><h1>Reservas de <em>mis negocios.</em></h1><p>Consulta las solicitudes de los viajeros y gestiona su confirmación.</p></div><IonButton fill="outline" disabled={cargando || guardando} onClick={() => void actualizar()}>Actualizar reservas</IonButton></div>
+    <div className="gestion-heading"><div><span className="eyebrow">MI ESPACIO DE OPERADOR</span><h1>Reservas de <em>mis negocios.</em></h1><p>Consulta las reservas confirmadas por disponibilidad y marca como completadas las experiencias atendidas.</p></div><IonButton fill="outline" disabled={cargando || guardando} onClick={() => void actualizar()}>Actualizar reservas</IonButton></div>
     <section className="gestion-form-panel"><div className="reservas-filtros negocio-form">
       <label>Estado<select disabled={guardando} value={estado} onChange={e => setEstado(estadosReserva.find(opcion => opcion === e.target.value) ?? '')}><option value="">Todos</option>{estadosReserva.map(opcion => <option key={opcion} value={opcion}>{nombresEstado[opcion]}</option>)}</select></label>
       <label>Negocio<select disabled={guardando || cargandoNegocios} value={negocioId} onChange={e => setNegocioId(negocios.find(negocio => negocio.id === e.target.value)?.id ?? '')}><option value="">Todos mis negocios</option>{negocios.map(negocio => <option key={negocio.id} value={negocio.id}>{negocio.nombreComercial}</option>)}</select></label>
@@ -156,13 +157,6 @@ export default function ReservasOperadorPage() {
       {errorAccion && <div className="notice-error" role="alert">{errorAccion}</div>}
       <div className="cambio-modal-actions">{acciones(detalle)}</div>
     </>}
-  </div></IonContent></IonModal>
-  <IonModal isOpen={rechazando !== null} backdropDismiss={!guardando} onDidDismiss={() => { if (!busy.current) { setRechazando(null); setMotivo(''); setErrorRechazo(''); } }}><IonHeader><IonToolbar><IonTitle>Rechazar reserva</IonTitle><IonButtons slot="end"><IonButton disabled={guardando} onClick={() => { setRechazando(null); setMotivo(''); setErrorRechazo(''); }}>Cerrar</IonButton></IonButtons></IonToolbar></IonHeader><IonContent className="ion-padding"><div className="cambio-modal-content">
-    {rechazando && <p>Reserva de {rechazando.turistaNombres} {rechazando.turistaApellidos} para {rechazando.experienciaNombre || rechazando.negocioNombreComercial}, el {fechaVisible(rechazando.fechaReserva)}.</p>}
-    <form onSubmit={enviarRechazo}><label className="cambio-label">Motivo del rechazo *<textarea required maxLength={1000} rows={4} disabled={guardando} value={motivo} onChange={e => setMotivo(e.target.value)}/></label><p>Escribe el motivo, hasta 1000 caracteres.</p>
-      {errorRechazo && <div className="notice-error" role="alert">{errorRechazo}</div>}
-      <div className="cambio-modal-actions"><IonButton type="button" fill="outline" disabled={guardando} onClick={() => { setRechazando(null); setMotivo(''); setErrorRechazo(''); }}>Cancelar</IonButton><IonButton type="submit" disabled={guardando || !motivo.trim() || motivo.trim().length > 1000}>{guardando ? 'Guardando…' : 'Confirmar rechazo'}</IonButton></div>
-    </form>
   </div></IonContent></IonModal>
   </IonContent></IonPage>;
 }

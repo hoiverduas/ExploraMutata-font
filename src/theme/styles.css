@@ -548,3 +548,336 @@ button.rating-star:hover{transform:scale(1.08)}
 .marketplace-primary-link-booking{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 15px;border-radius:11px;background:var(--forest);color:#fff!important;text-decoration:none;font-weight:800;box-shadow:0 8px 20px #246b5820}
 .marketplace-primary-link-booking:hover{background:var(--pine);color:#fff!important;transform:translateY(-1px)}
 @media(max-width:600px){.priority-booking-section{padding:18px;border-radius:18px}}
+
+
+/* =========================================================
+   Responsive 2026: fichas públicas y hospedaje
+   ========================================================= */
+@media(max-width:980px){
+  .hospedaje-detail-layout{grid-template-columns:1fr;gap:18px}
+  .hospedaje-booking-column{order:-1}
+  .hospedaje-booking-sticky{
+    position:static;
+    padding:18px;
+    border-radius:18px;
+    box-shadow:0 10px 30px #143b2d10;
+  }
+  .hospedaje-price-head{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:14px;
+    padding:0 2px 12px;
+  }
+  .hospedaje-price-head .oferta-precio{margin:0;text-align:right}
+  .hospedaje-booking-sticky .offer-quote{padding-top:15px}
+}
+
+@media(max-width:700px){
+  .page-width{width:calc(100% - 24px)}
+  .tourism-detail{padding-top:10px;padding-bottom:90px}
+  .tourism-detail> .resource-inline-link{margin-bottom:2px}
+
+  .hospedaje-heading{
+    margin:12px 0 14px;
+  }
+  .hospedaje-heading h1{
+    font-size:clamp(30px,9vw,39px);
+    line-height:1.06;
+    overflow-wrap:anywhere;
+  }
+  .hospedaje-heading .eyebrow{font-size:9px;letter-spacing:1.4px}
+  .hospedaje-heading-actions{
+    gap:4px;
+    margin-top:7px;
+  }
+  .hospedaje-text-action{
+    min-height:42px;
+    padding:8px 6px;
+  }
+
+  /* En móvil se pueden recorrer todas las fotos con el dedo. */
+  .hospedaje-photo-grid{
+    display:flex;
+    gap:10px;
+    height:auto;
+    min-height:0;
+    margin:0 -12px 22px;
+    padding:0 12px 8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    border-radius:0;
+    background:transparent;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .hospedaje-photo-grid::-webkit-scrollbar{display:none}
+  .hospedaje-photo,
+  .hospedaje-photo-1,
+  .hospedaje-photo-2,
+  .hospedaje-photo-3,
+  .hospedaje-photo-4,
+  .hospedaje-photo-5{
+    display:block;
+    flex:0 0 min(86vw,430px);
+    width:auto;
+    height:270px;
+    border-radius:16px;
+    scroll-snap-align:center;
+    box-shadow:0 8px 22px #15382e12;
+  }
+  .hospedaje-photo img{
+    object-fit:contain;
+    object-position:center;
+    background:#edf1ec;
+  }
+  .hospedaje-photo-empty{display:none}
+  .hospedaje-show-all{display:none}
+  .hospedaje-photo-label{
+    left:10px;
+    right:10px;
+    bottom:10px;
+    max-width:none;
+    width:max-content;
+  }
+
+  .hospedaje-detail-layout{gap:14px}
+  .hospedaje-booking-sticky{
+    margin:0 0 8px;
+    padding:16px;
+    border-radius:16px;
+  }
+  .hospedaje-price-head{
+    align-items:center;
+  }
+  .hospedaje-price-head strong{font-size:20px}
+  .hospedaje-booking-sticky .offer-quote>h2{
+    font-size:22px;
+    margin-bottom:6px;
+  }
+  .hospedaje-booking-sticky .offer-quote>p{
+    margin-top:4px;
+    font-size:12px;
+    line-height:1.55;
+  }
+  .hospedaje-booking-sticky .negocio-form{
+    gap:12px;
+  }
+  .hospedaje-booking-sticky input,
+  .hospedaje-booking-sticky select,
+  .hospedaje-booking-sticky textarea{
+    min-height:48px;
+    font-size:16px;
+  }
+  .hospedaje-booking-sticky ion-button{
+    min-height:48px;
+    margin:2px 0;
+  }
+
+  .hospedaje-intro{
+    padding:10px 0 20px;
+  }
+  .hospedaje-intro h2{
+    font-size:24px;
+    line-height:1.15;
+  }
+  .hospedaje-summary-line{font-size:13px!important}
+  .hospedaje-host-chip{
+    margin-top:14px;
+    padding-top:14px;
+  }
+  .hospedaje-highlight-list{
+    padding:12px 0;
+  }
+  .hospedaje-highlight-list article{
+    padding:10px 0;
+    gap:12px;
+  }
+  .hospedaje-section{
+    padding:24px 0;
+  }
+  .hospedaje-section>h2{
+    margin-bottom:15px;
+    font-size:23px;
+  }
+  .hospedaje-description{
+    font-size:14px;
+    line-height:1.7;
+  }
+  .hospedaje-amenities{
+    gap:12px;
+  }
+  .hospedaje-amenities>div{
+    padding:10px 12px;
+    border:1px solid #e1e7df;
+    border-radius:12px;
+    background:#fff;
+    font-size:13px;
+  }
+  .hospedaje-sleep-card{
+    max-width:none;
+  }
+  .hospedaje-sleep-card img{
+    height:auto;
+    max-height:310px;
+    aspect-ratio:4/3;
+    object-fit:contain;
+    background:#edf1ec;
+  }
+
+  /* Galería completa: conservar la foto entera en teléfonos. */
+  .hospedaje-gallery-overlay{background:#f8faf7}
+  .hospedaje-gallery-dialog{
+    width:100%;
+    padding:0 12px 40px;
+  }
+  .hospedaje-gallery-header{
+    min-height:68px;
+    padding:10px 58px 10px 2px;
+  }
+  .hospedaje-gallery-header h2{
+    font-size:20px;
+    line-height:1.15;
+  }
+  .hospedaje-gallery-close{
+    top:14px!important;
+    right:12px!important;
+    width:42px!important;
+    height:42px!important;
+    padding:0!important;
+    justify-content:center;
+  }
+  .hospedaje-gallery-close{
+    font-size:0!important;
+  }
+  .hospedaje-gallery-close span{font-size:16px}
+  .hospedaje-gallery-all{gap:12px}
+  .hospedaje-gallery-photo-wrap{
+    border-radius:14px;
+    background:#e9eeea;
+  }
+  .hospedaje-gallery-photo-wrap img,
+  .hospedaje-gallery-all img{
+    width:100%;
+    height:auto;
+    max-height:76vh;
+    object-fit:contain;
+    object-position:center;
+    background:#e9eeea;
+  }
+  .hospedaje-gallery-photo-label{
+    left:9px;
+    right:9px;
+    bottom:9px;
+    padding:9px 10px;
+  }
+
+  /* Tarjetas públicas: mejor lectura y CTA grande. */
+  .catalog-card.marketplace-card{
+    border-radius:18px;
+  }
+  .catalog-card.marketplace-card>.marketplace-card-image{
+    aspect-ratio:4/3;
+    max-height:300px;
+    object-fit:contain!important;
+    background:#edf1ec;
+  }
+  .marketplace-card-body{
+    padding:17px;
+  }
+  .marketplace-card-body>h2{
+    margin:8px 0;
+    font-size:22px;
+    line-height:1.15;
+  }
+  .marketplace-card-body>p{
+    font-size:13px;
+    line-height:1.55;
+  }
+  .marketplace-actions{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:9px;
+  }
+  .marketplace-actions .marketplace-primary-link,
+  .marketplace-actions .marketplace-primary-link-booking{
+    width:100%;
+    min-height:48px;
+  }
+
+  /* Restaurante: fotos enteras y botones cómodos. */
+  .restaurante-hero{
+    margin-top:12px;
+    padding:18px;
+  }
+  .restaurante-menu-card-body{
+    min-height:0;
+    padding:15px;
+  }
+  .restaurante-menu-card img{
+    aspect-ratio:4/3;
+    object-fit:contain;
+    background:#edf1ec;
+  }
+  .restaurante-menu-action{
+    min-height:48px;
+    margin-top:14px;
+  }
+  .restaurante-subnav{
+    top:0;
+    margin-bottom:16px;
+    padding:6px;
+  }
+  .restaurante-subnav a{
+    min-height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* Formularios/cotizador generales */
+  .offer-quote,.quote-summary{
+    padding:17px;
+    border-radius:17px;
+  }
+  .quote-form label{
+    font-size:12px;
+  }
+  .quote-form input,
+  .quote-form select,
+  .quote-form textarea{
+    min-height:48px;
+    font-size:16px;
+  }
+  .quote-summary{
+    margin-top:14px;
+  }
+  .quote-price{
+    font-size:22px;
+  }
+}
+
+@media(max-width:390px){
+  .page-width{width:calc(100% - 20px)}
+  .hospedaje-photo,
+  .hospedaje-photo-1,
+  .hospedaje-photo-2,
+  .hospedaje-photo-3,
+  .hospedaje-photo-4,
+  .hospedaje-photo-5{
+    flex-basis:88vw;
+    height:245px;
+  }
+  .hospedaje-booking-sticky{padding:14px}
+  .hospedaje-price-head{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:2px;
+  }
+  .hospedaje-price-head .oferta-precio{text-align:left}
+  .marketplace-actions{
+    grid-template-columns:1fr;
+  }
+}

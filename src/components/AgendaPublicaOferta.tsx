@@ -3,7 +3,7 @@ import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { useEffect, useMemo, useState } from 'react';
 import { disponibilidadApi } from '../services/disponibilidadApi';
 import { horariosApi } from '../services/horariosApi';
-import type { DisponibilidadDiaResponse } from '../types/disponibilidad';
+import type { DisponibilidadDiaResponse, UnidadCupo } from '../types/disponibilidad';
 import type { SalidaProgramadaResponse } from '../types/horario';
 import type { OfertaNegocioResponse } from '../types/oferta';
 
@@ -56,6 +56,7 @@ export default function AgendaPublicaOferta({ oferta, personas, fechaSeleccionad
     return inicioMes(new Date());
   });
   const [dias, setDias] = useState<DisponibilidadDiaResponse[]>([]);
+  const [unidadCupo, setUnidadCupo] = useState<UnidadCupo | null>(null);
   const [salidas, setSalidas] = useState<SalidaProgramadaResponse[]>([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
@@ -69,12 +70,12 @@ export default function AgendaPublicaOferta({ oferta, personas, fechaSeleccionad
 
   useEffect(() => {
     const controller = new AbortController();
-    setCargando(true); setError(''); setDias([]); setSalidas([]);
+    setCargando(true); setError(''); setDias([]); setSalidas([]); setUnidadCupo(null);
 
     const tareas: Promise<void>[] = [];
     if (oferta.controlaDisponibilidad) {
       tareas.push(disponibilidadApi.consultarPublica(oferta.id, desde, hasta, { signal: controller.signal })
-        .then(r => { if (!controller.signal.aborted) setDias(r.dias); }));
+        .then(r => { if (!controller.signal.aborted) { setDias(r.dias); setUnidadCupo(r.unidadCupo); } }));
     }
     if (requiereHorario) {
       tareas.push(horariosApi.listarPublicos(oferta.id, desde, hasta, { signal: controller.signal })
@@ -110,8 +111,15 @@ export default function AgendaPublicaOferta({ oferta, personas, fechaSeleccionad
     if (oferta.controlaDisponibilidad) {
       const dia = dias.find(d => d.fecha === iso);
       if (!dia || dia.estado !== 'ABIERTA') return { disponible: false, texto: 'Cerrado', cupos: 0 };
-      if (dia.cupoDisponible < cantidad) return { disponible: false, texto: 'Completo', cupos: dia.cupoDisponible };
-      return { disponible: true, texto: `${dia.cupoDisponible} cupo${dia.cupoDisponible === 1 ? '' : 's'}`, cupos: dia.cupoDisponible };
+      const demandaDirecta = unidadCupo === 'PERSONA';
+      if (demandaDirecta && dia.cupoDisponible < cantidad) {
+        return { disponible: false, texto: 'Completo', cupos: dia.cupoDisponible };
+      }
+      if (dia.cupoDisponible <= 0) return { disponible: false, texto: 'Completo', cupos: 0 };
+      const etiqueta = unidadCupo === 'UNIDAD'
+        ? `${dia.cupoDisponible} unidad${dia.cupoDisponible === 1 ? '' : 'es'}`
+        : `${dia.cupoDisponible} cupo${dia.cupoDisponible === 1 ? '' : 's'}`;
+      return { disponible: true, texto: etiqueta, cupos: dia.cupoDisponible };
     }
 
     return { disponible: true, texto: 'Consultar', cupos: 0 };

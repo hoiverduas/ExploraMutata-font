@@ -22,6 +22,7 @@ import type { DisponibilidadHospedajeResponse } from '../types/hospedajeBooking'
 import type { Moneda } from '../types/moneda';
 import type { OfertaNegocioResponse } from '../types/oferta';
 import SelectorMoneda from './SelectorMoneda';
+import AgendaPublicaOferta from './AgendaPublicaOferta';
 
 interface FormularioCotizacion {
   cantidadPersonas: string;
@@ -172,7 +173,10 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     revision.current++; consulta.current?.abort(); setCotizada(null); setCotizando(false); setError('');
     setFormulario(actual => {
       const siguiente = { ...actual, [campo]: valor };
-      if (campo === 'fechaInicio') siguiente.horario = '';
+      if (campo === 'fechaInicio') {
+        siguiente.horario = '';
+        if (siguiente.fechaFin && siguiente.fechaFin < valor) siguiente.fechaFin = '';
+      }
       return siguiente;
     });
   };
@@ -324,6 +328,14 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     <form className="negocio-form quote-form" onSubmit={cotizar}>
       {variantes.length > 0 && <label>Opción<select disabled={guardando} value={formulario.varianteId} onChange={e => cambiar('varianteId', e.target.value)}><option value="">Opción general</option>{variantes.map(variante => <option key={variante.id} value={variante.id}>{variante.nombre}</option>)}</select></label>}
       <label>Personas<input type="number" required min={1} step={1} disabled={guardando} value={formulario.cantidadPersonas} onChange={e => cambiar('cantidadPersonas', e.target.value)}/></label>
+      {oferta.reservaRequerida && <div className="form-full">
+        <AgendaPublicaOferta
+          oferta={oferta}
+          personas={Number(formulario.cantidadPersonas)}
+          fechaSeleccionada={formulario.fechaInicio}
+          onSeleccionarFecha={fecha => cambiar('fechaInicio', fecha)}
+        />
+      </div>}
       <label>Fecha de inicio<input type="date" required min={fechaActualReservas()} disabled={guardando} value={formulario.fechaInicio} onChange={e => cambiar('fechaInicio', e.target.value)}/></label>
       {mostrarFin && <label>Fecha de fin{usaNoches && duracionUnidadEfectiva === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
       {mostrarTrayectos && <label>Trayectos (opcional)<input type="number" min={1} step={1} disabled={guardando} value={formulario.cantidadTrayectos} onChange={e => cambiar('cantidadTrayectos', e.target.value)} placeholder="Según la oferta"/></label>}

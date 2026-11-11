@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonPage } from '@ionic/react';
+import { IonButton, IonContent, IonPage, useIonAlert } from '@ionic/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
@@ -29,6 +29,7 @@ export default function ReservaDetallePage() {
   }, [id]);
   const consulta = useConsultaApi<ReservaResponse | null>(cargar, null);
   const reserva = consulta.datos?.id === id ? consulta.datos : null;
+  const [presentarAlerta] = useIonAlert();
   const ocupado = useRef(false);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState('');
@@ -42,7 +43,19 @@ export default function ReservaDetallePage() {
 
   const cancelar = async () => {
     if (ocupado.current || !reserva || !puedeCancelarReserva(reserva.estado)) return;
-    if (!window.confirm('¿Quieres cancelar esta reserva?')) return;
+    const confirmado = await new Promise<boolean>(resolve => {
+      void presentarAlerta({
+        cssClass: 'explora-confirm-alert',
+        header: 'Cancelar reserva',
+        message: 'Al cancelar, los cupos y horarios asociados volverán a quedar disponibles.',
+        backdropDismiss: false,
+        buttons: [
+          { text: 'Volver', role: 'cancel', handler: () => resolve(false) },
+          { text: 'Cancelar reserva', role: 'confirm', handler: () => resolve(true) },
+        ],
+      });
+    });
+    if (!confirmado) return;
     ocupado.current = true;
     const visitaActual = visita.current;
     setGuardando(true); setMensaje(''); setErrorAccion('');
@@ -68,19 +81,19 @@ export default function ReservaDetallePage() {
       <div className="gestion-heading"><div><span className="eyebrow">MI ESPACIO DE VIAJERO</span><h1>Tu <em>reserva.</em></h1></div>
         <IonButton fill="outline" disabled={guardando || consulta.cargando} onClick={() => void consulta.actualizar()}>Actualizar reserva</IonButton>
       </div>
-      {reservaCreada && reserva && !mensaje && !errorAccion && <div className="notice-success" role="status">Tu solicitud de reserva se creó correctamente. Consulta aquí su estado.</div>}
+      {reservaCreada && reserva && !mensaje && !errorAccion && <div className="notice-success" role="status">Reserva creada correctamente. La disponibilidad quedó confirmada y ya puedes continuar al pago.</div>}
       {mensaje && <div className="notice-success" role="status">{mensaje}</div>}
       {errorAccion && <div className="notice-error" role="alert">{errorAccion}</div>}
       <EstadoConsulta {...consulta} sinDatos={!reserva} mensajeVacio="La reserva no existe o no pertenece a tu cuenta.">
         {reserva && <section className="gestion-form-panel reserva-card">
           <div className="gestion-form-heading"><h2>{reserva.negocioNombreComercial}</h2><EstadoReservaBadge estado={reserva.estado}/></div>
           {reserva.estado === 'PENDIENTE' && <div className="quote-summary" role="status">
-            <h3>Esperando confirmación del negocio</h3>
-            <p>Tu solicitud está guardada en Mis reservas. Puedes salir de esta pantalla y volver cuando quieras. Cuando el negocio la confirme, se habilitará el pago.</p>
+            <h3>Reserva del flujo anterior</h3>
+            <p>Esta reserva fue creada antes del cambio a confirmación automática y requiere revisión.</p>
             <Link className="resource-inline-link" to="/reservas">Ver todas mis reservas →</Link>
           </div>}
           {reserva.estado === 'CONFIRMADA' && <div className="notice-success" role="status">
-            El negocio confirmó tu reserva. Ya puedes elegir el porcentaje del primer pago y continuar con Wompi.
+            La disponibilidad está confirmada. Ya puedes elegir el porcentaje del primer pago y continuar con Wompi.
           </div>}
           <ReservaDatos reserva={reserva}/>
           <PagoReservaPanel reserva={reserva}/><ResenaReservaPanel reserva={reserva}/>

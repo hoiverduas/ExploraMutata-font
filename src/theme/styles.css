@@ -1119,3 +1119,36 @@ button.rating-star:hover{transform:scale(1.08)}
   .site-footer-grid{grid-template-columns:1fr;gap:24px}
   .site-footer-brand{grid-column:auto}
 }
+
+
+/* Mínimo recomendado de contenido para operadores */
+.media-minimum{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:14px 0 18px;
+  padding:13px 15px;
+  border:1px solid #ead9b7;
+  border-radius:12px;
+  background:#fff8e8;
+  color:#76591f;
+}
+.media-minimum strong{
+  flex:none;
+  font-size:12px;
+}
+.media-minimum span{
+  font-size:12px;
+  line-height:1.55;
+}
+.media-minimum-ok{
+  border-color:#cfe2d3;
+  background:#eef7ef;
+  color:#276044;
+}
+@media(max-width:600px){
+  .media-minimum{
+    flex-direction:column;
+    gap:4px;
+  }
+}

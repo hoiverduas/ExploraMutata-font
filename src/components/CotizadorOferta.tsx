@@ -97,7 +97,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const usaNoches = ['POR_NOCHE', 'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE'].includes(modeloEfectivo);
   const mostrarFin = usaNoches || ['POR_DIA', 'POR_PERSONA_Y_DIA'].includes(modeloEfectivo) || duracionUnidadEfectiva !== 'UNICO';
   const mostrarTrayectos = oferta.categoria === 'TRANSPORTE';
-  const requiereHorarioEfectivo = oferta.categoria !== 'HOSPEDAJE' && oferta.requiereHorario;
+  const requiereHorarioEfectivo = Boolean(oferta.categoria !== 'HOSPEDAJE' && oferta.requiereHorario);
 
   useLayoutEffect(() => {
     contexto.current = {};

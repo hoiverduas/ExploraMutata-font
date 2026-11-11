@@ -28,3 +28,6 @@ jobs:
 
       - name: TypeScript and Vite build
         run: npm run build
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

@@ -3,6 +3,7 @@ import { arrowForwardOutline, micOutline } from 'ionicons/icons';
 import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
+import FooterInstitucional from '../components/FooterInstitucional';
 import HeroInicioMultimedia from '../components/HeroInicioMultimedia';
 import NavegacionTuristica from '../components/NavegacionTuristica';
 import NegociosPublicos from '../components/NegociosPublicos';
@@ -52,6 +53,20 @@ export default function InicioPage() {
       {servicios.map(seccion => <section className="home-section" key={seccion.categoria}><div className="section-heading"><span>{seccion.texto}</span><h2>{seccion.titulo}</h2></div><NegociosPublicos negocios={catalogo.negocios.filter(negocio => negocio.categorias.includes(seccion.categoria)).slice(0,3)} cargando={catalogo.cargando} error={catalogo.error} actualizar={catalogo.actualizar} mensajeVacio="Aún no hay negocios publicados en esta categoría."/><Link className="catalog-detail-link" to={seccion.ruta}>Explorar opciones →</Link></section>)}
       <section className="sofia-teaser"><div className="sofia-icon" aria-hidden="true">✦</div><div><strong>¿No sabes por dónde empezar?</strong><p>Sofía te ayuda a descubrir Mutatá por voz.</p></div><IonButton fill="clear" color="light" routerLink="/sofia"><IonIcon icon={micOutline} slot="start"/>Hablar con Sofía</IonButton></section>
       <section className="culture-preview"><img src="/images/cultura-local.webp" alt="Artesanía y cultura local de Mutatá" loading="lazy"/><div><span className="eyebrow">RAÍCES VIVAS</span><h2>La verdadera riqueza está en <em>su gente.</em></h2><p>Conoce los saberes, historias y tradiciones del territorio con respeto por sus comunidades.</p><Link className="catalog-detail-link" to="/guias">Explorar con un guía local →</Link></div></section>
+      <section className="about-home-preview">
+        <div>
+          <span className="eyebrow">SOBRE EXPLORA MUTATÁ</span>
+          <h2>Una plataforma para conectar <em>viajeros y territorio.</em></h2>
+          <p>Conectamos a visitantes con alojamientos, gastronomía, transporte, guías, experiencias y emprendimientos locales, facilitando descubrir, reservar y pagar servicios turísticos desde un mismo lugar.</p>
+          <Link className="catalog-detail-link" to="/nosotros">Conoce nuestra misión y visión →</Link>
+        </div>
+        <div className="about-home-values">
+          <article><strong>Descubrir</strong><span>Experiencias y negocios locales.</span></article>
+          <article><strong>Reservar</strong><span>Servicios con disponibilidad real.</span></article>
+          <article><strong>Fortalecer</strong><span>Oportunidades para operadores del territorio.</span></article>
+        </div>
+      </section>
     </main>
+    <FooterInstitucional/>
   </IonContent></IonPage>;
 }

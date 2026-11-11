@@ -1,4 +1,5 @@
-import { IonButton, useIonAlert } from '@ionic/react';
+import { IonButton, IonContent, IonIcon, IonModal, useIonAlert } from '@ionic/react';
+import { calendarOutline } from 'ionicons/icons';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -84,6 +85,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const [disponibilidadHospedaje, setDisponibilidadHospedaje] = useState<DisponibilidadHospedajeResponse | null>(null);
   const [consultandoAgenda, setConsultandoAgenda] = useState(false);
   const [errorAgenda, setErrorAgenda] = useState('');
+  const [agendaAbierta, setAgendaAbierta] = useState(false);
   const [observaciones, setObservaciones] = useState('');
   const [cotizada, setCotizada] = useState<CotizacionVigente | null>(null);
   const [cotizando, setCotizando] = useState(false);
@@ -328,13 +330,20 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     <form className="negocio-form quote-form" onSubmit={cotizar}>
       {variantes.length > 0 && <label>Opción<select disabled={guardando} value={formulario.varianteId} onChange={e => cambiar('varianteId', e.target.value)}><option value="">Opción general</option>{variantes.map(variante => <option key={variante.id} value={variante.id}>{variante.nombre}</option>)}</select></label>}
       <label>Personas<input type="number" required min={1} step={1} disabled={guardando} value={formulario.cantidadPersonas} onChange={e => cambiar('cantidadPersonas', e.target.value)}/></label>
-      {oferta.reservaRequerida && <div className="form-full">
-        <AgendaPublicaOferta
-          oferta={oferta}
-          personas={Number(formulario.cantidadPersonas)}
-          fechaSeleccionada={formulario.fechaInicio}
-          onSeleccionarFecha={fecha => cambiar('fechaInicio', fecha)}
-        />
+      {oferta.reservaRequerida && <div className="form-full availability-trigger">
+        <IonButton
+          type="button"
+          fill="outline"
+          expand="block"
+          disabled={guardando}
+          onClick={() => setAgendaAbierta(true)}
+        >
+          <IonIcon icon={calendarOutline} slot="start"/>
+          {formulario.fechaInicio
+            ? `Cambiar fecha · ${formatearFechaReserva(formulario.fechaInicio)}`
+            : 'Ver disponibilidad'}
+        </IonButton>
+        {formulario.fechaInicio && <small>Fecha seleccionada: <strong>{formatearFechaReserva(formulario.fechaInicio)}</strong></small>}
       </div>}
       <label>Fecha de inicio<input type="date" required min={fechaActualReservas()} disabled={guardando} value={formulario.fechaInicio} onChange={e => cambiar('fechaInicio', e.target.value)}/></label>
       {mostrarFin && <label>Fecha de fin{usaNoches && duracionUnidadEfectiva === 'UNICO' ? ' *' : ' (opcional)'}<input type="date" min={formulario.fechaInicio || fechaActualReservas()} disabled={guardando} value={formulario.fechaFin} onChange={e => cambiar('fechaFin', e.target.value)}/></label>}
@@ -403,5 +412,34 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     </>}
     {error && <div className="notice-error" role="alert">{error}</div>}
     <small>Al reservar, volveremos a validar disponibilidad, precio y horario.</small>
+
+    <IonModal
+      isOpen={agendaAbierta}
+      onDidDismiss={() => setAgendaAbierta(false)}
+      cssClass="public-agenda-modal"
+    >
+      <IonContent className="ion-padding">
+        <div className="public-agenda-modal-content">
+          <div className="public-agenda-modal-top">
+            <div>
+              <span className="eyebrow">DISPONIBILIDAD</span>
+              <h2>Selecciona una fecha</h2>
+              <p>Las fechas completas o cerradas no se pueden seleccionar.</p>
+            </div>
+            <IonButton fill="clear" onClick={() => setAgendaAbierta(false)}>Cerrar</IonButton>
+          </div>
+
+          <AgendaPublicaOferta
+            oferta={oferta}
+            personas={Number(formulario.cantidadPersonas)}
+            fechaSeleccionada={formulario.fechaInicio}
+            onSeleccionarFecha={fecha => {
+              cambiar('fechaInicio', fecha);
+              setAgendaAbierta(false);
+            }}
+          />
+        </div>
+      </IonContent>
+    </IonModal>
   </section>;
 }

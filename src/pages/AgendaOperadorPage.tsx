@@ -6,11 +6,13 @@ import {
 } from 'ionicons/icons';
 import { useEffect, useMemo, useState } from 'react';
 import BrandHeader from '../components/BrandHeader';
+import { agendaApi } from '../services/agendaApi';
 import { disponibilidadApi } from '../services/disponibilidadApi';
 import { horariosApi } from '../services/horariosApi';
 import { ofertasApi } from '../services/ofertasApi';
 import { operadorNegociosApi } from '../services/operadorNegociosApi';
 import { reservasApi } from '../services/reservasApi';
+import type { BloqueoAgendaResponse, OrigenBloqueoAgenda, TipoBloqueoAgenda } from '../types/agenda';
 import type { DisponibilidadDiaResponse } from '../types/disponibilidad';
 import type { SalidaProgramadaResponse } from '../types/horario';
 import type { NegocioResponse } from '../types/negocio';
@@ -60,6 +62,7 @@ export default function AgendaOperadorPage() {
   const [disponibilidad, setDisponibilidad] = useState<DisponibilidadDiaResponse[]>([]);
   const [salidas, setSalidas] = useState<SalidaProgramadaResponse[]>([]);
   const [reservas, setReservas] = useState<ReservaResponse[]>([]);
+  const [bloqueos, setBloqueos] = useState<BloqueoAgendaResponse[]>([]);
   const [cargando, setCargando] = useState(true);
   const [cargandoAgenda, setCargandoAgenda] = useState(false);
   const [error, setError] = useState('');
@@ -73,6 +76,15 @@ export default function AgendaOperadorPage() {
   const [estadoSalida, setEstadoSalida] = useState<'ABIERTA'|'CERRADA'|'CANCELADA'>('ABIERTA');
   const [horaInicioSalida, setHoraInicioSalida] = useState('');
   const [horaFinSalida, setHoraFinSalida] = useState('');
+  const [registrandoExterna, setRegistrandoExterna] = useState(false);
+  const [tipoExterno, setTipoExterno] = useState<TipoBloqueoAgenda>('RESERVA_EXTERNA');
+  const [origenExterno, setOrigenExterno] = useState<OrigenBloqueoAgenda>('WHATSAPP');
+  const [cantidadExterna, setCantidadExterna] = useState('1');
+  const [salidaExternaId, setSalidaExternaId] = useState('');
+  const [clienteExterno, setClienteExterno] = useState('');
+  const [telefonoExterno, setTelefonoExterno] = useState('');
+  const [observacionExterna, setObservacionExterna] = useState('');
+  const [guardandoExterna, setGuardandoExterna] = useState(false);
 
   const oferta = ofertas.find(item => String(item.id) === ofertaId) ?? null;
   const desde = fechaIso(inicioMes(mes));
@@ -117,12 +129,12 @@ export default function AgendaOperadorPage() {
 
   const cargarAgenda = async () => {
     if (!negocioId || !oferta) {
-      setDisponibilidad([]); setSalidas([]); setReservas([]);
+      setDisponibilidad([]); setSalidas([]); setReservas([]); setBloqueos([]);
       return;
     }
     setCargandoAgenda(true); setError(''); setMensaje('');
     try {
-      const [reservasOperador, datosDisponibilidad, datosSalidas] = await Promise.all([
+      const [reservasOperador, datosDisponibilidad, datosSalidas, datosBloqueos] = await Promise.all([
         reservasApi.listarReservasOperador({ negocioId }),
         oferta.requiereHorario
           ? Promise.resolve(null)
@@ -130,6 +142,7 @@ export default function AgendaOperadorPage() {
         oferta.requiereHorario
           ? horariosApi.listarSalidas(negocioId, oferta.id, desde, hasta)
           : Promise.resolve([] as SalidaProgramadaResponse[]),
+        agendaApi.listar(negocioId, oferta.id, desde, hasta),
       ]);
       setReservas(reservasOperador.filter(r =>
         r.negocioExperienciaId === oferta.id
@@ -139,6 +152,7 @@ export default function AgendaOperadorPage() {
       ));
       setDisponibilidad(datosDisponibilidad?.dias ?? []);
       setSalidas(datosSalidas);
+      setBloqueos(datosBloqueos);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo cargar la agenda.');
     } finally { setCargandoAgenda(false); }
@@ -149,6 +163,7 @@ export default function AgendaOperadorPage() {
   const infoDia = (iso: string) => disponibilidad.find(d => d.fecha === iso);
   const salidasDia = (iso: string) => salidas.filter(s => s.fecha === iso);
   const reservasDia = (iso: string) => reservas.filter(r => r.fechaReserva === iso);
+  const bloqueosDia = (iso: string) => bloqueos.filter(b => b.fecha === iso && b.estado === 'ACTIVO');
 
   const abrirDia = (iso: string) => {
     setFechaSeleccionada(iso);
@@ -185,6 +200,61 @@ export default function AgendaOperadorPage() {
     setHoraInicioSalida(salida.horaInicio);
     setHoraFinSalida(salida.horaFin ?? '');
     setError(''); setMensaje('');
+  };
+
+  const abrirReservaExterna = () => {
+    if (!fechaSeleccionada) return;
+    const slots = salidasDia(fechaSeleccionada);
+    setTipoExterno('RESERVA_EXTERNA');
+    setOrigenExterno('WHATSAPP');
+    setCantidadExterna('1');
+    setSalidaExternaId(oferta?.requiereHorario && slots[0]?.id ? slots[0].id : '');
+    setClienteExterno('');
+    setTelefonoExterno('');
+    setObservacionExterna('');
+    setRegistrandoExterna(true);
+    setError('');
+    setMensaje('');
+  };
+
+  const guardarReservaExterna = async () => {
+    if (!fechaSeleccionada || !oferta || !negocioId || guardandoExterna) return;
+    const cantidad = Number(cantidadExterna);
+    if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
+      return setError('La cantidad de cupos debe ser un entero mayor que cero.');
+    }
+    if (oferta.requiereHorario && !salidaExternaId) {
+      return setError('Selecciona el horario que ocupará esta reserva externa o bloqueo.');
+    }
+
+    setGuardandoExterna(true); setError(''); setMensaje('');
+    try {
+      await agendaApi.crear(negocioId, oferta.id, {
+        fecha: fechaSeleccionada,
+        salidaProgramadaId: oferta.requiereHorario ? salidaExternaId : null,
+        cantidad,
+        tipo: tipoExterno,
+        origen: origenExterno,
+        clienteNombre: clienteExterno.trim() || null,
+        clienteTelefono: telefonoExterno.trim() || null,
+        observacion: observacionExterna.trim() || null,
+      });
+      setRegistrandoExterna(false);
+      setMensaje(tipoExterno === 'RESERVA_EXTERNA' ? 'Reserva externa registrada y cupos descontados.' : 'Bloqueo registrado y cupos descontados.');
+      await cargarAgenda();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo registrar la reserva externa.');
+    } finally { setGuardandoExterna(false); }
+  };
+
+  const cancelarBloqueo = async (id: string) => {
+    try {
+      await agendaApi.cancelar(id);
+      setMensaje('Cupos liberados correctamente.');
+      await cargarAgenda();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudieron liberar los cupos.');
+    }
   };
 
   const guardarSalida = async () => {
@@ -269,6 +339,7 @@ export default function AgendaOperadorPage() {
                 const dia = infoDia(iso);
                 const slots = salidasDia(iso);
                 const reservasFecha = reservasDia(iso);
+                const bloqueosFecha = bloqueosDia(iso);
                 const reservado = oferta?.requiereHorario
                   ? slots.reduce((total, s) => total + s.cupoReservado, 0)
                   : (dia?.cupoReservado ?? 0);
@@ -288,6 +359,7 @@ export default function AgendaOperadorPage() {
                   <span className="agenda-day-number">{fecha.getDate()}</span>
                   {oferta && actual && <>
                     {reservasFecha.length > 0 && <span className="agenda-event agenda-event-reserva"><IonIcon icon={calendarOutline}/>{reservasFecha.length} reserva{reservasFecha.length === 1 ? '' : 's'}</span>}
+                    {bloqueosFecha.length > 0 && <span className="agenda-event agenda-event-external"><IonIcon icon={addOutline}/>{bloqueosFecha.reduce((t,b)=>t+b.cantidad,0)} cupos externos</span>}
                     {oferta.requiereHorario && slots.slice(0,2).map(slot => <span className="agenda-event agenda-event-slot" key={slot.id ?? `${slot.fecha}-${slot.horaInicio}`}><IonIcon icon={timeOutline}/>{slot.horaInicio.slice(0,5)} · {slot.cupoDisponible} libres</span>)}
                     {!oferta.requiereHorario && dia && <span className={`agenda-event ${cerrado ? 'agenda-event-completo' : 'agenda-event-disponible'}`}>{reservado}/{dia.cupoTotal} ocupados</span>}
                     {oferta.requiereHorario && slots.length > 2 && <span className="agenda-event-more">+{slots.length - 2} horarios</span>}
@@ -305,6 +377,13 @@ export default function AgendaOperadorPage() {
           <div className="cambio-modal-content agenda-day-modal">
             <span className="eyebrow">DISPONIBILIDAD</span>
             <h2>{fechaSeleccionada}</h2>
+            <IonButton expand="block" onClick={abrirReservaExterna}><IonIcon icon={addOutline} slot="start"/>Reserva externa / bloqueo</IonButton>
+            {fechaSeleccionada && bloqueosDia(fechaSeleccionada).length > 0 && <div className="agenda-external-list">
+              {bloqueosDia(fechaSeleccionada).map(b => <article key={b.id}>
+                <div><strong>{b.tipo === 'RESERVA_EXTERNA' ? 'Reserva externa' : 'Bloqueo'}</strong><span>{b.origen.replaceAll('_',' ')} · {b.cantidad} cupo{b.cantidad === 1 ? '' : 's'}{b.horaInicio ? ` · ${b.horaInicio.slice(0,5)}` : ''}</span>{b.clienteNombre && <small>{b.clienteNombre}</small>}</div>
+                <IonButton size="small" fill="outline" color="medium" onClick={() => void cancelarBloqueo(b.id)}>Liberar</IonButton>
+              </article>)}
+            </div>}
             {oferta?.requiereHorario ? <>
               <p>Administra cada salida programada. Los cupos ya reservados no pueden eliminarse reduciendo la capacidad.</p>
               <div className="agenda-slots-list">
@@ -335,6 +414,35 @@ export default function AgendaOperadorPage() {
               <IonButton expand="block" disabled={guardandoDia} onClick={() => void guardarDia()}>{guardandoDia ? 'Guardando…' : 'Guardar disponibilidad'}</IonButton>
             </>}
             <IonButton expand="block" fill="clear" onClick={() => setFechaSeleccionada(null)}>Cerrar</IonButton>
+          </div>
+        </IonContent>
+      </IonModal>
+
+      <IonModal isOpen={registrandoExterna} onDidDismiss={() => setRegistrandoExterna(false)}>
+        <IonContent className="ion-padding">
+          <div className="cambio-modal-content">
+            <span className="eyebrow">AGENDA DEL OPERADOR</span>
+            <h2>Reserva externa / bloqueo</h2>
+            <p>Registra reservas recibidas por fuera de Explora Mutatá o separa cupos manualmente. Los cupos se descuentan de la disponibilidad pública.</p>
+            <div className="negocio-form">
+              <label>Tipo<select value={tipoExterno} onChange={e => setTipoExterno(e.target.value as TipoBloqueoAgenda)}>
+                <option value="RESERVA_EXTERNA">Reserva externa</option>
+                <option value="BLOQUEO">Bloqueo manual</option>
+              </select></label>
+              <label>Origen<select value={origenExterno} onChange={e => setOrigenExterno(e.target.value as OrigenBloqueoAgenda)}>
+                <option value="WHATSAPP">WhatsApp</option><option value="TELEFONO">Teléfono</option><option value="PRESENCIAL">Presencial</option><option value="OTRA_PLATAFORMA">Otra plataforma</option><option value="OPERADOR">Operador</option><option value="OTRO">Otro</option>
+              </select></label>
+              {oferta?.requiereHorario && fechaSeleccionada && <label className="form-full">Horario<select value={salidaExternaId} onChange={e => setSalidaExternaId(e.target.value)}>
+                <option value="">Selecciona un horario</option>
+                {salidasDia(fechaSeleccionada).filter(s => s.estado === 'ABIERTA').map(s => <option key={s.id ?? s.horaInicio} value={s.id ?? ''}>{s.horaInicio.slice(0,5)}{s.horaFin ? ` – ${s.horaFin.slice(0,5)}` : ''} · {s.cupoDisponible} disponibles</option>)}
+              </select></label>}
+              <label>Cupos a ocupar<input type="number" min={1} step={1} value={cantidadExterna} onChange={e => setCantidadExterna(e.target.value)}/></label>
+              <label>Cliente (opcional)<input maxLength={180} value={clienteExterno} onChange={e => setClienteExterno(e.target.value)} placeholder="Nombre del cliente"/></label>
+              <label>Teléfono (opcional)<input maxLength={40} value={telefonoExterno} onChange={e => setTelefonoExterno(e.target.value)} placeholder="300 000 0000"/></label>
+              <label className="form-full">Observación<textarea rows={3} maxLength={1000} value={observacionExterna} onChange={e => setObservacionExterna(e.target.value)} placeholder="Ej. Reserva recibida por WhatsApp"/></label>
+            </div>
+            <IonButton expand="block" disabled={guardandoExterna} onClick={() => void guardarReservaExterna()}>{guardandoExterna ? 'Guardando…' : 'Guardar y descontar cupos'}</IonButton>
+            <IonButton expand="block" fill="clear" disabled={guardandoExterna} onClick={() => setRegistrandoExterna(false)}>Cancelar</IonButton>
           </div>
         </IonContent>
       </IonModal>

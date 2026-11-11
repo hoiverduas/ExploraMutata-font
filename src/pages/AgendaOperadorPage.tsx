@@ -328,6 +328,7 @@ export default function AgendaOperadorPage() {
           <div className="agenda-legend">
             <span><i className="agenda-dot agenda-dot-disponible"/>Disponible</span>
             <span><i className="agenda-dot agenda-dot-reserva"/>Reserva Explora</span>
+            <span><i className="agenda-dot agenda-dot-external"/>Reserva externa / bloqueo</span>
             <span><i className="agenda-dot agenda-dot-completo"/>Completo / cerrado</span>
           </div>
 

@@ -27,7 +27,7 @@ export const nombresModeloPrecio: Record<ModeloPrecio, string> = {
 };
 export const modelosPrecioPorCategoria: Record<CategoriaNegocio, readonly ModeloPrecio[]> = {
   AVENTURA: ['FIJO', 'POR_PERSONA', 'POR_PAREJA'],
-  RESTAURANTE: ['FIJO', 'POR_PERSONA', 'POR_PAREJA', 'POR_DIA', 'POR_PERSONA_Y_DIA'],
+  RESTAURANTE: ['FIJO', 'POR_PERSONA', 'POR_PAREJA', 'POR_DIA', 'POR_PERSONA_Y_DIA', 'POR_MESA'],
   HOSPEDAJE: ['FIJO', 'POR_NOCHE', 'POR_PERSONA', 'POR_PAREJA', 'POR_PERSONA_Y_NOCHE', 'POR_UNIDAD_Y_NOCHE'],
   TRANSPORTE: ['FIJO', 'POR_PERSONA', 'POR_TRAYECTO', 'POR_PERSONA_Y_TRAYECTO', 'POR_VEHICULO'],
   GUIA: ['FIJO', 'POR_PERSONA', 'POR_PAREJA', 'POR_DIA', 'POR_GRUPO'],

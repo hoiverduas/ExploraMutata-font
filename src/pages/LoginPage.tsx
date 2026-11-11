@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { IonButton, IonContent, IonPage, IonSpinner } from '@ionic/react';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { IonButton, IonContent, IonPage, IonSpinner, useIonRouter } from '@ionic/react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import { useAuth } from '../auth/AuthContext';
 import type { UsuarioResponse } from '../types/usuario';
@@ -14,7 +14,7 @@ function destinoPorPerfil(perfil: UsuarioResponse): string {
 
 export default function LoginPage() {
   const { iniciarSesion, usuario, cargandoSesion } = useAuth();
-  const navigate = useNavigate();
+  const router = useIonRouter();
   const location = useLocation();
   const [search] = useSearchParams();
   const [correo, setCorreo] = useState('');
@@ -33,15 +33,13 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!rutaActiva || cargandoSesion || !usuario) return;
-    navigate(continuarLocal ?? destinoPorPerfil(usuario), { replace: true });
-  }, [rutaActiva, cargandoSesion, usuario, continuarLocal, navigate]);
+    router.push(continuarLocal ?? destinoPorPerfil(usuario), 'root', 'replace');
+  }, [rutaActiva, cargandoSesion, usuario, continuarLocal, router]);
 
   async function ingresar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); setError(''); setGuardando(true);
     try {
-      const perfil = await iniciarSesion(correo, contrasena);
-      const destino = continuarLocal ?? destinoPorPerfil(perfil);
-      navigate(destino, { replace: true });
+      await iniciarSesion(correo, contrasena);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No fue posible iniciar sesión.');
     } finally { setGuardando(false); }

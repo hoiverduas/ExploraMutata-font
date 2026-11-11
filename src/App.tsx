@@ -28,6 +28,7 @@ import MiViajePage from './pages/MiViajePage';
 import MisViajesPage from './pages/MisViajesPage';
 import ViajeDetallePage from './pages/ViajeDetallePage';
 import OperadorResumenPage from './pages/OperadorResumenPage';
+import AgendaOperadorPage from './pages/AgendaOperadorPage';
 import FinanzasOperadorPage from './pages/FinanzasOperadorPage';
 import FinanzasAdminPage from './pages/FinanzasAdminPage';
 import ComercialOperadorPage from './pages/ComercialOperadorPage';
@@ -75,6 +76,7 @@ function AppNavigation() {
             <Route path="/viajes" element={<AccesoProtegido ruta="/viajes" roles={['TURISTA']}><MisViajesPage /></AccesoProtegido>} />
             <Route path="/viajes/:id" element={<AccesoProtegido ruta="/viajes/:id" roles={['TURISTA']}><ViajeDetallePage /></AccesoProtegido>} />
             <Route path="/operador" element={<AccesoProtegido ruta="/operador" roles={['OPERADOR']}><OperadorResumenPage /></AccesoProtegido>} />
+            <Route path="/operador/agenda" element={<AccesoProtegido ruta="/operador/agenda" roles={['OPERADOR']}><AgendaOperadorPage /></AccesoProtegido>} />
             <Route path="/operador/negocios/:negocioId/paquetes" element={<AccesoProtegido ruta="/operador/negocios/:negocioId/paquetes" roles={['OPERADOR']}><PaquetesOperadorPage /></AccesoProtegido>} />
             <Route path="/operador/negocios/:negocioId/contenido" element={<AccesoProtegido ruta="/operador/negocios/:negocioId/contenido" roles={['OPERADOR']}><ContenidoNegocioPage /></AccesoProtegido>} />
             <Route path="/operador/negocios/:negocioId/ofertas/:ofertaId/contenido" element={<AccesoProtegido ruta="/operador/negocios/:negocioId/ofertas/:ofertaId/contenido" roles={['OPERADOR']}><ContenidoOfertaPage /></AccesoProtegido>} />

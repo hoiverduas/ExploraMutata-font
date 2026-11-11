@@ -253,7 +253,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
         void presentarAlerta({
           cssClass: 'explora-confirm-alert',
           header: 'Confirmar reserva',
-          message: 'Revisa los datos cotizados antes de enviar la solicitud. El negocio deberá confirmarla.',
+          message: 'Revisa los datos cotizados. Si la disponibilidad sigue vigente, la reserva quedará confirmada y podrás continuar al pago.',
           backdropDismiss: false,
           buttons: [
             {
@@ -262,7 +262,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
               handler: () => resolve(false),
             },
             {
-              text: 'Solicitar reserva',
+              text: 'Reservar y continuar',
               role: 'confirm',
               handler: () => resolve(true),
             },

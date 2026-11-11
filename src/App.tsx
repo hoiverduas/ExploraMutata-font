@@ -54,6 +54,7 @@ import AceptarInvitacionPage from './pages/AceptarInvitacionPage';
 import SolicitudOperadorPage from './pages/SolicitudOperadorPage';
 import SolicitudesOperadorAdminPage from './pages/SolicitudesOperadorAdminPage';
 import MisNegociosPage from './pages/MisNegociosPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 setupIonicReact({ mode: 'md' });
 
@@ -121,6 +122,7 @@ function AppNavigation() {
             <Route path="/gestion/resenas" element={<AccesoProtegido ruta="/gestion/resenas" roles={['ADMIN','SUPER_ADMIN']}><ModeracionResenasAdminPage /></AccesoProtegido>} />
             <Route path="/gestion/administradores/invitar" element={<AccesoProtegido ruta="/gestion/administradores/invitar" roles={['SUPER_ADMIN']}><InvitarAdministradorPage /></AccesoProtegido>} />
             <Route path="/" element={<Navigate to="/inicio" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </IonRouterOutlet>
           <IonTabBar slot="bottom" className="explora-tabs" hidden={cargandoSesion || !usuario}>
             <IonTabButton tab="inicio" href="/inicio"><IonIcon icon={homeOutline} /><IonLabel>Inicio</IonLabel></IonTabButton>

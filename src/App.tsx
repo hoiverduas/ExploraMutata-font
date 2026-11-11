@@ -55,6 +55,7 @@ import SolicitudOperadorPage from './pages/SolicitudOperadorPage';
 import SolicitudesOperadorAdminPage from './pages/SolicitudesOperadorAdminPage';
 import MisNegociosPage from './pages/MisNegociosPage';
 import NotFoundPage from './pages/NotFoundPage';
+import NosotrosPage from './pages/NosotrosPage';
 
 setupIonicReact({ mode: 'md' });
 
@@ -92,6 +93,7 @@ function AppNavigation() {
             <Route path="/experiencias" element={<CatalogoPage tipo="experiencias" />} />
             <Route path="/alojamientos" element={<CatalogoPage tipo="alojamientos" />} />
             <Route path="/sofia" element={<SofiaPage />} />
+            <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/ingresar" element={<LoginPage />} />
             <Route path="/registro" element={<RegistroTuristaPage />} />
             <Route path="/aceptar-invitacion" element={<AceptarInvitacionPage />} />

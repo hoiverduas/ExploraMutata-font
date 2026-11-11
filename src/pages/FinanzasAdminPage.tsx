@@ -61,7 +61,7 @@ export default function FinanzasAdminPage() {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
-  const [comision, setComision] = useState({ tipo: 'PORCENTAJE' as TipoReglaComision, valor: '10', observacion: '' });
+  const [comision, setComision] = useState({ tipo: 'PORCENTAJE' as TipoReglaComision, valor: '7', observacion: 'Comisión estándar Explora Mutatá 7%' });
   const [liquidacionObs, setLiquidacionObs] = useState('');
   const [reembolso, setReembolso] = useState({ monto: '', motivo: '' });
   const [conciliacion, setConciliacion] = useState({

@@ -444,7 +444,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     <IonModal
       isOpen={agendaAbierta}
       onDidDismiss={() => setAgendaAbierta(false)}
-      cssClass="public-agenda-modal"
+      className="public-agenda-modal"
     >
       <IonContent className="ion-padding">
         <div className="public-agenda-modal-content">

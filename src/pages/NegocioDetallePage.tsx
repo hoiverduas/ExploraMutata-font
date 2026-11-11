@@ -1,7 +1,7 @@
 import { IonContent, IonIcon, IonPage } from '@ionic/react';
 import { callOutline, locationOutline, mailOutline } from 'ionicons/icons';
-import { useCallback, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import EstadoConsulta from '../components/EstadoConsulta';
 import NavegacionTuristica from '../components/NavegacionTuristica';
@@ -22,6 +22,7 @@ import type { OfertaNegocioResponse } from '../types/oferta';
 
 export default function NegocioDetallePage() {
   const { negocioId } = useParams<{ negocioId: string }>();
+  const location = useLocation();
   const [categoria, setCategoria] = useState<CategoriaNegocio | ''>('');
   const cargarNegocio = useCallback(async (signal: AbortSignal) => {
     if (!negocioId) throw new ApiError(404, 'El negocio no está disponible.');
@@ -38,6 +39,30 @@ export default function NegocioDetallePage() {
   const ofertas = useConsultaApi<OfertaNegocioResponse[]>(cargarOfertas, []);
 
   const negocio = consulta.datos?.id === negocioId ? consulta.datos : null;
+
+  useEffect(() => {
+    if (!negocio || !negocio.categorias.includes('RESTAURANTE')) return;
+    const seccion = new URLSearchParams(location.search).get('seccion');
+    if (seccion !== 'reservas') return;
+
+    let intento = 0;
+    let timer: number | undefined;
+    const ubicarReservas = () => {
+      const objetivo = document.getElementById('reservas');
+      if (objetivo) {
+        objetivo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (intento++ < 12) {
+        timer = window.setTimeout(ubicarReservas, 80);
+      }
+    };
+
+    timer = window.setTimeout(ubicarReservas, 120);
+    return () => {
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [negocio, location.search]);
   const reservaDirecta = Boolean(negocio && (negocio.categorias.includes('HOSPEDAJE') || negocio.categorias.includes('TRANSPORTE')));
   const ofertasOrdenadas = [...ofertas.datos].sort((a, b) => Number(b.reservaRequerida) - Number(a.reservaRequerida));
   const tituloOfertas = negocio?.categorias.includes('HOSPEDAJE')

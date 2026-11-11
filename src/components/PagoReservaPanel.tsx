@@ -245,7 +245,7 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
       setPagando(false);
       const texto = err instanceof Error ? err.message : 'No fue posible iniciar el checkout de Wompi.';
       setError(err instanceof ApiError && err.status === 503
-        ? `${texto} Revisa que Wompi Checkout esté habilitado y configurado en el backend.`
+        ? `${texto} El servicio de pagos no está disponible en este momento. Inténtalo nuevamente más tarde.`
         : texto);
     }
   };
@@ -271,7 +271,7 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
 
     {!cargando && pagoCompleto && <>
       <div className="notice-success" role="status">
-        La reserva está pagada completamente. Los pagos fueron confirmados por Wompi mediante webhook.
+        La reserva está pagada completamente. Wompi confirmó el pago correctamente.
       </div>
       {foco && <div className="form-actions">
         <IonButton fill="outline" disabled={cargando || pagando} onClick={() => void actualizar()}>
@@ -377,7 +377,7 @@ export default function PagoReservaPanel({ reserva }: { reserva: ReservaResponse
     {error && <div className="notice-error" role="alert">{error}</div>}
     <small>
       El pago solo se habilita después de la confirmación del negocio. En paquetes, todos los negocios deben haber confirmado.
-      El estado definitivo del pago se confirma mediante el webhook firmado de Wompi.
+      La confirmación final del pago puede tardar unos segundos en reflejarse.
     </small>
   </section>;
 }

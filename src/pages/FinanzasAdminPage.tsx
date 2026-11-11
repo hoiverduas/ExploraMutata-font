@@ -242,7 +242,7 @@ export default function FinanzasAdminPage() {
   };
 
   return <IonPage><BrandHeader title="Administración financiera" mostrarGestion={false}/><IonContent fullscreen><main className="page-width gestion-page">
-    <div className="gestion-heading"><div><span className="eyebrow">ADMINISTRACIÓN · FINANZAS</span><h1>Pagos, comisiones y <em>liquidaciones.</em></h1><p>Panel administrativo conectado al módulo financiero del backend.</p></div><IonButton fill="outline" disabled={cargando || guardando} onClick={() => void cargarBase()}>Actualizar</IonButton></div>
+    <div className="gestion-heading"><div><span className="eyebrow">ADMINISTRACIÓN · FINANZAS</span><h1>Pagos, comisiones y <em>liquidaciones.</em></h1><p>Administra pagos, comisiones, liquidaciones y cuentas de los negocios.</p></div><IonButton fill="outline" disabled={cargando || guardando} onClick={() => void cargarBase()}>Actualizar</IonButton></div>
     {mensaje && <div className="notice-success" role="status">{mensaje}</div>}{error && <div className="notice-error" role="alert">{error}</div>}
     {cargando && <div className="loading-state"><IonSpinner/> Consultando finanzas…</div>}
 
@@ -263,7 +263,7 @@ export default function FinanzasAdminPage() {
 
     <section className="gestion-form-panel"><h2>Liquidaciones y Pagos a Terceros</h2><div className="negocios-list">{liquidaciones.map(item => <article className="negocio-row" key={item.id}><div><h3>{formatearPrecio(item.monto, item.moneda)}</h3><p>{estadoTexto(item.estado)} · negocio {item.negocioId} · {fecha(item.fechaCreacion)}</p>{item.observacion && <p>{item.observacion}</p>}{dispersiones[item.id]?.map(d => <div className="quote-summary" key={d.id}><strong>Intento {d.numeroIntento}: {estadoTexto(d.estado)}</strong><p>{d.estadoTransaccionProveedor || d.mensajeError || 'Sin detalle adicional.'}</p><div className="form-actions"><IonButton size="small" fill="outline" disabled={guardando} onClick={() => sincronizar(d)}>Sincronizar</IonButton>{d.estado === 'ESTADO_INCIERTO' && <IonButton size="small" fill="outline" disabled={guardando} onClick={() => reenviar(d)}>Reenviar misma idempotencia</IonButton>}</div></div>)}</div><div className="negocio-row-actions"><IonButton size="small" fill="outline" onClick={() => void verDispersiones(item.id)}>Dispersiones</IonButton>{['LISTA','FALLIDA'].includes(item.estado) && <IonButton size="small" disabled={guardando} onClick={() => enviarWompi(item.id)}>Enviar por Wompi</IonButton>}</div></article>)}{!liquidaciones.length && <p className="empty-state">No hay liquidaciones creadas.</p>}</div></section>
 
-    <section className="gestion-form-panel"><h2>Reembolsos por pago</h2><p>El backend trabaja con el ID interno del pago; no se usa directamente el ID de transacción del navegador.</p><div className="negocio-form"><label>ID del pago<input value={pagoId} onChange={e => setPagoId(e.target.value)}/></label><div className="form-actions"><IonButton fill="outline" onClick={() => void consultarPago()}>Consultar pago</IonButton></div>
+    <section className="gestion-form-panel"><h2>Reembolsos por pago</h2><p>Consulta el pago por su identificador interno para gestionar un reembolso.</p><div className="negocio-form"><label>ID del pago<input value={pagoId} onChange={e => setPagoId(e.target.value)}/></label><div className="form-actions"><IonButton fill="outline" onClick={() => void consultarPago()}>Consultar pago</IonButton></div>
       <label>Monto a reembolsar<input type="number" min="0.01" step="0.01" value={reembolso.monto} onChange={e => setReembolso(v => ({ ...v, monto: e.target.value }))}/></label><label>Motivo<textarea minLength={5} maxLength={500} value={reembolso.motivo} onChange={e => setReembolso(v => ({ ...v, motivo: e.target.value }))}/></label><div className="form-actions"><IonButton disabled={guardando} onClick={solicitarReembolso}>Solicitar reembolso</IonButton></div></div>
       {distribuciones.map(d => <p key={d.id}>{estadoTexto(d.tipoBeneficiario)}: {formatearPrecio(d.monto, d.moneda)} · reembolsado {formatearPrecio(d.montoReembolsado, d.moneda)} · {estadoTexto(d.estado)}</p>)}
       {reembolsos.map(r => <p key={r.id}>{formatearPrecio(r.monto, r.moneda)} · {estadoTexto(r.estado)} · {r.motivo}</p>)}
@@ -275,12 +275,12 @@ export default function FinanzasAdminPage() {
 
     <section className="gestion-form-panel">
       <div className="gestion-form-heading">
-        <div><h2>Wompi Pagos a Terceros</h2><p>Valida la conexión del backend y consulta las cuentas desde las que Explora Mutatá puede dispersar liquidaciones.</p></div>
+        <div><h2>Wompi Pagos a Terceros</h2><p>Consulta las cuentas disponibles para realizar las dispersiones de liquidaciones.</p></div>
         <span className={`status-pill status-${diagnostico ? 'activo' : 'borrador'}`}>{diagnostico ? 'conectado' : 'sin validar'}</span>
       </div>
       <IonButton fill="outline" disabled={guardando} onClick={() => void diagnosticarWompi()}>{guardando ? 'Consultando…' : diagnostico ? 'Volver a validar conexión' : 'Validar conexión con Wompi'}</IonButton>
       {diagnostico && <>
-        <div className="notice-success" role="status">La integración operativa con Pagos a Terceros respondió correctamente desde el backend: cuentas origen y bancos están disponibles. Las credenciales privadas nunca se exponen al navegador.</div>
+        <div className="notice-success" role="status">Pagos a Terceros está disponible: puedes consultar cuentas de origen y bancos habilitados.</div>
         <h3>Cuentas origen disponibles</h3>
         <div className="negocios-list">
           {diagnostico.cuentasOrigen.map(cuenta => <article className="negocio-row" key={cuenta.id}>
@@ -288,14 +288,14 @@ export default function FinanzasAdminPage() {
               <h3>{nombreCuentaOrigen(cuenta)}</h3>
               <p>{referenciaCuentaOrigen(cuenta)} · {cuenta.accountType ? estadoTexto(cuenta.accountType) : 'tipo no informado'} · {saldoCuentaOrigen(cuenta)}</p>
               <small>ID técnico: {cuenta.id}{cuenta.updatedAt ? ` · actualizado ${fecha(cuenta.updatedAt)}` : ''}</small>
-              {cuenta.id === 'WOMPI_ACCOUNT' && <p>Esta cuenta puede usarse como origen de las dispersiones de prueba configurando <strong>WOMPI_PAGOS_TERCEROS_CUENTA_ORIGEN_ID=WOMPI_ACCOUNT</strong> en el backend.</p>}
+              
             </div>
             <span className={`status-pill status-${cuenta.status === 'ACTIVE' ? 'activo' : 'inactivo'}`}>{estadoTexto(cuenta.status)}</span>
           </article>)}
           {!diagnostico.cuentasOrigen.length && <p className="empty-state">Wompi respondió, pero no devolvió cuentas origen disponibles.</p>}
         </div>
         <p>Bancos disponibles para registrar cuentas de operadores: <strong>{contarElementosWompi(diagnostico.bancos)}</strong>.</p>
-        <small>El envío de una liquidación se realiza desde la sección “Liquidaciones y Pagos a Terceros”. El frontend solo llama al backend; API Key, usuario principal y secretos permanecen del lado servidor.</small>
+        <small>El envío de una liquidación se realiza desde la sección “Liquidaciones y Pagos a Terceros”. Las credenciales privadas permanecen protegidas y nunca se muestran en el navegador.</small>
       </>}
     </section>
   </main></IonContent></IonPage>;

@@ -367,6 +367,6 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       {!oferta.reservaRequerida && <p>Esta oferta no requiere reserva. Consulta con el negocio para coordinar el servicio.</p>}
     </>}
     {error && <div className="notice-error" role="alert">{error}</div>}
-    <small>El backend vuelve a validar disponibilidad, precio y horario al crear la reserva.</small>
+    <small>Al reservar, volveremos a validar disponibilidad, precio y horario.</small>
   </section>;
 }

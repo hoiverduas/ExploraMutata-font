@@ -63,7 +63,7 @@ export default function ModeracionResenasAdminPage() {
   };
 
   return <IonPage><BrandHeader title="Moderación de reseñas" mostrarGestion={false}/><IonContent fullscreen><main className="page-width gestion-page">
-    <div className="gestion-heading"><div><span className="eyebrow">ADMINISTRACIÓN</span><h1>Moderación de <em>reseñas.</em></h1><p>Consulta todas las reseñas de un negocio, incluidas las ocultas, y aplica la moderación permitida por el backend.</p></div></div>
+    <div className="gestion-heading"><div><span className="eyebrow">ADMINISTRACIÓN</span><h1>Moderación de <em>reseñas.</em></h1><p>Consulta todas las reseñas de un negocio, incluidas las ocultas, y aplica las acciones de moderación disponibles.</p></div></div>
     <section className="gestion-form-panel"><label>Negocio<select value={negocioId} onChange={e => setNegocioId(e.target.value)}><option value="">Selecciona</option>{negocios.map(n => <option key={n.id} value={n.id}>{n.nombreComercial}</option>)}</select></label><div className="form-actions"><IonButton fill="outline" disabled={cargando || !negocioId} onClick={() => void cargar(negocioId)}>Actualizar</IonButton></div></section>
     {mensaje && <div className="notice-success">{mensaje}</div>}{error && <div className="notice-error">{error}</div>}
     <section className="gestion-form-panel"><h2>Reseñas del negocio</h2>{cargando ? <div className="loading-state"><IonSpinner/> Cargando reseñas…</div> : <div className="reviews-list">{resenas.map(item => <article className="review-card" key={item.id}>

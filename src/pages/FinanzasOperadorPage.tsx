@@ -138,7 +138,7 @@ export default function FinanzasOperadorPage() {
     {cargando && !negocios.length ? <div className="loading-state"><IonSpinner/> Cargando finanzas…</div> : <>
       <section className="gestion-form-panel"><label>Negocio<select value={negocioId} onChange={e => setNegocioId(e.target.value)}><option value="">Selecciona un negocio</option>{negocios.map(item => <option key={item.id} value={item.id}>{item.nombreComercial}</option>)}</select></label>{negocio && <p>Información financiera de <strong>{negocio.nombreComercial}</strong>.</p>}</section>
 
-      {negocioId && <><section className="gestion-form-panel"><h2>Cuenta para recibir liquidaciones</h2><p>La cuenta se registra cifrada en el backend; el frontend solo vuelve a mostrar su referencia enmascarada.</p>
+      {negocioId && <><section className="gestion-form-panel"><h2>Cuenta para recibir liquidaciones</h2><p>La cuenta se registra de forma segura y luego solo se muestra su referencia enmascarada.</p>
         <div className="form-actions"><IonButton fill="outline" disabled={cargandoBancos || guardando} onClick={() => void cargarBancos()}>{cargandoBancos ? 'Consultando Wompi…' : bancos.length ? 'Actualizar bancos Wompi' : 'Consultar bancos Wompi'}</IonButton></div>
         {bancos.length > 0 && <div className="negocio-form">
           <label>Entidad financiera o billetera<select value={form.bancoIdWompi} onChange={e => setForm(v => ({ ...v, bancoIdWompi: e.target.value }))}><option value="">Selecciona</option>{bancos.map(b => <option key={b.id} value={b.id}>{b.nombre}{b.depositoElectronico ? ' · Billetera / depósito electrónico' : b.codigo ? ` · ${b.codigo}` : ''}</option>)}</select></label>

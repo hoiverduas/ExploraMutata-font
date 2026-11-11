@@ -95,12 +95,12 @@ export default function PagoResultadoPage() {
     ? 'Anticipo confirmado. Vuelve a la reserva para consultar el saldo pendiente y pagarlo cuando corresponda.'
     : orden?.tipoPago === 'SALDO'
       ? 'Saldo confirmado. Con este pago completaste el valor pendiente de la reserva.'
-      : 'Pago completo confirmado. La orden fue aprobada por el backend.';
+      : 'Pago completo confirmado. Tu pago fue validado correctamente.';
 
   return <IonPage><BrandHeader title="Resultado del pago"/><IonContent fullscreen><main className="page-width gestion-page">
     <span className="eyebrow">WOMPI · EXPLORA MUTATÁ</span><h1>Estado de tu <em>pago.</em></h1>
     {!sesion ? <section className="gestion-form-panel"><h2>No encontramos la orden en esta sesión</h2><p>Vuelve a Mis reservas y abre la reserva que estabas pagando. Desde allí puedes consultar el estado o iniciar nuevamente el pago.</p><Link className="resource-inline-link" to="/reservas">Ir a Mis reservas →</Link></section> : <>
-      {cargando && <div className="loading-state"><IonSpinner/> Esperando la confirmación del backend…</div>}
+      {cargando && <div className="loading-state"><IonSpinner/> Verificando la confirmación del pago…</div>}
       {error && !aprobado && <div className="notice-error" role="alert">{error}</div>}
       {orden && <section className="gestion-form-panel">
         <div className="gestion-form-heading"><h2>Orden {orden.referencia}</h2><PagoEstadoBadge estado={orden.estado}/></div>

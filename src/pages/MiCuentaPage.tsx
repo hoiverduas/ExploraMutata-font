@@ -1,13 +1,13 @@
-import { IonButton, IonContent, IonIcon, IonPage, IonSpinner, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonContent, IonIcon, IonPage, IonSpinner, useIonRouter, useIonViewWillEnter } from '@ionic/react';
 import { logOutOutline, storefrontOutline, personAddOutline } from 'ionicons/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import BrandHeader from '../components/BrandHeader';
 import { useAuth } from '../auth/AuthContext';
 
 export default function MiCuentaPage() {
   const { usuario, tieneRol, cerrarSesion, refrescarUsuario } = useAuth();
-  const navigate = useNavigate();
+  const router = useIonRouter();
   const [actualizando, setActualizando] = useState(false);
   const [error, setError] = useState('');
   const actualizar = async () => {
@@ -46,7 +46,10 @@ export default function MiCuentaPage() {
         {tieneRol('SUPER_ADMIN') && <Link className="profile-action" to="/gestion/administradores/invitar"><IonIcon icon={personAddOutline}/> Invitar administrador <span>→</span></Link>}
       </section>}
       {tieneRol('TURISTA') && <section className="profile-actions"><h2>Mi espacio de viajero</h2><Link className="profile-action" to="/mi-viaje">Armar mi viaje <span>→</span></Link><Link className="profile-action" to="/viajes">Mis viajes <span>→</span></Link><Link className="profile-action" to="/reservas"><IonIcon icon={storefrontOutline}/> Mis reservas <span>→</span></Link><Link className="profile-action" to="/favoritos">Mis favoritos <span>→</span></Link><Link className="profile-action" to="/mis-resenas">Mis reseñas <span>→</span></Link><p>Consulta tus solicitudes, favoritos y opiniones.</p></section>}
-      <IonButton fill="outline" color="medium" onClick={() => { cerrarSesion(); navigate('/inicio', { replace: true }); }}>
+      <IonButton fill="outline" color="medium" onClick={() => {
+        cerrarSesion();
+        router.push('/inicio', 'root', 'replace');
+      }}>
         <IonIcon slot="start" icon={logOutOutline}/> Cerrar sesión
       </IonButton>
     </main>

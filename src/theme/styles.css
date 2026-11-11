@@ -1619,3 +1619,25 @@ button.rating-star:hover{transform:scale(1.08)}
     font-size:10px;
   }
 }
+
+
+/* Restaurante: platos sin reserva */
+.restaurante-plate-info{
+  align-self:start;
+}
+.restaurante-plate-info h2{
+  margin:8px 0 10px;
+  font:600 clamp(24px,3vw,32px)/1.12 'Playfair Display',Georgia,serif;
+}
+.restaurante-plate-info p{
+  margin:0 0 18px;
+  color:var(--muted);
+  line-height:1.65;
+}
+.restaurante-plate-info .marketplace-primary-link{
+  width:100%;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}

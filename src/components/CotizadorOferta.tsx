@@ -22,7 +22,7 @@ import type { DisponibilidadDiaResponse } from '../types/disponibilidad';
 import type { SalidaProgramadaResponse } from '../types/horario';
 import type { DisponibilidadHospedajeResponse } from '../types/hospedajeBooking';
 import type { Moneda } from '../types/moneda';
-import type { OfertaNegocioResponse, OfertaRestauranteResponse } from '../types/oferta';
+import type { OfertaNegocioResponse, OfertaRestauranteResponse, TipoOfertaRestaurante } from '../types/oferta';
 import SelectorMoneda from './SelectorMoneda';
 import AgendaPublicaOferta from './AgendaPublicaOferta';
 
@@ -70,7 +70,7 @@ function ResumenCotizacion({ cotizacion }: { cotizacion: CotizacionOfertaRespons
 const selectorSalida = (salida: SalidaProgramadaResponse) =>
   salida.id ? `S:${salida.id}` : salida.franjaHorariaId ? `F:${salida.franjaHorariaId}` : '';
 
-export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioResponse }) {
+export default function CotizadorOferta({ oferta, tipoRestaurante = null }: { oferta: OfertaNegocioResponse; tipoRestaurante?: TipoOfertaRestaurante | null }) {
   const { usuario } = useAuth();
   const { agregarOferta, guardando: guardandoViaje } = useViaje();
   const location = useLocation();
@@ -106,7 +106,8 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const mostrarFin = usaNoches || ['POR_DIA', 'POR_PERSONA_Y_DIA'].includes(modeloEfectivo) || duracionUnidadEfectiva !== 'UNICO';
   const mostrarTrayectos = oferta.categoria === 'TRANSPORTE';
   const requiereHorarioEfectivo = Boolean(oferta.categoria !== 'HOSPEDAJE' && oferta.requiereHorario);
-  const esReservaRestaurante = oferta.categoria === 'RESTAURANTE' && oferta.reservaRequerida;
+  const esPlatoDia = oferta.categoria === 'RESTAURANTE' && tipoRestaurante === 'PLATO_DIA';
+  const esReservaRestaurante = oferta.categoria === 'RESTAURANTE' && oferta.reservaRequerida && !esPlatoDia;
 
   useLayoutEffect(() => {
     contexto.current = {};
@@ -275,7 +276,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     const cantidadPersonas = Number(formulario.cantidadPersonas);
     const cantidadTrayectos = mostrarTrayectos && formulario.cantidadTrayectos.trim() ? Number(formulario.cantidadTrayectos) : null;
     const fechaFin = mostrarFin && formulario.fechaFin ? formulario.fechaFin : null;
-    if (!Number.isSafeInteger(cantidadPersonas) || cantidadPersonas < 1) return setError('Indica una cantidad entera de al menos una persona.');
+    if (!Number.isSafeInteger(cantidadPersonas) || cantidadPersonas < 1) return setError(esPlatoDia ? 'Indica una cantidad entera de al menos una porción.' : 'Indica una cantidad entera de al menos una persona.');
     if (!esFechaReservaValida(formulario.fechaInicio) || formulario.fechaInicio < fechaActualReservas()) return setError('Selecciona una fecha de inicio de hoy o posterior.');
     if (fechaFin && (!esFechaReservaValida(fechaFin) || fechaFin < formulario.fechaInicio || (usaNoches && fechaFin === formulario.fechaInicio))) return setError('Revisa la fecha de fin; para alojamiento por noche debe ser posterior al inicio.');
     if (usaNoches && duracionUnidadEfectiva === 'UNICO' && !fechaFin) return setError('Selecciona una fecha de salida para cotizar las noches.');
@@ -327,8 +328,8 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       const confirmado = await new Promise<boolean>(resolve => {
         void presentarAlerta({
           cssClass: 'explora-confirm-alert',
-          header: 'Confirmar reserva',
-          message: 'Revisa los datos cotizados. Si la disponibilidad sigue vigente, la reserva quedará confirmada y podrás continuar al pago.',
+          header: esPlatoDia ? 'Confirmar reserva del plato' : 'Confirmar reserva',
+          message: esPlatoDia ? 'Revisa la cantidad de porciones, fecha y horario. Si la disponibilidad sigue vigente, el plato quedará reservado.' : 'Revisa los datos cotizados. Si la disponibilidad sigue vigente, la reserva quedará confirmada y podrás continuar al pago.',
           backdropDismiss: false,
           buttons: [
             {
@@ -337,7 +338,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
               handler: () => resolve(false),
             },
             {
-              text: 'Reservar y continuar',
+              text: esPlatoDia ? 'Reservar plato' : 'Reservar y continuar',
               role: 'confirm',
               handler: () => resolve(true),
             },
@@ -401,10 +402,10 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     }
   };
 
-  return <section className="gestion-form-panel offer-quote" id="cotizar"><span className="eyebrow">PLANEA TU EXPERIENCIA</span><h2>Cotiza esta oferta</h2><p>Elige tus fechas y viajeros para consultar precio y disponibilidad real.</p><SelectorMoneda/>
+  return <section className="gestion-form-panel offer-quote" id="cotizar"><span className="eyebrow">{esPlatoDia ? 'RESERVA DE PLATO' : 'PLANEA TU EXPERIENCIA'}</span><h2>{esPlatoDia ? 'Reserva tu plato' : 'Cotiza esta oferta'}</h2><p>{esPlatoDia ? 'Elige cuántas porciones deseas y consulta la disponibilidad real del plato.' : 'Elige tus fechas y viajeros para consultar precio y disponibilidad real.'}</p><SelectorMoneda/>
     <form className="negocio-form quote-form" onSubmit={cotizar}>
       {variantes.length > 0 && <label>Opción<select disabled={guardando} value={formulario.varianteId} onChange={e => cambiar('varianteId', e.target.value)}><option value="">Opción general</option>{variantes.map(variante => <option key={variante.id} value={variante.id}>{variante.nombre}</option>)}</select></label>}
-      <label>Personas<input type="number" required min={1} step={1} disabled={guardando} value={formulario.cantidadPersonas} onChange={e => cambiar('cantidadPersonas', e.target.value)}/></label>
+      <label>{esPlatoDia ? 'Porciones' : 'Personas'}<input type="number" required min={1} step={1} disabled={guardando} value={formulario.cantidadPersonas} onChange={e => cambiar('cantidadPersonas', e.target.value)}/></label>
       {oferta.reservaRequerida && <div className="form-full availability-trigger">
         <IonButton
           type="button"
@@ -534,7 +535,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
             </div>}
       </section>}
       {oferta.reservaRequerida && <><label className="cambio-label">Observaciones (opcional)<textarea rows={3} maxLength={1000} disabled={guardando} value={observaciones} onChange={e => setObservaciones(e.target.value)}/></label>
-        {!usuario ? <Link className="marketplace-primary-link" to={`/ingresar?continuar=${encodeURIComponent(location.pathname)}`}>Inicia sesión para agregar o reservar</Link> : <div className="marketplace-actions"><IonButton disabled={guardando || guardandoViaje} onClick={() => void continuar('agregar')}>{guardando ? 'Guardando…' : 'Agregar a mi viaje'}</IonButton><IonButton fill="outline" disabled={guardando || guardandoViaje || !cotizada.respuesta.cotizacionDisponible} onClick={() => void continuar('reservar')}>Reservar esta oferta</IonButton></div>}
+        {!usuario ? <Link className="marketplace-primary-link" to={`/ingresar?continuar=${encodeURIComponent(location.pathname)}`}>Inicia sesión para reservar</Link> : <div className="marketplace-actions">{!esPlatoDia && <IonButton disabled={guardando || guardandoViaje} onClick={() => void continuar('agregar')}>{guardando ? 'Guardando…' : 'Agregar a mi viaje'}</IonButton>}<IonButton fill="outline" disabled={guardando || guardandoViaje || !cotizada.respuesta.cotizacionDisponible} onClick={() => void continuar('reservar')}>{esPlatoDia ? 'Reservar plato' : 'Reservar esta oferta'}</IonButton></div>}
       </>}
       {!oferta.reservaRequerida && <p>Esta oferta no requiere reserva. Consulta con el negocio para coordinar el servicio.</p>}
     </>}

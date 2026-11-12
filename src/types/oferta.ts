@@ -77,7 +77,7 @@ export interface OfertaNegocioResponse extends OfertaNegocioRequest {
 }
 
 export type CamposOfertaEspecializadaRequest = Omit<OfertaNegocioRequest, 'categoria' | 'destinoId' | 'experienciaId'>;
-export const tiposOfertaRestaurante = ['INDIVIDUAL', 'COMBO'] as const;
+export const tiposOfertaRestaurante = ['INDIVIDUAL', 'COMBO', 'PLATO_DIA'] as const;
 export type TipoOfertaRestaurante = typeof tiposOfertaRestaurante[number];
 export const tiposServicioRestaurante = ['DESAYUNO', 'ALMUERZO', 'CENA', 'MERIENDA', 'POSTRE', 'BEBIDA', 'SNACK', 'MENU_ESPECIAL', 'OTRO'] as const;
 export type TipoServicioRestaurante = typeof tiposServicioRestaurante[number];

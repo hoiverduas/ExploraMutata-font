@@ -59,8 +59,10 @@ function RestauranteOfertaCard({ detalle }: { detalle: OfertaRestauranteResponse
     </Link>
     <div className="restaurante-menu-card-body">
       <div className="restaurante-menu-card-top">
-        <span>{detalle.tipoOferta === 'COMBO' ? 'Combo' : 'Plato / servicio'}</span>
-        {oferta.reservaRequerida && <span className="restaurante-reserva-chip">Reserva</span>}
+        <span>{detalle.tipoOferta === 'COMBO' ? 'Combo' : detalle.tipoOferta === 'PLATO_DIA' ? 'Plato del día' : 'Plato / servicio'}</span>
+        {detalle.tipoOferta === 'PLATO_DIA'
+          ? <span className="restaurante-reserva-chip">Disponible por reserva</span>
+          : oferta.reservaRequerida && <span className="restaurante-reserva-chip">Reserva</span>}
       </div>
       <h3>{oferta.nombre}</h3>
       {oferta.descripcionOferta && <p>{oferta.descripcionOferta}</p>}
@@ -75,7 +77,7 @@ function RestauranteOfertaCard({ detalle }: { detalle: OfertaRestauranteResponse
         className={`restaurante-menu-action ${oferta.reservaRequerida ? 'restaurante-menu-action-primary' : 'restaurante-menu-action-secondary'}`}
         to={`/negocios/${encodeURIComponent(oferta.negocioId)}/ofertas/${oferta.id}`}
       >
-        <span>{oferta.reservaRequerida ? 'Ver y reservar' : 'Ver detalle'}</span>
+        <span>{detalle.tipoOferta === 'PLATO_DIA' ? 'Ver y reservar plato' : oferta.reservaRequerida ? 'Ver y reservar' : 'Ver detalle'}</span>
         <span className="restaurante-menu-action-arrow" aria-hidden="true">→</span>
       </Link>
     </div>
@@ -95,7 +97,7 @@ export default function RestauranteNegocioDetalle({ negocio }: { negocio: Negoci
   const todas = useConsultaApi<OfertaNegocioResponse[]>(cargarTodas, []);
   const cartaOrdenada = [...carta.datos].sort((a, b) => Number(b.oferta.reservaRequerida) - Number(a.oferta.reservaRequerida));
   const otrasOfertas = todas.datos.filter(oferta => oferta.categoria !== 'RESTAURANTE');
-  const reservable = cartaOrdenada.find(item => item.oferta.reservaRequerida)?.oferta ?? null;
+  const reservable = cartaOrdenada.find(item => item.oferta.reservaRequerida && item.tipoOferta !== 'PLATO_DIA')?.oferta ?? null;
   const ubicacion = [negocio.direccion, negocio.vereda, negocio.municipio].filter(Boolean).join(' · ');
 
   return <>

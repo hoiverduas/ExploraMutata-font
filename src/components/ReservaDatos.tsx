@@ -34,6 +34,22 @@ export default function ReservaDatos({ reserva, mostrarCliente = false }: { rese
       <p>Descuento: -{formatearPrecio(reserva.descuentoReserva, reserva.monedaReserva)}</p>
     </div>}
     <PrecioReserva precioReserva={reserva.precioReserva} monedaReserva={reserva.monedaReserva} totalReserva={reserva.totalReserva}/>
+    {reserva.pedidoRestaurante?.length > 0 && <section className="reservation-preorder-detail">
+      <div className="reservation-preorder-heading">
+        <span className="eyebrow">PEDIDO ANTICIPADO</span>
+        <h3>Platos asociados a la reserva</h3>
+      </div>
+      <div className="reservation-preorder-items">
+        {reserva.pedidoRestaurante.map(item => <article key={item.id}>
+          <div>
+            <strong>{item.cantidad} × {item.nombreOferta}</strong>
+            <small>{item.precioUnitario !== null ? `${formatearPrecio(item.precioUnitario, item.moneda)} c/u` : 'Precio por consultar'}</small>
+          </div>
+          <span>{item.subtotal !== null ? formatearPrecio(item.subtotal, item.moneda) : '—'}</span>
+        </article>)}
+      </div>
+      <p>Este pedido es informativo y todavía no se suma automáticamente al pago de la reserva de mesa.</p>
+    </section>}
     {reserva.detalleCotizacion && <p>{reserva.detalleCotizacion}</p>}
     <div><h3>Observaciones</h3><p>{reserva.observaciones || 'Sin observaciones.'}</p></div>
     {reserva.motivoRechazo && <div><h3>Motivo del rechazo</h3><p>{reserva.motivoRechazo}</p></div>}

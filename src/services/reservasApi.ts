@@ -24,6 +24,7 @@ export const reservasApi = {
         varianteId: body.varianteId ?? null,
         codigoPromocion: body.codigoPromocion ?? null,
         observaciones: body.observaciones,
+        pedidoRestaurante: body.pedidoRestaurante ?? [],
       }),
     });
   },

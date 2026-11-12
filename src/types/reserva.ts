@@ -5,6 +5,21 @@ import type { TipoDescuentoPromocion } from './configuracionComercialOferta';
 export const estadosReserva = ['PENDIENTE', 'CONFIRMADA', 'RECHAZADA', 'CANCELADA', 'COMPLETADA'] as const;
 export type EstadoReserva = typeof estadosReserva[number];
 
+export interface ReservaRestaurantePedidoRequest {
+  ofertaId: number;
+  cantidad: number;
+}
+
+export interface ReservaRestaurantePedidoResponse {
+  id: string;
+  ofertaId: number;
+  nombreOferta: string;
+  cantidad: number;
+  precioUnitario: number | null;
+  moneda: Moneda;
+  subtotal: number | null;
+}
+
 export interface ReservaRequest {
   negocioExperienciaId: number;
   fechaReserva: string;
@@ -16,6 +31,7 @@ export interface ReservaRequest {
   varianteId?: string | null;
   codigoPromocion?: string | null;
   observaciones: string | null;
+  pedidoRestaurante?: ReservaRestaurantePedidoRequest[];
 }
 
 export interface RechazarReservaRequest {
@@ -73,6 +89,7 @@ export interface ReservaResponse {
   fechaCreacion: string;
   fechaActualizacion: string;
   version: number;
+  pedidoRestaurante: ReservaRestaurantePedidoResponse[];
 }
 
 export interface ReservaOperadorFiltros {

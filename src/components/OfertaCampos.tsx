@@ -120,10 +120,10 @@ export default function OfertaCampos({ formulario, cambiar, categorias, editando
       <CampoLista etiqueta="Unidad de duración *" opciones={unidadesDuracionOferta} valor={formulario.duracionUnidad} cambiar={unidad => cambiar({ ...formulario, duracionUnidad: unidad, duracionCantidad: unidad === 'UNICO' ? '1' : formulario.duracionCantidad })}/>
       <label>Cantidad de duración *<input type="number" required min={1} step={1} disabled={formulario.duracionUnidad === 'UNICO'} value={formulario.duracionCantidad} onChange={e => campo('duracionCantidad', e.target.value)}/></label>
     </>}
-    <label className="resource-reserva-check form-full"><input type="checkbox" checked={formulario.reservaRequerida} onChange={e => campo('reservaRequerida', e.target.checked)}/><span>Requiere reserva previa</span></label>
+    <label className="resource-reserva-check form-full"><input type="checkbox" checked={formulario.reservaRequerida} disabled={formulario.categoria === 'RESTAURANTE' && formulario.tipoOfertaRestaurante === 'PLATO_DIA'} onChange={e => campo('reservaRequerida', e.target.checked)}/><span>{formulario.categoria === 'RESTAURANTE' && formulario.tipoOfertaRestaurante === 'PLATO_DIA' ? 'Reserva previa obligatoria para plato del día' : 'Requiere reserva previa'}</span></label>
     {formulario.categoria === 'RESTAURANTE' && <>
-      <CampoLista etiqueta="Tipo de oferta *" opciones={tiposOfertaRestaurante} valor={formulario.tipoOfertaRestaurante} cambiar={tipo => campo('tipoOfertaRestaurante', tipo)}/>
-      <div className="form-full oferta-items"><h3>Qué incluye</h3><p>{formulario.tipoOfertaRestaurante === 'COMBO' ? 'Añade al menos dos elementos al combo.' : 'La oferta individual debe contener un elemento.'}</p>
+      <CampoLista etiqueta="Tipo de oferta *" opciones={tiposOfertaRestaurante} valor={formulario.tipoOfertaRestaurante} cambiar={tipo => cambiar({ ...formulario, tipoOfertaRestaurante: tipo, reservaRequerida: tipo === 'PLATO_DIA' ? true : formulario.reservaRequerida })}/>
+      <div className="form-full oferta-items"><h3>Qué incluye</h3><p>{formulario.tipoOfertaRestaurante === 'COMBO' ? 'Añade al menos dos elementos al combo.' : formulario.tipoOfertaRestaurante === 'PLATO_DIA' ? 'El plato del día debe contener un solo elemento y tendrá reserva directa por disponibilidad.' : 'La oferta individual debe contener un elemento.'}</p>
         {formulario.items.map((item, indice) => <fieldset className="negocio-form oferta-menu-item" key={indice}><legend>Elemento {indice + 1}</legend>
           <CampoLista etiqueta="Servicio *" opciones={tiposServicioRestaurante} valor={item.tipoServicio} cambiar={tipo => actualizarItem(indice, 'tipoServicio', tipo)}/>
           <label>Nombre *<input required maxLength={150} value={item.nombre} onChange={e => actualizarItem(indice, 'nombre', e.target.value)}/></label>
@@ -131,7 +131,7 @@ export default function OfertaCampos({ formulario, cambiar, categorias, editando
           <label>Cantidad *<input type="number" required min={1} step={1} value={item.cantidad} onChange={e => actualizarItem(indice, 'cantidad', e.target.value)}/></label>
           <div className="form-actions"><IonButton type="button" size="small" fill="clear" disabled={indice === 0} onClick={() => moverItem(indice, -1)}>Subir</IonButton><IonButton type="button" size="small" fill="clear" disabled={indice === formulario.items.length - 1} onClick={() => moverItem(indice, 1)}>Bajar</IonButton><IonButton type="button" size="small" fill="outline" onClick={() => campo('items', formulario.items.filter((_, posicion) => posicion !== indice))}>Retirar elemento</IonButton></div>
         </fieldset>)}
-        <IonButton type="button" fill="outline" onClick={() => campo('items', [...formulario.items, { tipoServicio: 'DESAYUNO', nombre: '', descripcion: '', cantidad: '1' }])}>Agregar elemento</IonButton>
+        {formulario.tipoOfertaRestaurante === 'COMBO' && <IonButton type="button" fill="outline" onClick={() => campo('items', [...formulario.items, { tipoServicio: 'DESAYUNO', nombre: '', descripcion: '', cantidad: '1' }])}>Agregar elemento</IonButton>}
       </div>
     </>}
     {formulario.categoria === 'HOSPEDAJE' && <>

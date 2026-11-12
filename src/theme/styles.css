@@ -1641,3 +1641,160 @@ button.rating-star:hover{transform:scale(1.08)}
   align-items:center;
   justify-content:center;
 }
+
+
+/* Restaurante: pedido anticipado */
+.restaurant-preorder{
+  margin:18px 0;
+  padding:18px;
+  border:1px solid #dce6dc;
+  border-radius:16px;
+  background:#fbfcf9;
+}
+.restaurant-preorder-heading h3{
+  margin:5px 0 6px;
+  font:600 24px/1.15 'Playfair Display',Georgia,serif;
+}
+.restaurant-preorder-heading p{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.55;
+}
+.restaurant-preorder-list{
+  display:grid;
+  gap:9px;
+}
+.restaurant-preorder-list article{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  padding:12px 13px;
+  border:1px solid #e1e7df;
+  border-radius:12px;
+  background:#fff;
+}
+.restaurant-preorder-list article.is-selected{
+  border-color:#b8d2bf;
+  background:#f2f8f3;
+}
+.restaurant-preorder-info{
+  display:grid;
+  gap:3px;
+  min-width:0;
+}
+.restaurant-preorder-info strong{
+  font-size:12px;
+  color:var(--ink);
+}
+.restaurant-preorder-info span{
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.45;
+}
+.restaurant-preorder-info small{
+  color:var(--forest);
+  font-size:10px;
+  font-weight:800;
+}
+.restaurant-preorder-counter{
+  display:grid;
+  grid-template-columns:34px 28px 34px;
+  align-items:center;
+  gap:4px;
+}
+.restaurant-preorder-counter button{
+  width:34px;
+  height:34px;
+  border:1px solid #cbd8cd;
+  border-radius:9px;
+  background:#fff;
+  color:var(--forest);
+  font-size:18px;
+  font-weight:800;
+  cursor:pointer;
+}
+.restaurant-preorder-counter button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.restaurant-preorder-counter strong{
+  text-align:center;
+  color:var(--ink);
+}
+.restaurant-preorder-summary{
+  display:grid;
+  gap:3px;
+  margin-top:12px;
+  padding:11px 12px;
+  border-radius:11px;
+  background:#eaf4ec;
+  color:#315f46;
+}
+.restaurant-preorder-summary.is-empty{
+  background:#f4f5f2;
+  color:#68736b;
+}
+.restaurant-preorder-summary strong{font-size:11px}
+.restaurant-preorder-summary span,
+.restaurant-preorder-loading,
+.restaurant-preorder-empty{
+  font-size:10px;
+  line-height:1.5;
+}
+
+.reservation-preorder-detail{
+  margin:16px 0;
+  padding:16px;
+  border:1px solid #dfe7dd;
+  border-radius:14px;
+  background:#fbfcf9;
+}
+.reservation-preorder-heading h3{
+  margin:5px 0 12px;
+  font-size:15px;
+}
+.reservation-preorder-items{
+  display:grid;
+  gap:7px;
+}
+.reservation-preorder-items article{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:9px 10px;
+  border-radius:9px;
+  background:#fff;
+  border:1px solid #e4e9e2;
+}
+.reservation-preorder-items article>div{
+  display:grid;
+  gap:2px;
+}
+.reservation-preorder-items strong{font-size:11px}
+.reservation-preorder-items small{
+  color:var(--muted);
+  font-size:9px;
+}
+.reservation-preorder-items article>span{
+  color:var(--forest);
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.reservation-preorder-detail>p{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.5;
+}
+@media(max-width:600px){
+  .restaurant-preorder{padding:13px}
+  .restaurant-preorder-list article{
+    grid-template-columns:1fr;
+  }
+  .restaurant-preorder-counter{
+    justify-self:start;
+  }
+}

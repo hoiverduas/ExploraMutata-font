@@ -13,6 +13,7 @@ import { cotizacionApi } from '../services/cotizacionApi';
 import { disponibilidadApi } from '../services/disponibilidadApi';
 import { horariosApi } from '../services/horariosApi';
 import { hospedajeBookingApi } from '../services/hospedajeBookingApi';
+import { ofertasApi } from '../services/ofertasApi';
 import { ApiError } from '../services/http';
 import { reservasApi } from '../services/reservasApi';
 import type { OfertaVarianteResponse } from '../types/configuracionComercialOferta';
@@ -21,7 +22,7 @@ import type { DisponibilidadDiaResponse } from '../types/disponibilidad';
 import type { SalidaProgramadaResponse } from '../types/horario';
 import type { DisponibilidadHospedajeResponse } from '../types/hospedajeBooking';
 import type { Moneda } from '../types/moneda';
-import type { OfertaNegocioResponse } from '../types/oferta';
+import type { OfertaNegocioResponse, OfertaRestauranteResponse } from '../types/oferta';
 import SelectorMoneda from './SelectorMoneda';
 import AgendaPublicaOferta from './AgendaPublicaOferta';
 
@@ -86,6 +87,9 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const [consultandoAgenda, setConsultandoAgenda] = useState(false);
   const [errorAgenda, setErrorAgenda] = useState('');
   const [agendaAbierta, setAgendaAbierta] = useState(false);
+  const [menuRestaurante, setMenuRestaurante] = useState<OfertaRestauranteResponse[]>([]);
+  const [cargandoMenuRestaurante, setCargandoMenuRestaurante] = useState(false);
+  const [pedidoRestaurante, setPedidoRestaurante] = useState<Record<number, number>>({});
   const [observaciones, setObservaciones] = useState('');
   const [cotizada, setCotizada] = useState<CotizacionVigente | null>(null);
   const [cotizando, setCotizando] = useState(false);
@@ -102,6 +106,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
   const mostrarFin = usaNoches || ['POR_DIA', 'POR_PERSONA_Y_DIA'].includes(modeloEfectivo) || duracionUnidadEfectiva !== 'UNICO';
   const mostrarTrayectos = oferta.categoria === 'TRANSPORTE';
   const requiereHorarioEfectivo = Boolean(oferta.categoria !== 'HOSPEDAJE' && oferta.requiereHorario);
+  const esReservaRestaurante = oferta.categoria === 'RESTAURANTE' && oferta.reservaRequerida;
 
   useLayoutEffect(() => {
     contexto.current = {};
@@ -110,6 +115,7 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     setCotizada(null); setCotizando(false); setError(''); setErrorAgenda('');
     setFormulario({ cantidadPersonas: '1', fechaInicio: '', fechaFin: '', cantidadTrayectos: '', varianteId: '', horario: '', codigoPromocion: '' });
     setSalidas([]); setSalidasProximas([]); setDisponibilidadDia(null); setDisponibilidadHospedaje(null);
+    setMenuRestaurante([]); setPedidoRestaurante({});
     return () => { contexto.current = null; revision.current++; consulta.current?.abort(); };
   }, [location.pathname, location.key, oferta.id, oferta.version, usuario?.id]);
 
@@ -121,6 +127,35 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
       .catch(() => { if (!controller.signal.aborted) setVariantes([]); });
     return () => controller.abort();
   }, [oferta.id, oferta.version]);
+
+  useEffect(() => {
+    if (!esReservaRestaurante) {
+      setMenuRestaurante([]);
+      setPedidoRestaurante({});
+      setCargandoMenuRestaurante(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setCargandoMenuRestaurante(true);
+    void ofertasApi.restaurante.listarPublicas(oferta.negocioId, { signal: controller.signal })
+      .then(datos => {
+        if (controller.signal.aborted) return;
+        setMenuRestaurante(datos.filter(item =>
+          item.oferta.id !== oferta.id
+          && !item.oferta.reservaRequerida
+          && item.oferta.precioDesde !== null
+        ));
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setMenuRestaurante([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCargandoMenuRestaurante(false);
+      });
+
+    return () => controller.abort();
+  }, [esReservaRestaurante, oferta.id, oferta.negocioId, oferta.version]);
 
   useEffect(() => {
     const fecha = formulario.fechaInicio;
@@ -198,6 +233,24 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     }));
     setAgendaAbierta(false);
   };
+
+  const cambiarCantidadPlato = (ofertaPlatoId: number, delta: number) => {
+    if (guardando) return;
+    setPedidoRestaurante(actual => {
+      const siguiente = Math.max(0, (actual[ofertaPlatoId] ?? 0) + delta);
+      const copia = { ...actual };
+      if (siguiente === 0) delete copia[ofertaPlatoId];
+      else copia[ofertaPlatoId] = siguiente;
+      return copia;
+    });
+  };
+
+  const pedidoSeleccionado = menuRestaurante
+    .map(item => ({
+      detalle: item,
+      cantidad: pedidoRestaurante[item.oferta.id] ?? 0,
+    }))
+    .filter(item => item.cantidad > 0);
 
   const seleccionarSalida = (salida: SalidaProgramadaResponse) => {
     if (mutando.current) return;
@@ -328,6 +381,12 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
           varianteId: parametros.varianteId,
           codigoPromocion: parametros.codigoPromocion,
           observaciones: observaciones.trim() || null,
+          pedidoRestaurante: esReservaRestaurante
+            ? pedidoSeleccionado.map(item => ({
+                ofertaId: item.detalle.oferta.id,
+                cantidad: item.cantidad,
+              }))
+            : [],
         });
         if (origen === contexto.current) navigate(`/reservas/${encodeURIComponent(reserva.id)}`, { state: { reservaCreada: true } });
       }
@@ -433,6 +492,47 @@ export default function CotizadorOferta({ oferta }: { oferta: OfertaNegocioRespo
     {disponibilidadHospedaje && <div className={disponibilidadHospedaje.disponible ? 'notice-success' : 'notice-error'}><strong>{disponibilidadHospedaje.disponible ? 'Hospedaje disponible' : 'Sin disponibilidad'}</strong><p>{disponibilidadHospedaje.detalle}</p>{disponibilidadHospedaje.disponible && <p>{disponibilidadHospedaje.noches} noche(s) · {disponibilidadHospedaje.unidadesNecesarias} unidad(es) necesarias{disponibilidadHospedaje.horaCheckIn ? ` · Check-in ${disponibilidadHospedaje.horaCheckIn}` : ''}{disponibilidadHospedaje.horaCheckOut ? ` · Check-out ${disponibilidadHospedaje.horaCheckOut}` : ''}</p>}</div>}
 
     {cotizada && cotizada.revision === revision.current && <><ResumenCotizacion cotizacion={cotizada.respuesta}/>
+      {esReservaRestaurante && <section className="restaurant-preorder">
+        <div className="restaurant-preorder-heading">
+          <div>
+            <span className="eyebrow">PEDIDO ANTICIPADO · OPCIONAL</span>
+            <h3>¿Quieres adelantar tu pedido?</h3>
+            <p>Puedes elegir platos ahora o reservar únicamente la mesa y pedir cuando llegues.</p>
+          </div>
+        </div>
+
+        {cargandoMenuRestaurante
+          ? <p className="restaurant-preorder-loading">Cargando menú…</p>
+          : menuRestaurante.length > 0
+            ? <div className="restaurant-preorder-list">
+                {menuRestaurante.map(item => {
+                  const cantidad = pedidoRestaurante[item.oferta.id] ?? 0;
+                  return <article key={item.oferta.id} className={cantidad > 0 ? 'is-selected' : ''}>
+                    <div className="restaurant-preorder-info">
+                      <strong>{item.oferta.nombre}</strong>
+                      {item.oferta.descripcionOferta && <span>{item.oferta.descripcionOferta}</span>}
+                      <small>{item.oferta.precioDesde !== null ? formatearPrecio(item.oferta.precioDesde, item.oferta.moneda) : 'Precio por consultar'}</small>
+                    </div>
+                    <div className="restaurant-preorder-counter" aria-label={`Cantidad de ${item.oferta.nombre}`}>
+                      <button type="button" disabled={guardando || cantidad === 0} onClick={() => cambiarCantidadPlato(item.oferta.id, -1)}>−</button>
+                      <strong>{cantidad}</strong>
+                      <button type="button" disabled={guardando} onClick={() => cambiarCantidadPlato(item.oferta.id, 1)}>+</button>
+                    </div>
+                  </article>;
+                })}
+              </div>
+            : <p className="restaurant-preorder-empty">El restaurante todavía no tiene platos disponibles para pedido anticipado.</p>}
+
+        {pedidoSeleccionado.length > 0
+          ? <div className="restaurant-preorder-summary">
+              <strong>{pedidoSeleccionado.reduce((total, item) => total + item.cantidad, 0)} producto(s) seleccionados</strong>
+              <span>El pedido quedará asociado a tu reserva. El valor de los platos no se suma todavía al pago de la mesa.</span>
+            </div>
+          : <div className="restaurant-preorder-summary is-empty">
+              <strong>Sin pedido anticipado</strong>
+              <span>Puedes continuar y pedir directamente cuando llegues al restaurante.</span>
+            </div>}
+      </section>}
       {oferta.reservaRequerida && <><label className="cambio-label">Observaciones (opcional)<textarea rows={3} maxLength={1000} disabled={guardando} value={observaciones} onChange={e => setObservaciones(e.target.value)}/></label>
         {!usuario ? <Link className="marketplace-primary-link" to={`/ingresar?continuar=${encodeURIComponent(location.pathname)}`}>Inicia sesión para agregar o reservar</Link> : <div className="marketplace-actions"><IonButton disabled={guardando || guardandoViaje} onClick={() => void continuar('agregar')}>{guardando ? 'Guardando…' : 'Agregar a mi viaje'}</IonButton><IonButton fill="outline" disabled={guardando || guardandoViaje || !cotizada.respuesta.cotizacionDisponible} onClick={() => void continuar('reservar')}>Reservar esta oferta</IonButton></div>}
       </>}

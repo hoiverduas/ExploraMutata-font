@@ -59,7 +59,7 @@ export default function LoginPage() {
   return <IonPage><BrandHeader mostrarGestion={false}/><IonContent fullscreen>
     <main className="auth-layout page-width">
       <section className="auth-illustration"><span className="eyebrow">BIENVENIDO A MUTATÁ</span><h1>Tu próxima historia <em>comienza aquí.</em></h1><p>Ingresa para acceder a tu perfil, tus experiencias y las herramientas de administración si tienes permisos.</p></section>
-      <section className="auth-card"><span className="eyebrow">TU CUENTA</span><h2>Iniciar sesión</h2>
+      <section className="auth-card"><IonButton type="button" fill="clear" size="small" onClick={() => router.push('/inicio', 'root', 'replace')} aria-label="Regresar al inicio">← Regresar al inicio</IonButton><span className="eyebrow">TU CUENTA</span><h2>Iniciar sesión</h2>
         {registrado && <div className="notice-success" role="status">Tu cuenta de turista fue creada. Ahora puedes ingresar.</div>}
         <form onSubmit={ingresar} className="auth-form">
           <label>Correo electrónico<input type="email" required maxLength={254} autoComplete="username" value={correo} onChange={e=>setCorreo(e.target.value)} placeholder="correo@ejemplo.com" /></label>

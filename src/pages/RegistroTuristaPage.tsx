@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { IonButton, IonContent, IonPage, IonSpinner } from '@ionic/react';
+import { IonButton, IonContent, IonPage, IonSpinner, useIonRouter } from '@ionic/react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import BrandHeader from '../components/BrandHeader';
 import { usuariosApi } from '../services/usuariosApi';
@@ -8,6 +8,7 @@ import type { RegistroTuristaRequest } from '../types/usuario';
 
 export default function RegistroTuristaPage() {
   const navigate = useNavigate();
+  const router = useIonRouter();
   const [search] = useSearchParams();
   const continuar = search.get('continuar');
   const continuarLocal = continuar?.startsWith('/') && !continuar.startsWith('//') ? continuar : null;
@@ -38,7 +39,7 @@ export default function RegistroTuristaPage() {
   return <IonPage><BrandHeader mostrarGestion={false}/><IonContent fullscreen>
     <main className="auth-layout page-width">
       <section className="auth-illustration"><span className="eyebrow">EXPLORA MUTATÁ</span><h1>Viajar empieza <em>por descubrir.</em></h1><p>Crea tu cuenta para formar parte de la comunidad viajera de Mutatá. El registro público siempre crea un perfil TURISTA.</p></section>
-      <section className="auth-card"><span className="eyebrow">CREA TU CUENTA</span><h2>Registro de turista</h2>
+      <section className="auth-card"><IonButton type="button" fill="clear" size="small" onClick={() => router.push('/inicio', 'root', 'replace')} aria-label="Regresar al inicio">← Regresar al inicio</IonButton><span className="eyebrow">CREA TU CUENTA</span><h2>Registro de turista</h2>
         <form className="auth-form" onSubmit={registrar}>
           <div className="auth-grid">
             <label>Nombres *<input required maxLength={120} autoComplete="given-name" value={form.nombres} onChange={e=>change('nombres',e.target.value)} /></label>

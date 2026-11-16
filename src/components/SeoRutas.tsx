@@ -60,7 +60,9 @@ function actualizarMeta(selector: string, atributo: string, contenido: string) {
   if (meta) meta.setAttribute('content', contenido);
   else {
     const nuevo = document.createElement('meta');
-    const [clave, valor] = atributo.split(':');
+    const separador = atributo.indexOf(':');
+    const clave = atributo.slice(0, separador);
+    const valor = atributo.slice(separador + 1);
     nuevo.setAttribute(clave, valor);
     nuevo.setAttribute('content', contenido);
     document.head.appendChild(nuevo);

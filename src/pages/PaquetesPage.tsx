@@ -20,7 +20,7 @@ export default function PaquetesPage() {
     && (!duracion || paquete.duracionUnidad === duracion)
     && (cantidad === null || (cantidad >= paquete.minimoPersonas && (paquete.maximoPersonas === null || cantidad <= paquete.maximoPersonas))));
   return <IonPage><BrandHeader title="Paquetes"/><IonContent fullscreen>
-    <div className="marketplace-hero package-hero"><div className="page-width"><span className="eyebrow">TU PRÓXIMA HISTORIA</span><h1>Mutatá, en un <em>solo plan.</em></h1><p>Explora paquetes creados por negocios locales y encuentra los servicios que quieres vivir juntos.</p></div></div>
+    <div className="marketplace-hero package-hero"><div className="page-width"><span className="eyebrow">TU PRÓXIMA HISTORIA</span><h1>Paquetes turísticos y <em>reservas en Mutatá.</em></h1><p>Descubre planes turísticos en Mutatá y el Urabá antioqueño. Explora paquetes de negocios locales, compara servicios y consulta las opciones de reserva disponibles.</p></div></div>
     <main className="page-width catalog-body"><NavegacionTuristica/>
       <div className="tourism-filters"><IonSearchbar value={busqueda} onIonInput={event => setBusqueda(event.detail.value ?? '')} placeholder="Buscar paquetes o negocios" debounce={150}/>
         <label>Personas<input type="number" min={1} step={1} inputMode="numeric" value={personas} onChange={event => setPersonas(event.target.value)} placeholder="Todas"/></label>

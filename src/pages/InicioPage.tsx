@@ -35,12 +35,20 @@ export default function InicioPage() {
       <HeroInicioMultimedia/>
       <div className="hero-home-copy page-width"><span className="eyebrow">EL CORAZÓN NATURAL DE URABÁ</span>
         <h1>Descubre Mutatá.<br/><em>Vive tu propia aventura.</em></h1>
-        <p>Naturaleza, sabores y experiencias auténticas. Encuentra tu lugar, conoce a quienes lo hacen especial y construye un viaje a tu medida.</p>
+        <p>Descubre qué hacer en Mutatá, Antioquia: ríos, naturaleza, sabores y experiencias auténticas. Encuentra hospedajes y organiza tu aventura en el corazón de Urabá.</p>
         <div className="hero-actions"><IonButton className="btn-explora" routerLink="/aventuras">Explorar aventuras <IonIcon icon={arrowForwardOutline} slot="end"/></IonButton><IonButton fill="outline" color="light" routerLink="/mi-viaje">Armar mi viaje</IonButton></div>
         <div className="hero-note"><span>01 · Descubre</span><span>02 · Combina</span><span>03 · Reserva</span></div>
       </div>
     </section>
     <main className="page-width home-content"><NavegacionTuristica/>
+      <section className="home-section" aria-labelledby="guia-mutata-titulo">
+        <div className="section-heading">
+          <span>CONOCE MUTATÁ, ANTIOQUIA</span>
+          <h2 id="guia-mutata-titulo">Mutatá: ¿qué hacer y qué visitar?</h2>
+          <p>Mutatá, en la región de Urabá, Antioquia, es un destino para conocer ríos, paisajes naturales y experiencias de la comunidad. Descubre lugares como el río Bedó y el río Puenteadero, y planea una visita que apoye a los negocios locales.</p>
+        </div>
+        <p>Consulta las <Link to="/aventuras">aventuras y destinos de Mutatá</Link>, encuentra <Link to="/alojamientos">hospedajes</Link>, descubre <Link to="/restaurantes">restaurantes</Link> y explora <Link to="/paquetes">paquetes turísticos</Link> para organizar tu viaje.</p>
+      </section>
       <section className="home-section"><div className="section-heading"><span>AVENTURAS POR DESCUBRIR</span><h2>Tu próximo recuerdo <em>empieza aquí.</em></h2><p>Elige un destino y encuentra las experiencias y ofertas disponibles.</p></div>
         <EstadoConsulta {...destinos} sinDatos={!destinos.datos.length} mensajeVacio="Pronto encontrarás nuevos destinos para tu próxima aventura."><div className="catalog-grid">{destinos.datos.slice(0,3).map(destino => <TarjetaDestino key={destino.id} destino={destino} etiqueta={nombresTipoDestino[destino.tipo]}/>)}</div></EstadoConsulta>
         <Link className="catalog-detail-link" to="/aventuras">Todas las aventuras →</Link>

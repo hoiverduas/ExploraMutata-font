@@ -5,6 +5,7 @@ import { Navigate, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import AccesoProtegido from './auth/AccesoProtegido';
 import InicioPage from './pages/InicioPage';
+import SeoRutas from './components/SeoRutas';
 import CatalogoPage from './pages/CatalogoPage';
 import DestinosPage from './pages/DestinosPage';
 import DestinoDetallePage from './pages/DestinoDetallePage';
@@ -66,6 +67,7 @@ function AppNavigation() {
   const { cantidadItems } = useViaje();
   return (
       <IonReactRouter>
+        <SeoRutas/>
         <IonTabs>
           <IonRouterOutlet>
             <Route path="/aventuras" element={<DestinosPage />} />
